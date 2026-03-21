@@ -54,17 +54,25 @@ export async function fetchUserFills(
   while (true) {
     onProgress?.({ loaded: allFills.length, status: `Loading trades...` });
 
-    const res = await fetch(HL_API, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        type: 'userFillsByTime',
-        user: address,
-        startTime,
-      }),
-    });
+    let res: Response | null = null;
+    for (let attempt = 0; attempt < 4; attempt++) {
+      res = await fetch(HL_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'userFillsByTime',
+          user: address,
+          startTime,
+        }),
+      });
+      if (res.status !== 429) break;
+      // Exponential backoff: 1s, 2s, 4s
+      const wait = Math.pow(2, attempt) * 1000;
+      onProgress?.({ loaded: allFills.length, status: `Rate limited, retrying in ${wait / 1000}s...` });
+      await new Promise((r) => setTimeout(r, wait));
+    }
 
-    if (!res.ok) throw new Error(`Failed to fetch fills: ${res.status}`);
+    if (!res || !res.ok) throw new Error(res?.status === 429 ? 'Hyperliquid API rate limit — please try again in a minute' : `Failed to fetch fills: ${res?.status}`);
     const fills: UserFill[] = await res.json();
 
     if (fills.length === 0) break;
@@ -89,6 +97,9 @@ export async function fetchUserFills(
     const latestTime = Math.max(...fills.map((f) => f.time));
     if (latestTime <= startTime) break; // safety: prevent infinite loop
     startTime = latestTime + 1;
+
+    // Small delay between pages to avoid rate limiting
+    await new Promise((r) => setTimeout(r, 200));
   }
 
   onProgress?.({ loaded: allFills.length, status: 'Done' });
