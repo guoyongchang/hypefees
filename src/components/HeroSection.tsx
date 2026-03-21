@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { fetchUserFills, calculateFeeBreakdown, type FeeBreakdown, type FillProgress } from '../lib/api';
 import { formatUSD, formatVolume } from '../lib/fees';
 import SwitchBuilder from './SwitchBuilder';
+import ShareCard from './ShareCard';
 import HeroFlow from './HeroFlow';
 
 function formatDate(ts: number): string {
@@ -194,7 +195,11 @@ export default function HeroSection() {
             </div>
           )}
 
-          <div className="mt-8">
+          {/* Shareable brag card + rank */}
+          <ShareCard result={result} address={address} />
+
+          {/* One-click switch */}
+          <div className="mt-6">
             <SwitchBuilder />
           </div>
         </div>
