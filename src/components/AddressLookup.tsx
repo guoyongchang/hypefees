@@ -97,7 +97,7 @@ export function AddressInput() {
       )}
 
       {error && (
-        <div className="mt-4 p-3 rounded-xl bg-[var(--color-danger-bg)] border border-[var(--color-danger)]/20 text-[var(--color-danger)] text-sm">
+        <div className="mt-4 p-3 rounded-xl bg-[var(--color-warning-bg)] border border-[var(--color-warning)]/20 text-[var(--color-warning)] text-sm">
           {error}
         </div>
       )}

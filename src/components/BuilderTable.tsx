@@ -172,7 +172,7 @@ export default function BuilderTable() {
   }
 
   if (error) {
-    return <div className="text-center py-16 text-[var(--color-danger)]">{t('table.failedToLoad', lang)} {error}</div>;
+    return <div className="text-center py-16 text-[var(--color-warning)]">{t('table.failedToLoad', lang)} {error}</div>;
   }
 
   return (

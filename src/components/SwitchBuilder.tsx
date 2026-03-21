@@ -207,10 +207,10 @@ function SwitchBuilderInner() {
               </div>
 
               {error && (
-                <div className="p-3 rounded-lg bg-red-900/30 border border-red-500/30 text-sm">
+                <div className="p-3 rounded-lg bg-[var(--color-warning-bg)] border border-[var(--color-warning)]/20 text-sm">
                   {error === '__DEPOSIT__' ? (
                     <div>
-                      <p className="text-red-300">{t('switch.errDeposit', lang)}</p>
+                      <p className="text-[var(--color-warning)]">{t('switch.errDeposit', lang)}</p>
                       <a
                         href="https://app.hyperliquid.xyz/trade"
                         target="_blank"
@@ -223,7 +223,7 @@ function SwitchBuilderInner() {
                   ) : error === '__ALREADY__' ? (
                     <p className="text-[var(--color-switch-accent)]">{t('switch.errAlreadySet', lang)}</p>
                   ) : (
-                    <p className="text-red-300">{error}</p>
+                    <p className="text-[var(--color-warning)]">{error}</p>
                   )}
                 </div>
               )}
