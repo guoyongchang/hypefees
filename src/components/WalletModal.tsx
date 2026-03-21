@@ -9,8 +9,8 @@ const WALLETS = [
     id: 'onekey',
     name: 'OneKey',
     icon: '/icons/onekey.jpg',
-    deepLink: (url: string) => `https://app.onekey.so/wc?uri=${encodeURIComponent(url)}`,
-    mobileLink: (url: string) => `onekey-wallet://wc?uri=${encodeURIComponent(url)}`,
+    deepLink: (url: string) => `https://app.onekey.so/account/browser?url=${encodeURIComponent(url)}`,
+    mobileLink: (url: string) => `onekey-wallet://account/browser?url=${encodeURIComponent(url)}`,
     desktopUrl: 'https://onekey.so/download',
     color: '#00B812',
   },
@@ -128,8 +128,10 @@ export default function WalletModal({ open, onClose, onConnected }: WalletModalP
     }
 
     if (mobile) {
-      // Mobile — open deep link to wallet's dApp browser
-      const link = wallet.deepLink(currentUrl);
+      // Mobile — try native app scheme first, fallback to universal link
+      const nativeLink = wallet.mobileLink(currentUrl);
+      const universalLink = wallet.deepLink(currentUrl);
+      const link = nativeLink || universalLink;
       if (link) {
         window.location.href = link;
         return;
