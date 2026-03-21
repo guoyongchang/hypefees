@@ -67,11 +67,18 @@ function SwitchBuilderInner() {
       // Auto-proceed to referral
       await handleSetReferrer();
     } catch (err: any) {
-      if (err?.message?.includes('User rejected') || err?.message?.includes('denied')) {
+      const msg = err?.message || err?.shortMessage || '';
+      // User cancelled — silently reset
+      if (msg.includes('User rejected') || msg.includes('denied') || msg.includes('cancelled')) {
         setStep('idle');
         return;
       }
-      setError(err?.message || 'Failed to approve builder');
+      // Chain mismatch — prompt user to switch network
+      if (msg.includes('chainId') || msg.includes('chain')) {
+        setError('Please switch your wallet to the Hyperliquid network and try again.');
+      } else {
+        setError(msg || 'Failed to approve builder');
+      }
       setStep('error');
     }
   }, [isConnected, signTypedDataAsync]);

@@ -1,19 +1,32 @@
 import { http, createConfig } from 'wagmi';
-import { arbitrum } from 'wagmi/chains';
+import { defineChain } from 'viem';
 import { injected, walletConnect } from 'wagmi/connectors';
 
-// Hyperliquid uses Arbitrum for wallet signatures
-// WalletConnect project ID - get one at https://cloud.reown.com
+// Hyperliquid uses a custom EIP-712 signing chain ID (0x66eee = 421614)
+// This is NOT Arbitrum Sepolia — it's Hyperliquid's own signing identifier.
+// We define a custom chain so wallets don't reject the signature due to chainId mismatch.
 const WALLETCONNECT_PROJECT_ID = '2b94db6c6e635e7bebd0b4b52b2beb37';
 
+export const HL_CHAIN_ID = 0x66eee; // 421614 — Hyperliquid signing chain ID
+
+const hyperliquidSigningChain = defineChain({
+  id: HL_CHAIN_ID,
+  name: 'Hyperliquid',
+  nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
+  rpcUrls: {
+    default: { http: ['https://rpc.hyperliquid.xyz/evm'] },
+  },
+});
+
 export const wagmiConfig = createConfig({
-  chains: [arbitrum],
+  chains: [hyperliquidSigningChain],
   connectors: [
+    // injected() auto-detects: MetaMask, Phantom, Rabby, OneKey, OKX, Coinbase, etc.
     injected(),
     walletConnect({ projectId: WALLETCONNECT_PROJECT_ID }),
   ],
   transports: {
-    [arbitrum.id]: http(),
+    [hyperliquidSigningChain.id]: http(),
   },
 });
 
@@ -21,9 +34,7 @@ export const wagmiConfig = createConfig({
 export const ONEKEY_BUILDER_ADDRESS = '0x9b12e858da780a96876e3018780cf0d83359b0bb' as const;
 export const ONEKEY_REFERRAL_CODE = '1KREF';
 
-// Hyperliquid EIP-712 domain and types for approveBuilderFee
-export const HL_CHAIN_ID = 0x66eee; // 421614 in decimal
-
+// Hyperliquid EIP-712 domain and types
 export const APPROVE_BUILDER_FEE_TYPES = {
   'HyperliquidTransaction:ApproveBuilderFee': [
     { name: 'hyperliquidChain', type: 'string' },
@@ -109,7 +120,6 @@ export async function submitAction(
 
   if (data.status === 'ok') return { success: true };
 
-  // Sanitize error — don't expose raw API internals
   const msg = typeof data.response === 'string' ? data.response : 'Transaction failed';
   return { success: false, error: msg };
 }
