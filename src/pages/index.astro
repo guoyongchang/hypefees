@@ -1,49 +1,21 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import ThemeToggle from '../components/ThemeToggle.tsx';
-import HeroFlow from '../components/HeroFlow.tsx';
+import HeroSection from '../components/HeroSection.tsx';
 import BuilderTable from '../components/BuilderTable.tsx';
-import { LookupProvider, AddressInput, AddressResults } from '../components/AddressLookup.tsx';
 import FeeSimulator from '../components/FeeSimulator.tsx';
 ---
 
 <Layout>
   <ThemeToggle client:load slot="header-actions" />
 
-  <!-- Wrap entire hero + results in shared provider -->
-  <LookupProvider client:load>
-    <!-- Hero: left = copy + lookup, right = flow animation -->
-    <section class="hero-section relative overflow-hidden -mx-4 px-4">
-      <div class="hero-grid absolute inset-0 pointer-events-none" aria-hidden="true"></div>
-
-      <div class="relative z-10 py-14 md:py-24">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-          <!-- Left: copy + address input only -->
-          <div>
-            <h1 class="text-3xl md:text-[2.75rem] font-bold tracking-tight leading-[1.15]">
-              Every trade has a<br />hidden fee.
-              <span class="text-[var(--color-accent)]">See yours.</span>
-            </h1>
-            <p class="mt-4 text-[var(--color-text-secondary)] max-w-md leading-relaxed">
-              Wallets add builder fees on top of Hyperliquid's exchange rate.
-              Some charge 0.10% per trade. Some charge nothing.
-            </p>
-            <div class="mt-8">
-              <AddressInput client:load />
-            </div>
-          </div>
-
-          <!-- Right: flow animation -->
-          <div class="hidden lg:block">
-            <HeroFlow client:load />
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Results: full width, below hero -->
-    <AddressResults client:load />
-  </LookupProvider>
+  <!-- Hero: single React island with input + animation + results -->
+  <section class="hero-section relative overflow-hidden -mx-4 px-4">
+    <div class="hero-grid absolute inset-0 pointer-events-none" aria-hidden="true"></div>
+    <div class="relative z-10">
+      <HeroSection client:load />
+    </div>
+  </section>
 
   <!-- Builder Fee Comparison Table -->
   <section class="section-alt py-14">
@@ -108,7 +80,6 @@ import FeeSimulator from '../components/FeeSimulator.tsx';
 </Layout>
 
 <style>
-  /* Linear-style grid background */
   .hero-grid {
     background-image:
       linear-gradient(var(--color-border) 1px, transparent 1px),
