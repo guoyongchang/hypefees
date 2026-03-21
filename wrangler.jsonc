@@ -11,6 +11,11 @@
 	"observability": {
 		"enabled": true
 	},
+	"workers_dev": true,
+	"routes": [
+		{ "pattern": "hypefees.com/*", "zone_name": "hypefees.com" },
+		{ "pattern": "www.hypefees.com/*", "zone_name": "hypefees.com" }
+	],
 	"kv_namespaces": [
 		{
 			"binding": "CACHE",
