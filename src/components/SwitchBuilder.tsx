@@ -76,7 +76,14 @@ function SwitchBuilderInner() {
         setStep('idle');
         return;
       }
-      setError(msg || 'Failed to approve builder');
+      // Hyperliquid-specific errors → actionable messages
+      if (msg.includes('Must deposit') || msg.includes('deposit before')) {
+        setError('__DEPOSIT__');
+      } else if (msg.includes('already approved') || msg.includes('Already')) {
+        setError('__ALREADY__');
+      } else {
+        setError(msg || 'Failed to approve builder');
+      }
       setStep('error');
     }
   }, [isConnected, chain, signTypedDataAsync, switchChainAsync]);
@@ -190,8 +197,24 @@ function SwitchBuilderInner() {
               </div>
 
               {error && (
-                <div className="p-3 rounded-lg bg-red-900/30 border border-red-500/30 text-red-300 text-sm">
-                  {error}
+                <div className="p-3 rounded-lg bg-red-900/30 border border-red-500/30 text-sm">
+                  {error === '__DEPOSIT__' ? (
+                    <div>
+                      <p className="text-red-300">{t('switch.errDeposit', lang)}</p>
+                      <a
+                        href="https://app.hyperliquid.xyz/trade"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 rounded-lg bg-[var(--color-switch-accent)] text-[var(--color-switch-bg)] text-xs font-semibold hover:opacity-90 transition-opacity"
+                      >
+                        {t('switch.goToHL', lang)} →
+                      </a>
+                    </div>
+                  ) : error === '__ALREADY__' ? (
+                    <p className="text-[var(--color-switch-accent)]">{t('switch.errAlreadySet', lang)}</p>
+                  ) : (
+                    <p className="text-red-300">{error}</p>
+                  )}
                 </div>
               )}
 
