@@ -19,6 +19,9 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
@@ -50,20 +53,33 @@ const {
       <slot />
     </main>
 
-    <footer class="border-t border-[var(--color-border)] mt-16">
-      <div class="max-w-6xl mx-auto px-4 py-8 text-sm text-[var(--color-text-muted)]">
-        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-          <p>Hypefees — Independent Hyperliquid fee comparison tool</p>
-          <div class="flex items-center gap-4">
-            <a
-              href="https://github.com/rayston92/hypefees"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="hover:text-[var(--color-text-secondary)] transition-colors py-2 px-2 min-h-[44px] inline-flex items-center"
-            >
-              GitHub
-            </a>
+    <footer class="border-t border-[var(--color-border)]">
+      <div class="max-w-6xl mx-auto px-4 py-10 text-sm text-[var(--color-text-muted)]">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div>
+            <div class="text-base font-bold text-[var(--color-text)] mb-2">
+              Hype<span class="text-[var(--color-accent)]">fees</span>
+            </div>
+            <p class="text-sm leading-relaxed">
+              Independent fee comparison tool for Hyperliquid traders. Not affiliated with Hyperliquid.
+            </p>
           </div>
+          <div>
+            <div class="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] mb-3">Resources</div>
+            <ul class="space-y-2">
+              <li><a href="https://hyperliquid.gitbook.io/hyperliquid-docs/trading/fees" target="_blank" rel="noopener noreferrer" class="hover:text-[var(--color-text-secondary)] transition-colors py-1 inline-flex items-center min-h-[44px]">Hyperliquid Fee Docs</a></li>
+              <li><a href="https://hyperliquid.gitbook.io/hyperliquid-docs/trading/builder-codes" target="_blank" rel="noopener noreferrer" class="hover:text-[var(--color-text-secondary)] transition-colors py-1 inline-flex items-center min-h-[44px]">Builder Codes Docs</a></li>
+            </ul>
+          </div>
+          <div>
+            <div class="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] mb-3">Project</div>
+            <ul class="space-y-2">
+              <li><a href="https://github.com/rayston92/hypefees" target="_blank" rel="noopener noreferrer" class="hover:text-[var(--color-text-secondary)] transition-colors py-1 inline-flex items-center min-h-[44px]">GitHub</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="border-t border-[var(--color-border)] mt-8 pt-6 text-xs text-[var(--color-text-muted)]">
+          Data sourced from Hyperliquid public API and HyperTracker. All information is for reference only — verify on-chain before making decisions.
         </div>
       </div>
     </footer>

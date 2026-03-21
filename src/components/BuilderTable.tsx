@@ -74,8 +74,19 @@ export default function BuilderTable() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-16">
-        <div className="animate-pulse text-[var(--color-text-muted)]">Loading builder data...</div>
+      <div className="rounded-xl border border-[var(--color-border)] overflow-hidden">
+        <div className="bg-[var(--color-bg-secondary)] border-b border-[var(--color-border)] px-4 py-3 flex gap-16">
+          {['w-20', 'w-16', 'w-16', 'w-16', 'w-12', 'w-14'].map((w, i) => (
+            <div key={i} className={`h-4 ${w} bg-[var(--color-border)] rounded animate-pulse`} />
+          ))}
+        </div>
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="px-4 py-3.5 border-b border-[var(--color-border)] last:border-0 flex gap-16">
+            {['w-24', 'w-14', 'w-14', 'w-14', 'w-10', 'w-12'].map((w, j) => (
+              <div key={j} className={`h-4 ${w} bg-[var(--color-border)]/50 rounded animate-pulse`} style={{ animationDelay: `${(i * 6 + j) * 50}ms` }} />
+            ))}
+          </div>
+        ))}
       </div>
     );
   }
