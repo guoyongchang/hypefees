@@ -4,13 +4,14 @@ import { formatFeePercent, totalTakerFee, totalMakerFee, formatVolume } from '..
 import builderIcons from '../data/builder-icons.json';
 import curatedData from '../data/curated-builders.json';
 
-type SortKey = 'usageFee' | 'users' | 'volume' | 'totalTaker';
+type SortKey = 'default' | 'usageFee' | 'users' | 'volume' | 'totalTaker';
 type SortDir = 'asc' | 'desc';
 type ViewMode = 'featured' | 'all';
 
 const ICONS: Record<string, string> = builderIcons;
 
 interface CuratedInfo {
+  order: number;
   type: string;
   featured: boolean;
   platforms: { ios: boolean; android: boolean; desktop: boolean; extension: boolean; web: boolean };
@@ -48,9 +49,12 @@ function PlatformBadge({ active, label, title }: { active: boolean; label: strin
 
 function HardwareBadge({ hardware }: { hardware: string }) {
   if (hardware === 'none') return <span className="text-[var(--color-text-muted)] text-xs opacity-40">—</span>;
-  if (hardware === 'own') return <span className="text-xs font-medium text-[var(--color-accent)]" title="Own hardware wallet">Own HW</span>;
-  if (hardware === 'ledger+trezor') return <span className="text-xs text-[var(--color-text-secondary)]" title="Supports Ledger and Trezor">L + T</span>;
-  if (hardware === 'ledger') return <span className="text-xs text-[var(--color-text-secondary)]" title="Supports Ledger">Ledger</span>;
+  if (hardware === 'own') return <span className="text-xs font-medium text-[var(--color-accent)]" title="Own hardware wallet (OneKey Classic, Pro, Touch, Mini)">Own HW</span>;
+  const parts: string[] = [];
+  if (hardware.includes('ledger')) parts.push('Ledger');
+  if (hardware.includes('trezor')) parts.push('Trezor');
+  if (hardware.includes('onekey')) parts.push('OneKey');
+  if (parts.length > 0) return <span className="text-xs text-[var(--color-text-secondary)]" title={`Supports ${parts.join(', ')}`}>{parts.join(' · ')}</span>;
   return <span className="text-xs text-[var(--color-text-muted)]">{hardware}</span>;
 }
 
@@ -58,7 +62,7 @@ export default function BuilderTable() {
   const [builders, setBuilders] = useState<Builder[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [sortKey, setSortKey] = useState<SortKey>('usageFee');
+  const [sortKey, setSortKey] = useState<SortKey>('default');
   const [sortDir, setSortDir] = useState<SortDir>('asc');
   const [viewMode, setViewMode] = useState<ViewMode>('featured');
 
@@ -87,21 +91,32 @@ export default function BuilderTable() {
 
   const sorted = useMemo(() => {
     const copy = [...filtered];
-    copy.sort((a, b) => {
-      let va: number, vb: number;
-      switch (sortKey) {
-        case 'usageFee': va = a.usageFee; vb = b.usageFee; break;
-        case 'users': va = a.users; vb = b.users; break;
-        case 'volume': va = a.volume; vb = b.volume; break;
-        case 'totalTaker': va = totalTakerFee(a.usageFee); vb = totalTakerFee(b.usageFee); break;
-        default: va = a.usageFee; vb = b.usageFee;
-      }
-      return sortDir === 'asc' ? va - vb : vb - va;
-    });
+    if (sortKey === 'default') {
+      // Default: use curated order for featured, then by volume for the rest
+      copy.sort((a, b) => {
+        const oa = a.refCode && CURATED[a.refCode] ? CURATED[a.refCode].order : 999;
+        const ob = b.refCode && CURATED[b.refCode] ? CURATED[b.refCode].order : 999;
+        if (oa !== ob) return oa - ob;
+        return b.volume - a.volume; // fallback: higher volume first
+      });
+    } else {
+      copy.sort((a, b) => {
+        let va: number, vb: number;
+        switch (sortKey) {
+          case 'usageFee': va = a.usageFee; vb = b.usageFee; break;
+          case 'users': va = a.users; vb = b.users; break;
+          case 'volume': va = a.volume; vb = b.volume; break;
+          case 'totalTaker': va = totalTakerFee(a.usageFee); vb = totalTakerFee(b.usageFee); break;
+          default: va = a.usageFee; vb = b.usageFee;
+        }
+        return sortDir === 'asc' ? va - vb : vb - va;
+      });
+    }
     return copy;
   }, [filtered, sortKey, sortDir]);
 
   function handleSort(key: SortKey) {
+    if (key === 'default') return;
     if (sortKey === key) {
       setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
     } else {
@@ -110,9 +125,11 @@ export default function BuilderTable() {
     }
   }
 
+  const isDefault = sortKey === 'default';
+
   const SortIcon = ({ active, dir }: { active: boolean; dir: SortDir }) => (
-    <span className={`ml-1 inline-block ${active ? 'text-[var(--color-accent)]' : 'text-[var(--color-text-muted)]'}`}>
-      {active ? (dir === 'asc' ? '↑' : '↓') : '↕'}
+    <span className={`ml-1 inline-block ${active && !isDefault ? 'text-[var(--color-accent)]' : 'text-[var(--color-text-muted)]'}`}>
+      {active && !isDefault ? (dir === 'asc' ? '↑' : '↓') : '↕'}
     </span>
   );
 

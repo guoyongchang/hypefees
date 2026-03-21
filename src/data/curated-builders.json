@@ -1,15 +1,17 @@
 {
   "builders": [
     {
-      "refCode": "OneKey",
+      "refCode": "MetaMask",
+      "order": 1,
       "type": "wallet",
       "featured": true,
-      "platforms": { "ios": true, "android": true, "desktop": true, "extension": true, "web": false },
-      "hardware": "own",
-      "url": "https://onekey.so"
+      "platforms": { "ios": true, "android": true, "desktop": false, "extension": true, "web": false },
+      "hardware": "ledger+trezor+onekey",
+      "url": "https://metamask.io"
     },
     {
       "refCode": "Phantom",
+      "order": 2,
       "type": "wallet",
       "featured": true,
       "platforms": { "ios": true, "android": true, "desktop": false, "extension": true, "web": false },
@@ -17,23 +19,26 @@
       "url": "https://phantom.app"
     },
     {
-      "refCode": "MetaMask",
+      "refCode": "OneKey",
+      "order": 3,
       "type": "wallet",
       "featured": true,
-      "platforms": { "ios": true, "android": true, "desktop": false, "extension": true, "web": false },
-      "hardware": "ledger+trezor",
-      "url": "https://metamask.io"
+      "platforms": { "ios": true, "android": true, "desktop": true, "extension": true, "web": false },
+      "hardware": "own",
+      "url": "https://onekey.so"
     },
     {
       "refCode": "Rabby",
+      "order": 4,
       "type": "wallet",
       "featured": true,
       "platforms": { "ios": false, "android": true, "desktop": true, "extension": true, "web": false },
-      "hardware": "ledger+trezor",
+      "hardware": "ledger+trezor+onekey",
       "url": "https://rabby.io"
     },
     {
       "refCode": "Rainbow",
+      "order": 5,
       "type": "wallet",
       "featured": true,
       "platforms": { "ios": true, "android": true, "desktop": false, "extension": true, "web": false },
@@ -41,47 +46,8 @@
       "url": "https://rainbow.me"
     },
     {
-      "refCode": "Backpack",
-      "type": "wallet",
-      "featured": true,
-      "platforms": { "ios": true, "android": true, "desktop": false, "extension": true, "web": false },
-      "hardware": "ledger",
-      "url": "https://backpack.app"
-    },
-    {
-      "refCode": "Coin98",
-      "type": "wallet",
-      "featured": true,
-      "platforms": { "ios": true, "android": true, "desktop": false, "extension": true, "web": false },
-      "hardware": "none",
-      "url": "https://coin98.com"
-    },
-    {
-      "refCode": "Okto",
-      "type": "wallet",
-      "featured": true,
-      "platforms": { "ios": true, "android": true, "desktop": true, "extension": false, "web": false },
-      "hardware": "none",
-      "url": "https://okto.tech"
-    },
-    {
-      "refCode": "Axiom",
-      "type": "terminal",
-      "featured": true,
-      "platforms": { "ios": false, "android": false, "desktop": false, "extension": false, "web": true },
-      "hardware": "none",
-      "url": "https://axiom.trade"
-    },
-    {
-      "refCode": "Infinex",
-      "type": "platform",
-      "featured": true,
-      "platforms": { "ios": false, "android": false, "desktop": false, "extension": true, "web": true },
-      "hardware": "none",
-      "url": "https://infinex.xyz"
-    },
-    {
       "refCode": "Based",
+      "order": 6,
       "type": "frontend",
       "featured": true,
       "platforms": { "ios": false, "android": false, "desktop": false, "extension": false, "web": true },
@@ -89,7 +55,53 @@
       "url": null
     },
     {
+      "refCode": "Axiom",
+      "order": 7,
+      "type": "terminal",
+      "featured": true,
+      "platforms": { "ios": false, "android": false, "desktop": false, "extension": false, "web": true },
+      "hardware": "none",
+      "url": "https://axiom.trade"
+    },
+    {
+      "refCode": "Backpack",
+      "order": 8,
+      "type": "wallet",
+      "featured": true,
+      "platforms": { "ios": true, "android": true, "desktop": false, "extension": true, "web": false },
+      "hardware": "ledger+trezor",
+      "url": "https://backpack.app"
+    },
+    {
+      "refCode": "Infinex",
+      "order": 9,
+      "type": "platform",
+      "featured": true,
+      "platforms": { "ios": false, "android": false, "desktop": false, "extension": true, "web": true },
+      "hardware": "none",
+      "url": "https://infinex.xyz"
+    },
+    {
+      "refCode": "Okto",
+      "order": 10,
+      "type": "wallet",
+      "featured": true,
+      "platforms": { "ios": true, "android": true, "desktop": true, "extension": false, "web": false },
+      "hardware": "none",
+      "url": "https://okto.tech"
+    },
+    {
+      "refCode": "Coin98",
+      "order": 11,
+      "type": "wallet",
+      "featured": true,
+      "platforms": { "ios": true, "android": true, "desktop": false, "extension": true, "web": false },
+      "hardware": "none",
+      "url": "https://coin98.com"
+    },
+    {
       "refCode": "PVP",
+      "order": 12,
       "type": "bot",
       "featured": true,
       "platforms": { "ios": false, "android": false, "desktop": false, "extension": false, "web": true },
@@ -98,6 +110,7 @@
     },
     {
       "refCode": "Insilico",
+      "order": 50,
       "type": "terminal",
       "featured": false,
       "platforms": { "ios": false, "android": false, "desktop": false, "extension": false, "web": true },
@@ -106,6 +119,7 @@
     },
     {
       "refCode": "Defiapp",
+      "order": 51,
       "type": "platform",
       "featured": false,
       "platforms": { "ios": false, "android": false, "desktop": false, "extension": false, "web": true },
@@ -114,6 +128,7 @@
     },
     {
       "refCode": "Liminal",
+      "order": 52,
       "type": "platform",
       "featured": false,
       "platforms": { "ios": true, "android": true, "desktop": true, "extension": true, "web": true },
@@ -122,6 +137,7 @@
     },
     {
       "refCode": "Dreamcash",
+      "order": 53,
       "type": "terminal",
       "featured": false,
       "platforms": { "ios": false, "android": false, "desktop": false, "extension": false, "web": true },
@@ -130,6 +146,7 @@
     },
     {
       "refCode": "KUCOINWEB3",
+      "order": 54,
       "type": "wallet",
       "featured": false,
       "platforms": { "ios": true, "android": true, "desktop": false, "extension": true, "web": false },
@@ -138,6 +155,7 @@
     },
     {
       "refCode": "Apexliquid",
+      "order": 55,
       "type": "terminal",
       "featured": false,
       "platforms": { "ios": false, "android": false, "desktop": false, "extension": false, "web": true },
