@@ -1,4 +1,5 @@
 {
+	"account_id": "295a440e52b93ec304b578e6b4db0bf3",
 	"compatibility_date": "2026-03-17",
 	"compatibility_flags": ["global_fetch_strictly_public"],
 	"name": "hypefees",
@@ -13,7 +14,7 @@
 	"kv_namespaces": [
 		{
 			"binding": "CACHE",
-			"id": "placeholder_kv_id"
+			"id": "2986cfb2f1e541b9a2289d7794f4c993"
 		}
 	]
 }
