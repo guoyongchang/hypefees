@@ -18,7 +18,7 @@ const {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" href="/logo.png" />
     <link rel="preload" href="/fonts/RoobertVF.ttf" as="font" type="font/ttf" crossorigin />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
@@ -38,8 +38,9 @@ const {
   <body class="min-h-screen bg-[var(--color-bg)] text-[var(--color-text)]">
     <header class="border-b border-[var(--color-border)] sticky top-0 z-50 bg-[var(--color-bg)]/95 backdrop-blur-sm">
       <div class="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
-        <a href="/" class="text-xl font-bold tracking-tight py-2 px-1 min-h-[44px] flex items-center">
-          Hype<span class="text-[var(--color-accent)]">fees</span>
+        <a href="/" class="py-2 px-1 min-h-[44px] flex items-center gap-2">
+          <img src="/logo.png" alt="Hypefees" width="28" height="28" class="rounded-md" />
+          <span class="text-xl font-bold tracking-tight">Hype<span class="text-[var(--color-accent)]">fees</span></span>
         </a>
         <div class="flex items-center gap-3" id="header-actions">
           <slot name="header-actions" />
@@ -55,8 +56,9 @@ const {
       <div class="max-w-6xl mx-auto px-4 py-10 text-sm text-[var(--color-text-muted)]">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
-            <div class="text-base font-bold text-[var(--color-text)] mb-2">
-              Hype<span class="text-[var(--color-accent)]">fees</span>
+            <div class="flex items-center gap-2 mb-2">
+              <img src="/logo.png" alt="Hypefees" width="24" height="24" class="rounded" />
+              <span class="text-base font-bold text-[var(--color-text)]">Hype<span class="text-[var(--color-accent)]">fees</span></span>
             </div>
             <p class="text-sm leading-relaxed">
               Independent fee comparison tool for Hyperliquid traders. Not affiliated with Hyperliquid.
