@@ -4,13 +4,12 @@ import ThemeToggle from '../components/ThemeToggle.tsx';
 import BuilderTable from '../components/BuilderTable.tsx';
 import AddressLookup from '../components/AddressLookup.tsx';
 import FeeSimulator from '../components/FeeSimulator.tsx';
-import SwitchBuilder from '../components/SwitchBuilder.tsx';
 ---
 
 <Layout>
   <ThemeToggle client:load slot="header-actions" />
 
-  <!-- Hero: Address Lookup is the primary action -->
+  <!-- Hero: Address Lookup + Switch Builder as one flow -->
   <section class="py-14 md:py-20">
     <h1 class="text-3xl md:text-[2.75rem] font-bold tracking-tight leading-[1.15] max-w-2xl">
       How much are you overpaying on Hyperliquid?
@@ -21,11 +20,6 @@ import SwitchBuilder from '../components/SwitchBuilder.tsx';
     <div class="mt-8">
       <AddressLookup client:load />
     </div>
-  </section>
-
-  <!-- Switch Builder — right after hero -->
-  <section class="pb-14">
-    <SwitchBuilder client:load />
   </section>
 
   <!-- Builder Fee Comparison Table -->

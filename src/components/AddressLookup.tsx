@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { fetchUserFills, calculateFeeBreakdown, type FeeBreakdown, type FillProgress } from '../lib/api';
 import { formatUSD, formatVolume } from '../lib/fees';
+import SwitchBuilder from './SwitchBuilder';
 
 function formatDate(ts: number): string {
   return new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -177,6 +178,11 @@ export default function AddressLookup() {
               </div>
             </div>
           )}
+
+          {/* One-click switch — flows naturally after results */}
+          <div className="mt-8">
+            <SwitchBuilder />
+          </div>
         </div>
       )}
     </div>
