@@ -5,15 +5,15 @@
 /* Roobert Variable Font — self-hosted */
 @font-face {
   font-family: 'Roobert';
-  src: url('/fonts/RoobertVF.ttf') format('truetype');
+  src: url('/fonts/RoobertVF.woff2') format('woff2');
   font-weight: 100 900;
   font-display: swap;
 }
 
 @theme {
-  --color-bg: #ffffff;
-  --color-bg-secondary: #f6f8f9;
-  --color-bg-card: #ffffff;
+  --color-bg: #fafcfb;
+  --color-bg-secondary: #f4f7f6;
+  --color-bg-card: #fafcfb;
   --color-bg-elevated: #eef1f3;
   --color-text: #0c1a1a;
   --color-text-secondary: #4a5568;
@@ -106,4 +106,16 @@ details[open] summary::after {
 /* Tabular nums for data */
 .data-value {
   font-variant-numeric: tabular-nums;
+}
+
+/* Respect user motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

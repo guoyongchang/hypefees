@@ -106,12 +106,12 @@ export default function FeeSimulator() {
             type="text"
             value={volumeInput}
             onChange={(e) => handleVolumeInput(e.target.value)}
-            className="w-40 px-3 py-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text)] tabular-nums text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]"
+            className="w-40 px-3 py-2.5 min-h-[44px] rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text)] tabular-nums text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]"
           />
           <select
             value={vipTier}
             onChange={(e) => setVipTier(parseInt(e.target.value))}
-            className="px-3 py-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text)] text-sm"
+            className="px-3 py-2.5 min-h-[44px] rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text)] text-sm"
           >
             {VIP_TIERS.map((t) => (
               <option key={t.tier} value={t.tier}>
