@@ -1,0 +1,148 @@
+{
+  "builders": [
+    {
+      "refCode": "OneKey",
+      "type": "wallet",
+      "featured": true,
+      "platforms": { "ios": true, "android": true, "desktop": true, "extension": true, "web": false },
+      "hardware": "own",
+      "url": "https://onekey.so"
+    },
+    {
+      "refCode": "Phantom",
+      "type": "wallet",
+      "featured": true,
+      "platforms": { "ios": true, "android": true, "desktop": false, "extension": true, "web": false },
+      "hardware": "ledger",
+      "url": "https://phantom.app"
+    },
+    {
+      "refCode": "MetaMask",
+      "type": "wallet",
+      "featured": true,
+      "platforms": { "ios": true, "android": true, "desktop": false, "extension": true, "web": false },
+      "hardware": "ledger+trezor",
+      "url": "https://metamask.io"
+    },
+    {
+      "refCode": "Rabby",
+      "type": "wallet",
+      "featured": true,
+      "platforms": { "ios": false, "android": true, "desktop": true, "extension": true, "web": false },
+      "hardware": "ledger+trezor",
+      "url": "https://rabby.io"
+    },
+    {
+      "refCode": "Rainbow",
+      "type": "wallet",
+      "featured": true,
+      "platforms": { "ios": true, "android": true, "desktop": false, "extension": true, "web": false },
+      "hardware": "ledger+trezor",
+      "url": "https://rainbow.me"
+    },
+    {
+      "refCode": "Backpack",
+      "type": "wallet",
+      "featured": true,
+      "platforms": { "ios": true, "android": true, "desktop": false, "extension": true, "web": false },
+      "hardware": "ledger",
+      "url": "https://backpack.app"
+    },
+    {
+      "refCode": "Coin98",
+      "type": "wallet",
+      "featured": true,
+      "platforms": { "ios": true, "android": true, "desktop": false, "extension": true, "web": false },
+      "hardware": "none",
+      "url": "https://coin98.com"
+    },
+    {
+      "refCode": "Okto",
+      "type": "wallet",
+      "featured": true,
+      "platforms": { "ios": true, "android": true, "desktop": true, "extension": false, "web": false },
+      "hardware": "none",
+      "url": "https://okto.tech"
+    },
+    {
+      "refCode": "Axiom",
+      "type": "terminal",
+      "featured": true,
+      "platforms": { "ios": false, "android": false, "desktop": false, "extension": false, "web": true },
+      "hardware": "none",
+      "url": "https://axiom.trade"
+    },
+    {
+      "refCode": "Infinex",
+      "type": "platform",
+      "featured": true,
+      "platforms": { "ios": false, "android": false, "desktop": false, "extension": true, "web": true },
+      "hardware": "none",
+      "url": "https://infinex.xyz"
+    },
+    {
+      "refCode": "Based",
+      "type": "frontend",
+      "featured": true,
+      "platforms": { "ios": false, "android": false, "desktop": false, "extension": false, "web": true },
+      "hardware": "none",
+      "url": null
+    },
+    {
+      "refCode": "PVP",
+      "type": "bot",
+      "featured": true,
+      "platforms": { "ios": false, "android": false, "desktop": false, "extension": false, "web": true },
+      "hardware": "none",
+      "url": "https://pvp.trade"
+    },
+    {
+      "refCode": "Insilico",
+      "type": "terminal",
+      "featured": false,
+      "platforms": { "ios": false, "android": false, "desktop": false, "extension": false, "web": true },
+      "hardware": "none",
+      "url": null
+    },
+    {
+      "refCode": "Defiapp",
+      "type": "platform",
+      "featured": false,
+      "platforms": { "ios": false, "android": false, "desktop": false, "extension": false, "web": true },
+      "hardware": "none",
+      "url": null
+    },
+    {
+      "refCode": "Liminal",
+      "type": "platform",
+      "featured": false,
+      "platforms": { "ios": true, "android": true, "desktop": true, "extension": true, "web": true },
+      "hardware": "none",
+      "url": "https://lmnl.app"
+    },
+    {
+      "refCode": "Dreamcash",
+      "type": "terminal",
+      "featured": false,
+      "platforms": { "ios": false, "android": false, "desktop": false, "extension": false, "web": true },
+      "hardware": "none",
+      "url": null
+    },
+    {
+      "refCode": "KUCOINWEB3",
+      "type": "wallet",
+      "featured": false,
+      "platforms": { "ios": true, "android": true, "desktop": false, "extension": true, "web": false },
+      "hardware": "none",
+      "url": "https://web3.kucoin.com"
+    },
+    {
+      "refCode": "Apexliquid",
+      "type": "terminal",
+      "featured": false,
+      "platforms": { "ios": false, "android": false, "desktop": false, "extension": false, "web": true },
+      "hardware": "none",
+      "url": null
+    }
+  ]
+}

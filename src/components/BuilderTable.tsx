@@ -2,21 +2,56 @@ import { useState, useEffect, useMemo } from 'react';
 import type { Builder } from '../lib/fees';
 import { formatFeePercent, totalTakerFee, totalMakerFee, formatVolume } from '../lib/fees';
 import builderIcons from '../data/builder-icons.json';
+import curatedData from '../data/curated-builders.json';
 
-type SortKey = 'usageFee' | 'users' | 'volume' | 'revenue' | 'totalTaker' | 'totalMaker';
+type SortKey = 'usageFee' | 'users' | 'volume' | 'totalTaker';
 type SortDir = 'asc' | 'desc';
+type ViewMode = 'featured' | 'all';
 
-const DEFAULT_VISIBLE = 20;
 const ICONS: Record<string, string> = builderIcons;
 
-function getBuilderName(builder: Builder): string {
-  if (builder.refCode) return builder.refCode;
-  return `${builder.address.slice(0, 6)}...${builder.address.slice(-4)}`;
+interface CuratedInfo {
+  type: string;
+  featured: boolean;
+  platforms: { ios: boolean; android: boolean; desktop: boolean; extension: boolean; web: boolean };
+  hardware: string;
+  url: string | null;
 }
 
-function getBuilderIcon(builder: Builder): string | null {
-  if (builder.refCode && ICONS[builder.refCode]) return ICONS[builder.refCode];
-  return null;
+const CURATED: Record<string, CuratedInfo> = {};
+for (const b of curatedData.builders) {
+  CURATED[b.refCode] = b as CuratedInfo;
+}
+
+const TYPE_LABELS: Record<string, string> = {
+  wallet: 'Wallet',
+  terminal: 'Terminal',
+  platform: 'Platform',
+  frontend: 'Frontend',
+  bot: 'Bot',
+};
+
+function PlatformBadge({ active, label, title }: { active: boolean; label: string; title: string }) {
+  return (
+    <span
+      title={title}
+      className={`inline-flex items-center justify-center w-6 h-5 rounded text-[10px] font-medium leading-none ${
+        active
+          ? 'bg-[var(--color-accent-light)] text-[var(--color-accent)]'
+          : 'bg-[var(--color-bg-elevated)] text-[var(--color-text-muted)] opacity-40'
+      }`}
+    >
+      {label}
+    </span>
+  );
+}
+
+function HardwareBadge({ hardware }: { hardware: string }) {
+  if (hardware === 'none') return <span className="text-[var(--color-text-muted)] text-xs opacity-40">—</span>;
+  if (hardware === 'own') return <span className="text-xs font-medium text-[var(--color-accent)]" title="Own hardware wallet">Own HW</span>;
+  if (hardware === 'ledger+trezor') return <span className="text-xs text-[var(--color-text-secondary)]" title="Supports Ledger and Trezor">L + T</span>;
+  if (hardware === 'ledger') return <span className="text-xs text-[var(--color-text-secondary)]" title="Supports Ledger">Ledger</span>;
+  return <span className="text-xs text-[var(--color-text-muted)]">{hardware}</span>;
 }
 
 export default function BuilderTable() {
@@ -25,7 +60,7 @@ export default function BuilderTable() {
   const [error, setError] = useState<string | null>(null);
   const [sortKey, setSortKey] = useState<SortKey>('usageFee');
   const [sortDir, setSortDir] = useState<SortDir>('asc');
-  const [showAll, setShowAll] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>('featured');
 
   useEffect(() => {
     fetch('/api/builders')
@@ -43,33 +78,35 @@ export default function BuilderTable() {
       });
   }, []);
 
+  const filtered = useMemo(() => {
+    if (viewMode === 'featured') {
+      return builders.filter((b) => b.refCode && CURATED[b.refCode]?.featured);
+    }
+    return builders;
+  }, [builders, viewMode]);
+
   const sorted = useMemo(() => {
-    const copy = [...builders];
+    const copy = [...filtered];
     copy.sort((a, b) => {
       let va: number, vb: number;
       switch (sortKey) {
         case 'usageFee': va = a.usageFee; vb = b.usageFee; break;
         case 'users': va = a.users; vb = b.users; break;
         case 'volume': va = a.volume; vb = b.volume; break;
-        case 'revenue': va = a.revenue; vb = b.revenue; break;
         case 'totalTaker': va = totalTakerFee(a.usageFee); vb = totalTakerFee(b.usageFee); break;
-        case 'totalMaker': va = totalMakerFee(a.usageFee); vb = totalMakerFee(b.usageFee); break;
         default: va = a.usageFee; vb = b.usageFee;
       }
       return sortDir === 'asc' ? va - vb : vb - va;
     });
     return copy;
-  }, [builders, sortKey, sortDir]);
-
-  const visible = showAll ? sorted : sorted.slice(0, DEFAULT_VISIBLE);
-  const hiddenCount = sorted.length - DEFAULT_VISIBLE;
+  }, [filtered, sortKey, sortDir]);
 
   function handleSort(key: SortKey) {
     if (sortKey === key) {
       setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
     } else {
       setSortKey(key);
-      setSortDir(key === 'usageFee' || key === 'totalTaker' || key === 'totalMaker' ? 'asc' : 'desc');
+      setSortDir(key === 'usageFee' || key === 'totalTaker' ? 'asc' : 'desc');
     }
   }
 
@@ -82,15 +119,15 @@ export default function BuilderTable() {
   if (loading) {
     return (
       <div className="rounded-xl border border-[var(--color-border)] overflow-hidden">
-        <div className="bg-[var(--color-bg-secondary)] border-b border-[var(--color-border)] px-4 py-3 flex gap-16">
-          {['w-20', 'w-16', 'w-16', 'w-16', 'w-12', 'w-14'].map((w, i) => (
-            <div key={i} className={`h-4 ${w} bg-[var(--color-border)] rounded animate-pulse`} />
+        <div className="bg-[var(--color-bg-secondary)] border-b border-[var(--color-border)] px-4 py-3 flex gap-12">
+          {Array.from({ length: 7 }).map((_, i) => (
+            <div key={i} className="h-4 w-16 bg-[var(--color-border)] rounded animate-pulse" />
           ))}
         </div>
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="px-4 py-3.5 border-b border-[var(--color-border)] last:border-0 flex gap-16">
-            {['w-24', 'w-14', 'w-14', 'w-14', 'w-10', 'w-12'].map((w, j) => (
-              <div key={j} className={`h-4 ${w} bg-[var(--color-border)]/50 rounded animate-pulse`} style={{ animationDelay: `${(i * 6 + j) * 50}ms` }} />
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div key={i} className="px-4 py-3.5 border-b border-[var(--color-border)] last:border-0 flex gap-12">
+            {Array.from({ length: 7 }).map((_, j) => (
+              <div key={j} className="h-4 w-14 bg-[var(--color-border)]/50 rounded animate-pulse" style={{ animationDelay: `${(i * 7 + j) * 40}ms` }} />
             ))}
           </div>
         ))}
@@ -99,82 +136,150 @@ export default function BuilderTable() {
   }
 
   if (error) {
-    return (
-      <div className="text-center py-16 text-[var(--color-danger)]">
-        Failed to load builder data: {error}
-      </div>
-    );
+    return <div className="text-center py-16 text-[var(--color-danger)]">Failed to load: {error}</div>;
   }
-
-  const columns: { key: SortKey; label: string; align?: string }[] = [
-    { key: 'usageFee', label: 'Builder Fee' },
-    { key: 'totalTaker', label: 'Total Taker' },
-    { key: 'totalMaker', label: 'Total Maker' },
-    { key: 'users', label: 'Users', align: 'right' },
-    { key: 'volume', label: 'Volume', align: 'right' },
-  ];
 
   return (
     <div>
+      {/* View toggle */}
+      <div className="flex items-center gap-2 mb-4">
+        <button
+          onClick={() => setViewMode('featured')}
+          className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors min-h-[36px] ${
+            viewMode === 'featured'
+              ? 'bg-[var(--color-accent-light)] text-[var(--color-accent)]'
+              : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]'
+          }`}
+        >
+          Top Wallets
+        </button>
+        <button
+          onClick={() => setViewMode('all')}
+          className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors min-h-[36px] ${
+            viewMode === 'all'
+              ? 'bg-[var(--color-accent-light)] text-[var(--color-accent)]'
+              : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]'
+          }`}
+        >
+          All Builders ({builders.length})
+        </button>
+      </div>
+
+      {/* Table */}
       <div className="overflow-x-auto rounded-xl border border-[var(--color-border)]">
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-[var(--color-bg-secondary)] border-b border-[var(--color-border)]">
               <th className="text-left px-4 py-3 font-medium text-[var(--color-text-secondary)]">Builder</th>
-              {columns.map((col) => (
-                <th
-                  key={col.key}
-                  className={`px-4 py-3 font-medium text-[var(--color-text-secondary)] cursor-pointer hover:text-[var(--color-text)] select-none ${col.align === 'right' ? 'text-right' : 'text-left'}`}
-                  onClick={() => handleSort(col.key)}
-                >
-                  {col.label}
-                  <SortIcon active={sortKey === col.key} dir={sortDir} />
-                </th>
-              ))}
+              <th
+                className="px-4 py-3 font-medium text-[var(--color-text-secondary)] cursor-pointer hover:text-[var(--color-text)] select-none text-left"
+                onClick={() => handleSort('usageFee')}
+              >
+                Builder Fee <SortIcon active={sortKey === 'usageFee'} dir={sortDir} />
+              </th>
+              <th
+                className="px-4 py-3 font-medium text-[var(--color-text-secondary)] cursor-pointer hover:text-[var(--color-text)] select-none text-left"
+                onClick={() => handleSort('totalTaker')}
+              >
+                Eff. Taker <SortIcon active={sortKey === 'totalTaker'} dir={sortDir} />
+              </th>
+              {viewMode === 'featured' && (
+                <>
+                  <th className="px-4 py-3 font-medium text-[var(--color-text-secondary)] text-center">Platforms</th>
+                  <th className="px-4 py-3 font-medium text-[var(--color-text-secondary)] text-center">Hardware</th>
+                </>
+              )}
+              <th
+                className="px-4 py-3 font-medium text-[var(--color-text-secondary)] cursor-pointer hover:text-[var(--color-text)] select-none text-right"
+                onClick={() => handleSort('users')}
+              >
+                Users <SortIcon active={sortKey === 'users'} dir={sortDir} />
+              </th>
+              <th
+                className="px-4 py-3 font-medium text-[var(--color-text-secondary)] cursor-pointer hover:text-[var(--color-text)] select-none text-right"
+                onClick={() => handleSort('volume')}
+              >
+                Volume <SortIcon active={sortKey === 'volume'} dir={sortDir} />
+              </th>
             </tr>
           </thead>
           <tbody>
-            {visible.map((builder) => {
-              const isLowest = builder.usageFee === 0;
+            {sorted.map((builder) => {
+              const isZeroFee = builder.usageFee === 0;
+              const curated = builder.refCode ? CURATED[builder.refCode] : undefined;
+              const icon = builder.refCode ? ICONS[builder.refCode] : null;
+
               return (
                 <tr
                   key={builder.address}
-                  className={`border-b border-[var(--color-border)] last:border-0 transition-colors hover:bg-[var(--color-bg-secondary)] ${isLowest ? 'bg-[var(--color-success-bg)]' : ''}`}
+                  className={`border-b border-[var(--color-border)] last:border-0 transition-colors hover:bg-[var(--color-bg-secondary)] ${isZeroFee ? 'bg-[var(--color-success-bg)]' : ''}`}
                 >
+                  {/* Builder name + icon + type */}
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      {getBuilderIcon(builder) ? (
-                        <img
-                          src={getBuilderIcon(builder)!}
-                          alt=""
-                          width={20}
-                          height={20}
-                          className="rounded-full shrink-0"
-                          loading="lazy"
-                        />
+                    <div className="flex items-center gap-2.5">
+                      {icon ? (
+                        <img src={icon} alt="" width={22} height={22} className="rounded-full shrink-0" loading="lazy" />
                       ) : (
-                        <div className="w-5 h-5 rounded-full bg-[var(--color-bg-elevated)] shrink-0" />
+                        <div className="w-[22px] h-[22px] rounded-full bg-[var(--color-bg-elevated)] shrink-0" />
                       )}
-                      <span className="font-medium">{getBuilderName(builder)}</span>
-                      {isLowest && (
-                        <span className="text-xs px-1.5 py-0.5 rounded-full bg-[var(--color-success)] text-white font-medium">
-                          Best Rate
-                        </span>
-                      )}
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-medium truncate">{builder.refCode || `${builder.address.slice(0, 6)}...`}</span>
+                          {isZeroFee && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[var(--color-success)] text-white font-medium shrink-0">
+                              Best
+                            </span>
+                          )}
+                        </div>
+                        {curated && (
+                          <span className="text-[10px] text-[var(--color-text-muted)]">
+                            {TYPE_LABELS[curated.type] || curated.type}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </td>
-                  <td className={`px-4 py-3 tabular-nums ${isLowest ? 'text-[var(--color-success)] font-semibold' : ''}`}>
+
+                  {/* Builder Fee */}
+                  <td className={`px-4 py-3 tabular-nums ${isZeroFee ? 'text-[var(--color-success)] font-semibold' : ''}`}>
                     {builder.usageFee === 0 ? 'FREE' : formatFeePercent(builder.usageFee)}
                   </td>
-                  <td className="px-4 py-3 tabular-nums">
+
+                  {/* Effective Taker */}
+                  <td className="px-4 py-3 tabular-nums text-[var(--color-text-secondary)]">
                     {formatFeePercent(totalTakerFee(builder.usageFee))}
                   </td>
-                  <td className="px-4 py-3 tabular-nums">
-                    {formatFeePercent(totalMakerFee(builder.usageFee))}
-                  </td>
+
+                  {/* Platforms (featured view only) */}
+                  {viewMode === 'featured' && curated && (
+                    <>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center justify-center gap-0.5">
+                          <PlatformBadge active={curated.platforms.ios} label="iOS" title="iOS App" />
+                          <PlatformBadge active={curated.platforms.android} label="And" title="Android App" />
+                          <PlatformBadge active={curated.platforms.desktop} label="Mac" title="Desktop App" />
+                          <PlatformBadge active={curated.platforms.extension} label="Ext" title="Browser Extension" />
+                          <PlatformBadge active={curated.platforms.web} label="Web" title="Web App" />
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <HardwareBadge hardware={curated.hardware} />
+                      </td>
+                    </>
+                  )}
+                  {viewMode === 'featured' && !curated && (
+                    <>
+                      <td className="px-4 py-3 text-center text-[var(--color-text-muted)] text-xs">—</td>
+                      <td className="px-4 py-3 text-center text-[var(--color-text-muted)] text-xs">—</td>
+                    </>
+                  )}
+
+                  {/* Users */}
                   <td className="px-4 py-3 text-right tabular-nums">
                     {builder.users.toLocaleString()}
                   </td>
+
+                  {/* Volume */}
                   <td className="px-4 py-3 text-right tabular-nums">
                     {formatVolume(builder.volume)}
                   </td>
@@ -185,29 +290,11 @@ export default function BuilderTable() {
         </table>
       </div>
 
-      {!showAll && hiddenCount > 0 && (
-        <div className="mt-3 text-center">
-          <button
-            onClick={() => setShowAll(true)}
-            className="text-sm text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] font-medium py-2 px-4 min-h-[44px] transition-colors"
-          >
-            Show all {sorted.length} builders (+{hiddenCount} more)
-          </button>
-        </div>
-      )}
-      {showAll && sorted.length > DEFAULT_VISIBLE && (
-        <div className="mt-3 text-center">
-          <button
-            onClick={() => setShowAll(false)}
-            className="text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] font-medium py-2 px-4 min-h-[44px] transition-colors"
-          >
-            Show less
-          </button>
-        </div>
-      )}
-
       <p className="mt-3 text-xs text-[var(--color-text-muted)]">
-        {sorted.length} builders tracked. Data from HyperTracker.
+        {viewMode === 'featured'
+          ? `Showing ${sorted.length} top wallets and frontends. Switch to "All Builders" to see all ${builders.length}.`
+          : `${sorted.length} builders tracked. Data from HyperTracker.`
+        }
       </p>
     </div>
   );
