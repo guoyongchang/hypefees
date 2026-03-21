@@ -1,17 +1,19 @@
 import { useState, useEffect, useMemo } from 'react';
 import type { Builder } from '../lib/fees';
 import { VIP_TIERS, calculateFees, formatUSD, formatFeePercent } from '../lib/fees';
+import builderIcons from '../data/builder-icons.json';
 
 const VOLUME_MIN = 10_000;
 const VOLUME_MAX = 100_000_000;
-
-// Known builder display names
-const BUILDER_NAMES: Record<string, string> = {};
+const ICONS: Record<string, string> = builderIcons;
 
 function getBuilderName(builder: Builder): string {
-  if (builder.refCode && BUILDER_NAMES[builder.refCode]) return BUILDER_NAMES[builder.refCode];
   if (builder.refCode) return builder.refCode;
   return `${builder.address.slice(0, 6)}...${builder.address.slice(-4)}`;
+}
+
+function getBuilderIcon(name: string): string | null {
+  return ICONS[name] || null;
 }
 
 function volumeFromSlider(value: number): number {
@@ -146,7 +148,14 @@ export default function FeeSimulator() {
                 : 'bg-[var(--color-bg-card)] border-[var(--color-border)]'
             }`}
           >
-            <div className="w-36 text-sm font-medium truncate">{r.name}</div>
+            <div className="w-36 text-sm font-medium truncate flex items-center gap-1.5">
+              {getBuilderIcon(r.name) ? (
+                <img src={getBuilderIcon(r.name)!} alt="" width={16} height={16} className="rounded-full shrink-0" loading="lazy" />
+              ) : (
+                <div className="w-4 h-4 rounded-full bg-[var(--color-bg-elevated)] shrink-0" />
+              )}
+              {r.name}
+            </div>
             <div className="flex-1">
               <div
                 className={`h-6 rounded flex items-center ${

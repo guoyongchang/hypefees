@@ -1,15 +1,22 @@
 import { useState, useEffect, useMemo } from 'react';
 import type { Builder } from '../lib/fees';
 import { formatFeePercent, totalTakerFee, totalMakerFee, formatVolume } from '../lib/fees';
+import builderIcons from '../data/builder-icons.json';
 
 type SortKey = 'usageFee' | 'users' | 'volume' | 'revenue' | 'totalTaker' | 'totalMaker';
 type SortDir = 'asc' | 'desc';
 
 const DEFAULT_VISIBLE = 20;
+const ICONS: Record<string, string> = builderIcons;
 
 function getBuilderName(builder: Builder): string {
   if (builder.refCode) return builder.refCode;
   return `${builder.address.slice(0, 6)}...${builder.address.slice(-4)}`;
+}
+
+function getBuilderIcon(builder: Builder): string | null {
+  if (builder.refCode && ICONS[builder.refCode]) return ICONS[builder.refCode];
+  return null;
 }
 
 export default function BuilderTable() {
@@ -136,6 +143,18 @@ export default function BuilderTable() {
                 >
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
+                      {getBuilderIcon(builder) ? (
+                        <img
+                          src={getBuilderIcon(builder)!}
+                          alt=""
+                          width={20}
+                          height={20}
+                          className="rounded-full shrink-0"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="w-5 h-5 rounded-full bg-[var(--color-bg-elevated)] shrink-0" />
+                      )}
                       <span className="font-medium">{getBuilderName(builder)}</span>
                       {isLowest && (
                         <span className="text-xs px-1.5 py-0.5 rounded-full bg-[var(--color-success)] text-white font-medium">
