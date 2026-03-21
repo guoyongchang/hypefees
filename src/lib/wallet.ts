@@ -1,23 +1,24 @@
 import { http, createConfig } from 'wagmi';
-import { arbitrum, arbitrumSepolia } from 'wagmi/chains';
+import { arbitrum } from 'wagmi/chains';
 import { injected, walletConnect } from 'wagmi/connectors';
 
-// Hyperliquid EIP-712 signing uses chainId 421614 (= Arbitrum Sepolia).
-// We connect to Arbitrum initially, then switch to Arbitrum Sepolia
-// before signing so the wallet's active chain matches the EIP-712 domain.
+// Hyperliquid EIP-712 uses chainId 0x66eee (421614) as signing identifier.
+// This is NOT about being on Arbitrum Sepolia — it's Hyperliquid's own choice.
+// The signed message contains hyperliquidChain:"Mainnet" and is submitted to
+// api.hyperliquid.xyz/exchange (mainnet). The domain chainId is just for
+// replay protection. We connect to Arbitrum mainnet for clean UX.
 const WALLETCONNECT_PROJECT_ID = '2b94db6c6e635e7bebd0b4b52b2beb37';
 
-export const HL_CHAIN_ID = arbitrumSepolia.id; // 421614
+export const HL_CHAIN_ID = 0x66eee; // 421614
 
 export const wagmiConfig = createConfig({
-  chains: [arbitrum, arbitrumSepolia],
+  chains: [arbitrum],
   connectors: [
     injected(),
     walletConnect({ projectId: WALLETCONNECT_PROJECT_ID }),
   ],
   transports: {
     [arbitrum.id]: http(),
-    [arbitrumSepolia.id]: http(),
   },
 });
 
