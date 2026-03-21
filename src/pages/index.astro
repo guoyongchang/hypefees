@@ -18,7 +18,7 @@ import ScrollReveal from '../components/ScrollReveal.astro';
     <ThemeToggle client:load />
   </Fragment>
 
-  <!-- Hero -->
+  <!-- Hero — above the fold, needs immediate hydration -->
   <section aria-label="Fee lookup tool" class="hero-section relative overflow-hidden -mx-4 px-4">
     <div class="hero-grid absolute inset-0 pointer-events-none" aria-hidden="true"></div>
     <div class="relative z-10">
@@ -26,55 +26,55 @@ import ScrollReveal from '../components/ScrollReveal.astro';
     </div>
   </section>
 
-  <!-- What Are Builder Fees -->
+  <!-- What Are Builder Fees — text-only, hydrate when idle -->
   <section aria-label="What are builder fees" class="section-alt" style="padding-top: var(--space-section); padding-bottom: var(--space-section);">
     <div class="max-w-3xl reveal">
-      <h2 class="mb-4"><TranslatedText client:load k="section.whatAre" /></h2>
-      <SectionAbout client:load />
+      <h2 class="mb-4"><TranslatedText client:idle k="section.whatAre" /></h2>
+      <SectionAbout client:idle />
     </div>
   </section>
 
-  <!-- Builder Fee Comparison -->
+  <!-- Builder Fee Comparison — interactive, hydrate when visible -->
   <section aria-label="Builder fee comparison table" style="padding-top: var(--space-section); padding-bottom: var(--space-section);">
     <div class="reveal">
-      <h2 class="mb-1"><TranslatedText client:load k="section.comparison" /></h2>
+      <h2 class="mb-1"><TranslatedText client:idle k="section.comparison" /></h2>
       <p class="text-[var(--color-text-secondary)] mb-6" style="font-size: var(--text-sm);">
-        <TranslatedText client:load k="comparison.subtitle" />
+        <TranslatedText client:idle k="comparison.subtitle" />
       </p>
     </div>
     <div class="reveal" style="transition-delay: 100ms;">
-      <BuilderTable client:load />
+      <BuilderTable client:visible />
     </div>
   </section>
 
-  <!-- Fee Calculator -->
+  <!-- Fee Calculator — interactive, hydrate when visible -->
   <section aria-label="Fee savings calculator" class="section-alt" style="padding-top: var(--space-section); padding-bottom: var(--space-section);">
     <div class="reveal">
-      <h2 class="mb-1"><TranslatedText client:load k="section.calculator" /></h2>
+      <h2 class="mb-1"><TranslatedText client:idle k="section.calculator" /></h2>
       <p class="text-[var(--color-text-secondary)] mb-6" style="font-size: var(--text-sm);">
-        <TranslatedText client:load k="calculator.subtitle" />
+        <TranslatedText client:idle k="calculator.subtitle" />
       </p>
     </div>
     <div class="reveal" style="transition-delay: 100ms;">
-      <FeeSimulator client:load />
+      <FeeSimulator client:visible />
     </div>
   </section>
 
-  <!-- How Builder Fees Work -->
+  <!-- How Builder Fees Work — text-only, hydrate when idle -->
   <section aria-label="How builder fees work" style="padding-top: var(--space-section); padding-bottom: var(--space-section);">
     <div class="max-w-3xl reveal">
-      <h2 class="mb-4"><TranslatedText client:load k="section.howItWorks" /></h2>
-      <SectionHowItWorks client:load />
+      <h2 class="mb-4"><TranslatedText client:idle k="section.howItWorks" /></h2>
+      <SectionHowItWorks client:idle />
     </div>
   </section>
 
-  <!-- FAQ -->
+  <!-- FAQ — text-only, hydrate when visible -->
   <section aria-label="Frequently asked questions" class="section-alt" style="padding-top: var(--space-section); padding-bottom: var(--space-section);">
     <div class="reveal">
-      <h2 class="mb-6"><TranslatedText client:load k="section.faq" /></h2>
+      <h2 class="mb-6"><TranslatedText client:idle k="section.faq" /></h2>
     </div>
     <div class="space-y-2 max-w-3xl reveal" style="transition-delay: 80ms;">
-      <SectionFAQ client:load />
+      <SectionFAQ client:visible />
     </div>
   </section>
 
