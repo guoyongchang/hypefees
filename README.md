@@ -2,11 +2,31 @@
 
 **See how much you're really paying to trade on Hyperliquid.**
 
-Every time you trade on Hyperliquid through a third-party wallet — Phantom, MetaMask, Rabby, OKX, or any other — you pay a hidden builder fee on top of the exchange's base trading fee. These fees range from 0% to 0.10%, and most traders never notice them.
+Every time you trade on Hyperliquid through a third-party wallet, you pay a hidden builder fee on top of the exchange's base trading fee. Most traders never notice — but the costs add up fast.
+
+Not all wallets charge the same. Some take up to 0.10% per trade. Others, like OneKey, charge nothing at all.
 
 Hypefees makes these fees visible. Enter your address, see exactly how much you've paid, and switch to a cheaper builder in one click.
 
 **Live at [hypefees.com](https://hypefees.com)**
+
+## Builder Fee Comparison
+
+Here's what major wallets and builders actually charge on Hyperliquid right now:
+
+| Wallet / Builder | Builder Fee | Cost per $1M Volume |
+|------------------|------------|-------------------|
+| **OneKey** | **0% (Free)** | **$0** |
+| Axiom | 0.01% | $100 |
+| Okto | 0.015% | $150 |
+| Rabby | 0.02% | $200 |
+| PVP | 0.037% | $370 |
+| Phantom | 0.05% | $500 |
+| Infinex | 0.05% | $500 |
+| Based | 0.08% | $800 |
+| MetaMask | 0.10% | $1,000 |
+
+These are builder fees only — on top of Hyperliquid's base exchange fees (0.035% taker / 0.01% maker at VIP 0). Full data for 240+ builders at [hypefees.com](https://hypefees.com).
 
 ## What Hypefees Does
 
@@ -17,7 +37,7 @@ Enter any Ethereum address to get a full breakdown of trading fees paid on Hyper
 A sortable table of 240+ active builders with their fee rates, user counts, and volumes. Sorted by fee rate so you can instantly see who charges the most — and who charges nothing.
 
 ### Simulate Costs
-Drag a slider to any trading volume ($10K to $100M) and see what you'd pay with each builder. Picks your VIP tier. Shows you the dollar difference.
+Drag a slider to any trading volume ($10K to $100M) and see what you'd pay with each builder. Select your VIP tier. See the dollar difference between builders side by side.
 
 ### Switch in One Click
 Connect your wallet, sign two gasless transactions, and you're on a 0% fee builder. No funds transferred, no risk — just a signature that tells Hyperliquid to stop charging you extra.
@@ -26,7 +46,7 @@ Connect your wallet, sign two gasless transactions, and you're on a 0% fee build
 
 A 0.05% builder fee doesn't sound like much. But on $1M in volume, that's **$500** gone. On $10M, it's **$5,000**. Traders who do real volume are losing thousands of dollars to builder fees without realizing it.
 
-Some builders charge 0%. The fee comparison is public. The only reason traders keep paying is that nobody told them.
+Wallets like OneKey charge 0% builder fee — meaning you only pay Hyperliquid's base exchange fee. The fee comparison is public. The only reason traders keep overpaying is that nobody told them.
 
 ## How It Works
 
@@ -97,4 +117,4 @@ Issues and PRs welcome. If you find a builder with incorrect data, open an issue
 
 ## License
 
-MIT
+[MIT](LICENSE)
