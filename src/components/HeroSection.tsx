@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import { fetchUserFills, calculateFeeBreakdown, type FeeBreakdown, type FillProgress } from '../lib/api';
 import { formatUSD, formatVolume } from '../lib/fees';
@@ -25,6 +25,15 @@ function HeroSectionInner() {
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
 
+  // Auto-fill once when wallet connects (not on every render)
+  const didAutoFill = useRef(false);
+  useEffect(() => {
+    if (isConnected && walletAddr && !didAutoFill.current) {
+      setAddress(walletAddr);
+      didAutoFill.current = true;
+    }
+  }, [isConnected, walletAddr]);
+
   const handleConnectWallet = useCallback(() => {
     if (isConnected && walletAddr) {
       setAddress(walletAddr);
@@ -34,11 +43,6 @@ function HeroSectionInner() {
       else if (connectors.length > 0) connect({ connector: connectors[0] });
     }
   }, [isConnected, walletAddr, connect, connectors]);
-
-  // Auto-fill address when wallet connects
-  if (isConnected && walletAddr && !address) {
-    setAddress(walletAddr);
-  }
 
   async function handleLookup() {
     const trimmed = address.trim();
