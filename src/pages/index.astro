@@ -4,6 +4,7 @@ import ThemeToggle from '../components/ThemeToggle.tsx';
 import HeroSection from '../components/HeroSection.tsx';
 import BuilderTable from '../components/BuilderTable.tsx';
 import FeeSimulator from '../components/FeeSimulator.tsx';
+import ScrollReveal from '../components/ScrollReveal.astro';
 ---
 
 <Layout>
@@ -17,9 +18,9 @@ import FeeSimulator from '../components/FeeSimulator.tsx';
     </div>
   </section>
 
-  <!-- What Are Hyperliquid Builder Fees — SEO explainer -->
+  <!-- What Are Builder Fees — SEO explainer -->
   <section class="section-alt py-14">
-    <div class="max-w-3xl">
+    <div class="max-w-3xl reveal section-divider">
       <h2 class="text-xl md:text-2xl font-bold mb-4">What Are Hyperliquid Builder Fees?</h2>
       <div class="space-y-3 text-sm text-[var(--color-text-secondary)] leading-relaxed">
         <p>
@@ -45,27 +46,35 @@ import FeeSimulator from '../components/FeeSimulator.tsx';
 
   <!-- Builder Fee Comparison Table -->
   <section class="py-14">
-    <h2 class="text-xl md:text-2xl font-bold mb-1">Hyperliquid Builder Fee Comparison</h2>
-    <p class="text-sm text-[var(--color-text-secondary)] mb-8">
-      Compare builder fees across 240+ wallets and frontends. Sorted by fee rate.
-      Total = Hyperliquid base fee + builder fee.
-    </p>
-    <BuilderTable client:load />
+    <div class="reveal section-divider">
+      <h2 class="text-xl md:text-2xl font-bold mb-1">Hyperliquid Builder Fee Comparison</h2>
+      <p class="text-sm text-[var(--color-text-secondary)] mb-8">
+        Compare builder fees across 240+ wallets and frontends. Sorted by fee rate.
+        Total = Hyperliquid base fee + builder fee.
+      </p>
+    </div>
+    <div class="reveal" style="transition-delay: 100ms;">
+      <BuilderTable client:load />
+    </div>
   </section>
 
   <!-- Fee Simulator -->
   <section class="section-alt py-14">
-    <h2 class="text-xl md:text-2xl font-bold mb-1">Hyperliquid Fee Calculator</h2>
-    <p class="text-sm text-[var(--color-text-secondary)] mb-8">
-      Calculate your total trading costs across different builders and volumes. Adjust the slider to see how
-      builder fees compound as your trading volume grows.
-    </p>
-    <FeeSimulator client:load />
+    <div class="reveal section-divider">
+      <h2 class="text-xl md:text-2xl font-bold mb-1">Hyperliquid Fee Calculator</h2>
+      <p class="text-sm text-[var(--color-text-secondary)] mb-8">
+        Calculate your total trading costs across different builders and volumes. Adjust the slider to see how
+        builder fees compound as your trading volume grows.
+      </p>
+    </div>
+    <div class="reveal" style="transition-delay: 100ms;">
+      <FeeSimulator client:load />
+    </div>
   </section>
 
-  <!-- How Builder Fees Work — SEO content -->
+  <!-- How Builder Fees Work — SEO -->
   <section class="py-14">
-    <div class="max-w-3xl">
+    <div class="max-w-3xl reveal section-divider">
       <h2 class="text-xl md:text-2xl font-bold mb-4">How Hyperliquid Builder Fees Work</h2>
       <div class="space-y-3 text-sm text-[var(--color-text-secondary)] leading-relaxed">
         <p>
@@ -121,12 +130,14 @@ import FeeSimulator from '../components/FeeSimulator.tsx';
     </div>
   </section>
 
-  <!-- FAQ — expanded for SEO -->
+  <!-- FAQ -->
   <section class="section-alt py-14">
-    <h2 class="text-xl md:text-2xl font-bold mb-8">Frequently Asked Questions</h2>
-    <div class="space-y-3 max-w-3xl">
+    <div class="reveal section-divider">
+      <h2 class="text-xl md:text-2xl font-bold mb-8">Frequently Asked Questions</h2>
+    </div>
+    <div class="space-y-3 max-w-3xl reveal" style="transition-delay: 80ms;">
       <details class="group border border-[var(--color-border)] rounded-xl bg-[var(--color-bg-card)]">
-        <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)] transition-colors">
+        <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)]">
           What is a Hyperliquid builder fee?
         </summary>
         <div class="px-5 pb-4 text-[var(--color-text-secondary)] text-sm leading-relaxed">
@@ -136,9 +147,8 @@ import FeeSimulator from '../components/FeeSimulator.tsx';
           provider, not to Hyperliquid.
         </div>
       </details>
-
       <details class="group border border-[var(--color-border)] rounded-xl bg-[var(--color-bg-card)]">
-        <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)] transition-colors">
+        <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)]">
           Which wallets charge the lowest builder fees on Hyperliquid?
         </summary>
         <div class="px-5 pb-4 text-[var(--color-text-secondary)] text-sm leading-relaxed">
@@ -147,103 +157,87 @@ import FeeSimulator from '../components/FeeSimulator.tsx';
           builder fee table above, sorted by fee rate from lowest to highest.
         </div>
       </details>
-
       <details class="group border border-[var(--color-border)] rounded-xl bg-[var(--color-bg-card)]">
-        <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)] transition-colors">
+        <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)]">
           How much do builder fees cost per year?
         </summary>
         <div class="px-5 pb-4 text-[var(--color-text-secondary)] text-sm leading-relaxed">
           It depends on your trading volume. A trader doing $1M per month in volume with a 0.05% builder
           fee (like Phantom) pays $500/month or $6,000/year in builder fees alone. With MetaMask at
           0.10%, that doubles to $12,000/year. Switching to a 0% builder eliminates this cost entirely.
-          Use the fee simulator above to calculate your specific situation.
         </div>
       </details>
-
       <details class="group border border-[var(--color-border)] rounded-xl bg-[var(--color-bg-card)]">
-        <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)] transition-colors">
+        <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)]">
           How do I switch to a lower-fee builder on Hyperliquid?
         </summary>
         <div class="px-5 pb-4 text-[var(--color-text-secondary)] text-sm leading-relaxed">
           Connect your wallet on HypeFees and use the one-click switch feature. You sign an EIP-712
           message (no gas required) that approves a new builder with a lower fee rate. The switch takes
           effect immediately. Your existing positions, orders, and trading history are not affected.
-          You can switch back at any time.
         </div>
       </details>
-
       <details class="group border border-[var(--color-border)] rounded-xl bg-[var(--color-bg-card)]">
-        <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)] transition-colors">
+        <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)]">
           Is it safe to switch Hyperliquid builders?
         </summary>
         <div class="px-5 pb-4 text-[var(--color-text-secondary)] text-sm leading-relaxed">
           Yes. Switching builders only changes which wallet provider receives the builder fee portion of your
           trading costs. No funds are transferred, no tokens are approved, and no smart contract interactions
-          occur. You are simply signing a message that tells Hyperliquid your preferred builder and maximum
-          fee cap. You can have up to 10 active builder approvals simultaneously.
+          occur. You can have up to 10 active builder approvals simultaneously.
         </div>
       </details>
-
       <details class="group border border-[var(--color-border)] rounded-xl bg-[var(--color-bg-card)]">
-        <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)] transition-colors">
-          What is the difference between Hyperliquid exchange fees and builder fees?
+        <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)]">
+          What is the difference between exchange fees and builder fees?
         </summary>
         <div class="px-5 pb-4 text-[var(--color-text-secondary)] text-sm leading-relaxed">
-          Hyperliquid exchange fees are the base trading fees charged by the Hyperliquid protocol itself. These
-          are the same regardless of which wallet you use and vary by VIP tier (based on your 14-day trading
-          volume). Builder fees are additional fees charged by your wallet provider on top of the exchange fees.
-          Your total trading cost = exchange fee + builder fee. HypeFees shows both so you can see the full picture.
+          Hyperliquid exchange fees are the base trading fees charged by the protocol. These vary by VIP tier.
+          Builder fees are additional fees charged by your wallet on top of exchange fees.
+          Total cost = exchange fee + builder fee. HypeFees shows both.
         </div>
       </details>
-
       <details class="group border border-[var(--color-border)] rounded-xl bg-[var(--color-bg-card)]">
-        <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)] transition-colors">
+        <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)]">
           Can I check how much I've paid in builder fees?
         </summary>
         <div class="px-5 pb-4 text-[var(--color-text-secondary)] text-sm leading-relaxed">
-          Yes. Enter your Ethereum address in the lookup at the top of this page. HypeFees will fetch your
-          complete trading history from Hyperliquid's public API and show you a breakdown of total fees
-          paid, how much went to Hyperliquid (exchange fees), and how much went to builders (extra fees).
-          All data is on-chain and verifiable.
+          Yes. Enter your Ethereum address in the lookup at the top of this page. HypeFees fetches your
+          complete trading history from Hyperliquid's public API and shows a breakdown of exchange fees
+          vs. builder fees. All data is on-chain and verifiable.
         </div>
       </details>
-
       <details class="group border border-[var(--color-border)] rounded-xl bg-[var(--color-bg-card)]">
-        <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)] transition-colors">
+        <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)]">
           Does Phantom charge a builder fee on Hyperliquid?
         </summary>
         <div class="px-5 pb-4 text-[var(--color-text-secondary)] text-sm leading-relaxed">
-          Yes. Phantom charges a 0.05% builder fee on Hyperliquid trades. This means for every $10,000
-          in trading volume through Phantom, you pay an additional $5 in builder fees on top of Hyperliquid's
-          base exchange fees. For a VIP 0 taker, your effective rate with Phantom is 0.085% per trade.
+          Yes. Phantom charges a 0.05% builder fee on Hyperliquid trades. On $1M in volume, that's $500
+          in additional fees. Your effective taker rate with Phantom at VIP 0 is 0.085%.
         </div>
       </details>
-
       <details class="group border border-[var(--color-border)] rounded-xl bg-[var(--color-bg-card)]">
-        <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)] transition-colors">
+        <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)]">
           Does MetaMask charge a builder fee on Hyperliquid?
         </summary>
         <div class="px-5 pb-4 text-[var(--color-text-secondary)] text-sm leading-relaxed">
-          Yes. MetaMask charges 0.10% — the maximum allowed builder fee on Hyperliquid. This is the highest
-          builder fee among major wallets. On $1M in trading volume, MetaMask's builder fee costs $1,000.
-          Switching to a 0% builder like OneKey eliminates this cost entirely.
+          Yes. MetaMask charges 0.10% — the maximum allowed builder fee. On $1M in trading volume,
+          that's $1,000 in builder fees alone. Switching to a 0% builder eliminates this cost.
         </div>
       </details>
-
       <details class="group border border-[var(--color-border)] rounded-xl bg-[var(--color-bg-card)]">
-        <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)] transition-colors">
+        <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)]">
           Where does HypeFees get its data?
         </summary>
         <div class="px-5 pb-4 text-[var(--color-text-secondary)] text-sm leading-relaxed">
-          Builder fee rates, user counts, and volumes are aggregated from public Hyperliquid network data via
-          the HyperTracker API by CoinMarketMan. Individual fee breakdowns are fetched directly from
-          Hyperliquid's public API (userFillsByTime endpoint). All data is on-chain and independently
-          verifiable. HypeFees is an independent, open-source project — not affiliated with Hyperliquid
-          or any wallet provider.
+          Builder data from HyperTracker (CoinMarketMan). Fee breakdowns from Hyperliquid's public API.
+          HypeFees is independent and open-source — not affiliated with Hyperliquid or any wallet.
         </div>
       </details>
     </div>
   </section>
+
+  <ScrollReveal />
 </Layout>
 
 <style>

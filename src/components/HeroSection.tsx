@@ -50,8 +50,8 @@ export default function HeroSection() {
       {/* Hero: left-right split */}
       <div className="py-14 md:py-24">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-          {/* Left: copy + input */}
-          <div>
+          {/* Left: copy + input — staggered entrance */}
+          <div className="hero-enter">
             <h1 className="text-3xl md:text-[2.75rem] font-bold tracking-tight leading-[1.15]">
               Every trade has a<br />hidden fee.{' '}
               <span className="text-[var(--color-accent)]">See yours.</span>
@@ -103,12 +103,12 @@ export default function HeroSection() {
       {result && (
         <div className="pb-10">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div className="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)]">
+            <div className="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] card-hover">
               <div className="text-xs text-[var(--color-text-muted)]">Total Volume</div>
               <div className="text-xl font-bold mt-1 tabular-nums">{formatVolume(result.totalVolume)}</div>
               <div className="text-xs text-[var(--color-text-muted)] mt-1">{result.fillCount.toLocaleString()} trades</div>
             </div>
-            <div className="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)]">
+            <div className="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] card-hover">
               <div className="text-xs text-[var(--color-text-muted)]">Total Fees</div>
               <div className="text-xl font-bold mt-1 tabular-nums">{formatUSD(result.totalFees)}</div>
               {result.firstTradeTime && result.lastTradeTime && (
@@ -117,12 +117,12 @@ export default function HeroSection() {
                 </div>
               )}
             </div>
-            <div className="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)]">
+            <div className="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] card-hover">
               <div className="text-xs text-[var(--color-text-muted)]">Exchange Fees</div>
               <div className="text-xl font-bold mt-1 tabular-nums">{formatUSD(result.hlFees)}</div>
               <div className="text-xs text-[var(--color-text-muted)] mt-1">To Hyperliquid</div>
             </div>
-            <div className="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)]">
+            <div className="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] card-hover">
               <div className="text-xs text-[var(--color-text-muted)]">Builder Fees</div>
               <div className={`text-xl font-bold mt-1 tabular-nums ${result.builderFees > 0 ? 'text-[var(--color-warning)]' : 'text-[var(--color-success)]'}`}>
                 {result.builderFees > 0 ? formatUSD(result.builderFees) : '$0'}

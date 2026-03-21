@@ -10,6 +10,12 @@
   font-display: swap;
 }
 
+/* ── Easing tokens ── */
+:root {
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 @theme {
   --color-bg: #fafcfb;
   --color-bg-secondary: #f4f7f6;
@@ -58,26 +64,62 @@ body {
   background-color: var(--color-bg);
   color: var(--color-text);
   font-family: 'Roobert', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  transition: background-color 0.2s, color 0.2s;
+  transition: background-color 0.3s var(--ease-out-quart), color 0.3s var(--ease-out-quart);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Focus-visible styles for keyboard navigation */
+/* ── Focus ── */
 :focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
   border-radius: 4px;
 }
 
-/* Smooth scroll */
+/* ── Smooth scroll ── */
 html {
   scroll-behavior: smooth;
 }
 
-/* FAQ details animation */
+/* ── Scroll-triggered section reveals ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s var(--ease-out-expo), transform 0.6s var(--ease-out-expo);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* Stagger children within a reveal group */
+.reveal-stagger > * {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.5s var(--ease-out-expo), transform 0.5s var(--ease-out-expo);
+}
+.reveal-stagger.is-visible > *:nth-child(1) { opacity: 1; transform: translateY(0); transition-delay: 0ms; }
+.reveal-stagger.is-visible > *:nth-child(2) { opacity: 1; transform: translateY(0); transition-delay: 80ms; }
+.reveal-stagger.is-visible > *:nth-child(3) { opacity: 1; transform: translateY(0); transition-delay: 160ms; }
+.reveal-stagger.is-visible > *:nth-child(4) { opacity: 1; transform: translateY(0); transition-delay: 240ms; }
+.reveal-stagger.is-visible > *:nth-child(n+5) { opacity: 1; transform: translateY(0); transition-delay: 320ms; }
+
+/* ── Hero entrance choreography ── */
+.hero-enter > * {
+  opacity: 0;
+  transform: translateY(16px);
+  animation: heroReveal 0.7s var(--ease-out-expo) forwards;
+}
+.hero-enter > *:nth-child(1) { animation-delay: 0.1s; }
+.hero-enter > *:nth-child(2) { animation-delay: 0.2s; }
+.hero-enter > *:nth-child(3) { animation-delay: 0.35s; }
+@keyframes heroReveal {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── FAQ accordion ── */
 details summary {
   list-style: none;
+  transition: color 0.2s var(--ease-out-quart);
 }
 details summary::-webkit-details-marker {
   display: none;
@@ -87,14 +129,25 @@ details summary::after {
   float: right;
   font-weight: 500;
   font-size: 1.25rem;
-  transition: transform 0.2s ease;
+  transition: transform 0.3s var(--ease-out-expo), color 0.2s;
   color: var(--color-text-muted);
 }
 details[open] summary::after {
   transform: rotate(45deg);
 }
+details[open] summary {
+  color: var(--color-accent);
+}
+/* Animate the content */
+details > div {
+  animation: faqOpen 0.3s var(--ease-out-expo);
+}
+@keyframes faqOpen {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
-/* Section alternating backgrounds */
+/* ── Section alternating backgrounds ── */
 .section-alt {
   background-color: var(--color-bg-secondary);
   margin-left: calc(-50vw + 50%);
@@ -103,12 +156,84 @@ details[open] summary::after {
   padding-right: calc(50vw - 50%);
 }
 
-/* Tabular nums for data */
+/* ── Button micro-interactions ── */
+button, a[role="button"], .btn {
+  transition: transform 0.15s var(--ease-out-quart),
+              opacity 0.15s var(--ease-out-quart),
+              background-color 0.2s var(--ease-out-quart),
+              box-shadow 0.2s var(--ease-out-quart);
+}
+button:active:not(:disabled), .btn:active {
+  transform: scale(0.97);
+}
+
+/* ── Input focus glow ── */
+input[type="text"], input[type="search"], select {
+  transition: border-color 0.2s var(--ease-out-quart),
+              box-shadow 0.2s var(--ease-out-quart);
+}
+input[type="text"]:focus, input[type="search"]:focus {
+  box-shadow: 0 0 0 3px var(--color-accent-light);
+}
+
+/* ── Table row hover ── */
+table tbody tr {
+  transition: background-color 0.15s var(--ease-out-quart);
+}
+
+/* ── Card hover lift ── */
+.card-hover {
+  transition: transform 0.25s var(--ease-out-quart), box-shadow 0.25s var(--ease-out-quart);
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+}
+:root.dark .card-hover:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+}
+
+/* ── Tabular nums for data ── */
 .data-value {
   font-variant-numeric: tabular-nums;
 }
 
-/* Respect user motion preferences */
+/* ── Subtle section border accent ── */
+.section-divider {
+  position: relative;
+}
+.section-divider::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 48px;
+  height: 2px;
+  background: var(--color-accent);
+  opacity: 0.5;
+  border-radius: 1px;
+}
+
+/* ── Spinner ── */
+.spinner {
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Theme toggle rotation ── */
+.theme-toggle-icon {
+  transition: transform 0.4s var(--ease-out-expo);
+}
+.theme-toggle-icon:hover {
+  transform: rotate(15deg);
+}
+
+/* ── Respect user motion preferences ── */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -118,4 +243,7 @@ details[open] summary::after {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+  .reveal { opacity: 1; transform: none; }
+  .reveal-stagger > * { opacity: 1; transform: none; }
+  .hero-enter > * { opacity: 1; transform: none; animation: none; }
 }
