@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useConnect } from 'wagmi';
 import { useLang, t } from '../lib/i18n';
+import { track, Events } from '../lib/analytics';
 
 // ── Wallet registry with deep links ──
 const WALLETS = [
@@ -106,6 +107,7 @@ export default function WalletModal({ open, onClose, onConnected }: WalletModalP
   useEffect(() => {
     if (open) {
       document.body.style.overflow = 'hidden';
+      track(Events.WALLET_MODAL_OPENED, { device_type: mobile ? 'mobile' : 'desktop' });
       return () => { document.body.style.overflow = ''; };
     }
   }, [open]);
@@ -113,6 +115,7 @@ export default function WalletModal({ open, onClose, onConnected }: WalletModalP
   if (!open) return null;
 
   function handleWalletClick(wallet: typeof WALLETS[0]) {
+    track(Events.WALLET_SELECTED, { wallet_id: wallet.id, action: mobile ? 'deeplink' : (hasInjected ? 'connect' : 'install') });
     if (!mobile && hasInjected) {
       // Desktop with injected wallet — try direct connect
       const injected = connectors.find((c) => c.id === 'injected');
@@ -140,6 +143,7 @@ export default function WalletModal({ open, onClose, onConnected }: WalletModalP
   }
 
   function handleWalletConnect() {
+    track(Events.WALLET_SELECTED, { wallet_id: 'walletconnect', action: 'qr_scan' });
     const wc = connectors.find((c) => c.id === 'walletConnect');
     if (wc) {
       connect({ connector: wc });

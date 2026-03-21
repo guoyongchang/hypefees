@@ -3,6 +3,7 @@ import type { FeeBreakdown } from '../lib/api';
 import { formatUSD, formatVolume } from '../lib/fees';
 import { useLang, t } from '../lib/i18n';
 import type { Lang } from '../lib/i18n';
+import { track, Events } from '../lib/analytics';
 
 // ============================================================
 // Design Tokens — self-contained dark card palette
@@ -850,6 +851,7 @@ export default function ShareCard({ result, address }: ShareCardProps) {
   const feeStr = formatUSD(result.totalFees).replace('$', '');
 
   const handleDownload = useCallback(() => {
+    track(Events.SHARE_CARD_DOWNLOADED, { total_fees: result.totalFees, rank_title: rankInfo.title });
     generateImage(result, shortAddr, period, rankInfo, funFacts, lang);
   }, [result, shortAddr, period, rankInfo, funFacts]);
 
@@ -866,7 +868,7 @@ export default function ShareCard({ result, address }: ShareCardProps) {
       {/* Compact trigger button */}
       <div className="mt-6">
         <button
-          onClick={() => setOpen(true)}
+          onClick={() => { setOpen(true); track(Events.SHARE_CARD_OPENED, { total_fees: result.totalFees, rank_title: rankInfo.title }); }}
           className="w-full p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] card-hover flex items-center justify-between gap-4 group"
         >
           <div className="flex items-center gap-3">

@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { useAccount, useConnect, useDisconnect, useSignTypedData, useSwitchChain } from 'wagmi';
 import WalletProvider from './WalletProvider';
 import { useLang, t } from '../lib/i18n';
+import { track, identify, setUserProps, trackPageView, Events, getDeviceType } from '../lib/analytics';
 import {
   ONEKEY_BUILDER_ADDRESS,
   ONEKEY_REFERRAL_CODE,
@@ -37,11 +38,13 @@ function SwitchBuilderInner() {
     } else if (connectors.length > 0) {
       connect({ connector: connectors[0] });
     }
+    track(Events.WALLET_CONNECTED);
   }, [connect, connectors]);
 
   const handleApproveBuilder = useCallback(async () => {
     if (!isConnected) return;
     setStep('approving');
+    track(Events.BUILDER_APPROVAL_STARTED);
     setError(null);
 
     try {
@@ -69,20 +72,25 @@ function SwitchBuilderInner() {
       }
 
       setApproveSuccess(true);
+      track(Events.BUILDER_APPROVAL_SUCCESS);
       await handleSetReferrer();
     } catch (err: any) {
       const msg = err?.message || err?.shortMessage || '';
       if (msg.includes('User rejected') || msg.includes('denied') || msg.includes('cancelled')) {
+        track(Events.BUILDER_APPROVAL_ERROR, { error_type: 'rejected' });
         setStep('idle');
         return;
       }
       // Hyperliquid-specific errors → actionable messages
       if (msg.includes('Must deposit') || msg.includes('deposit before')) {
         setError('__DEPOSIT__');
+        track(Events.BUILDER_APPROVAL_ERROR, { error_type: 'deposit_required' });
       } else if (msg.includes('already approved') || msg.includes('Already')) {
         setError('__ALREADY__');
+        track(Events.BUILDER_APPROVAL_ERROR, { error_type: 'already_set' });
       } else {
         setError(msg || 'Failed to approve builder');
+        track(Events.BUILDER_APPROVAL_ERROR, { error_type: 'other', message: msg });
       }
       setStep('error');
     }
@@ -111,8 +119,10 @@ function SwitchBuilderInner() {
       }
 
       setReferralSuccess(true);
+      track(Events.REFERRAL_SET_SUCCESS);
       setStep('done');
     } catch (err: any) {
+      track(Events.REFERRAL_SET_FAILED);
       setReferralSuccess(false);
       setStep('done');
     }

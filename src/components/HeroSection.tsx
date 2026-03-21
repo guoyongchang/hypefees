@@ -3,6 +3,7 @@ import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import { fetchUserFills, calculateFeeBreakdown, type FeeBreakdown, type FillProgress } from '../lib/api';
 import { formatUSD, formatVolume } from '../lib/fees';
 import { useLang, t } from '../lib/i18n';
+import { track, identify, setUserProps, trackPageView, Events, getDeviceType } from '../lib/analytics';
 import WalletProvider from './WalletProvider';
 import WalletModal from './WalletModal';
 import SwitchBuilder from './SwitchBuilder';
@@ -24,6 +25,8 @@ function HeroSectionInner() {
   // Wallet modal for connecting
   const [showWalletModal, setShowWalletModal] = useState(false);
   const { address: walletAddr, isConnected } = useAccount();
+
+  useEffect(() => { trackPageView(); }, []);
 
   // Fill address after wallet connects (only when modal was open)
   const pendingConnect = useRef(false);
@@ -47,9 +50,11 @@ function HeroSectionInner() {
     const trimmed = address.trim();
     if (!trimmed.match(/^0x[a-fA-F0-9]{40}$/)) {
       setError(t('result.invalidAddress', lang));
+      track(Events.FEE_LOOKUP_ERROR, { error_type: 'invalid_address' });
       return;
     }
     setLoading(true);
+    track(Events.FEE_LOOKUP_STARTED, { input_method: isConnected ? 'wallet' : 'manual' });
     setError(null);
     setResult(null);
     setProgress(null);
@@ -57,12 +62,33 @@ function HeroSectionInner() {
       const fills = await fetchUserFills(trimmed, setProgress);
       if (fills.length === 0) {
         setError(t('result.noHistory', lang));
+        track(Events.FEE_LOOKUP_ERROR, { error_type: 'no_history' });
         setLoading(false);
         return;
       }
-      setResult(calculateFeeBreakdown(fills));
+      const breakdown = calculateFeeBreakdown(fills);
+      setResult(breakdown);
+      // Track success
+      identify(trimmed);
+      track(Events.FEE_LOOKUP_SUCCESS, {
+        total_volume: breakdown.totalVolume,
+        total_fees: breakdown.totalFees,
+        builder_fees: breakdown.builderFees,
+        exchange_fees: breakdown.hlFees,
+        trade_count: breakdown.fillCount,
+        builder_fee_pct: breakdown.totalFees > 0 ? +((breakdown.builderFees / breakdown.totalFees) * 100).toFixed(1) : 0,
+        has_builder_fees: breakdown.builderFees > 0,
+      });
+      setUserProps({
+        total_volume: breakdown.totalVolume,
+        total_fees: breakdown.totalFees,
+        builder_fees: breakdown.builderFees,
+        trade_count: breakdown.fillCount,
+        has_builder_fees: breakdown.builderFees > 0,
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch data');
+      track(Events.FEE_LOOKUP_ERROR, { error_type: err instanceof Error && err.message.includes('rate limit') ? 'rate_limit' : 'api_error' });
     } finally {
       setLoading(false);
       setProgress(null);

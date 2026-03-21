@@ -3,6 +3,7 @@ import type { Builder } from '../lib/fees';
 import { VIP_TIERS, STAKING_TIERS, calculateFees, formatUSD, formatFeePercent } from '../lib/fees';
 import { useLang, t } from '../lib/i18n';
 import builderIcons from '../data/builder-icons.json';
+import { track, Events } from '../lib/analytics';
 
 const VOLUME_MIN = 10_000;
 const VOLUME_MAX = 100_000_000;
@@ -149,7 +150,7 @@ export default function FeeSimulator() {
           />
           <select
             value={vipTier}
-            onChange={(e) => setVipTier(parseInt(e.target.value))}
+            onChange={(e) => { setVipTier(parseInt(e.target.value)); track(Events.FEE_CALCULATOR_USED, { volume, vip_tier: parseInt(e.target.value), staking_tier: stakingTier }); }}
             className="px-3 py-2.5 min-h-[44px] rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text)] text-sm"
           >
             {VIP_TIERS.map((t) => (
@@ -160,7 +161,7 @@ export default function FeeSimulator() {
           </select>
           <select
             value={stakingTier}
-            onChange={(e) => setStakingTier(parseInt(e.target.value))}
+            onChange={(e) => { setStakingTier(parseInt(e.target.value)); track(Events.FEE_CALCULATOR_USED, { volume, vip_tier: vipTier, staking_tier: parseInt(e.target.value) }); }}
             className="px-3 py-2.5 min-h-[44px] rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text)] text-sm"
           >
             {STAKING_TIERS.map((t, i) => (

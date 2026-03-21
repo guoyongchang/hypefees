@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { LANGUAGES, type Lang, useLang } from '../lib/i18n';
+import { track, Events } from '../lib/analytics';
 
 const LANG_LIST = Object.entries(LANGUAGES) as [Lang, string][];
 
@@ -19,6 +20,7 @@ export default function LanguageSwitcher() {
   }, [open]);
 
   function select(l: Lang) {
+    track(Events.LANGUAGE_CHANGED, { from_lang: lang, to_lang: l });
     setLang(l);
     setOpen(false);
   }

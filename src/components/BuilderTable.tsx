@@ -5,6 +5,7 @@ import { useLang, t } from '../lib/i18n';
 import type { Lang } from '../lib/i18n';
 import builderIcons from '../data/builder-icons.json';
 import curatedData from '../data/curated-builders.json';
+import { track, Events } from '../lib/analytics';
 
 type SortKey = 'default' | 'usageFee' | 'users' | 'volume' | 'totalTaker';
 type SortDir = 'asc' | 'desc';
@@ -132,10 +133,14 @@ export default function BuilderTable() {
   function handleSort(key: SortKey) {
     if (key === 'default') return;
     if (sortKey === key) {
-      setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
+      const newDir = sortDir === 'asc' ? 'desc' : 'asc';
+      setSortDir(newDir);
+      track(Events.BUILDER_TABLE_SORTED, { sort_key: key, sort_dir: newDir });
     } else {
+      const newDir = key === 'usageFee' || key === 'totalTaker' ? 'asc' : 'desc';
       setSortKey(key);
-      setSortDir(key === 'usageFee' || key === 'totalTaker' ? 'asc' : 'desc');
+      setSortDir(newDir);
+      track(Events.BUILDER_TABLE_SORTED, { sort_key: key, sort_dir: newDir });
     }
   }
 
@@ -175,7 +180,7 @@ export default function BuilderTable() {
       {/* View toggle + search */}
       <div className="flex items-center gap-2 mb-4 flex-wrap">
         <button
-          onClick={() => { setViewMode('featured'); setSearch(''); }}
+          onClick={() => { setViewMode('featured'); setSearch(''); track(Events.BUILDER_TABLE_VIEW_CHANGED, { view_mode: 'featured' }); }}
           className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors min-h-[36px] ${
             viewMode === 'featured' && !search
               ? 'bg-[var(--color-accent-light)] text-[var(--color-accent)]'
@@ -185,7 +190,7 @@ export default function BuilderTable() {
           {t('table.topWallets', lang)}
         </button>
         <button
-          onClick={() => { setViewMode('all'); setSearch(''); }}
+          onClick={() => { setViewMode('all'); setSearch(''); track(Events.BUILDER_TABLE_VIEW_CHANGED, { view_mode: 'all' }); }}
           className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors min-h-[36px] ${
             viewMode === 'all' || search
               ? 'bg-[var(--color-accent-light)] text-[var(--color-accent)]'
@@ -202,7 +207,7 @@ export default function BuilderTable() {
           <input
             type="text"
             value={search}
-            onChange={(e) => { setSearch(e.target.value); if (e.target.value && viewMode === 'featured') setViewMode('all'); }}
+            onChange={(e) => { setSearch(e.target.value); if (e.target.value && viewMode === 'featured') setViewMode('all'); if (e.target.value.length >= 2) { clearTimeout((window as any).__searchTrackTimer); (window as any).__searchTrackTimer = setTimeout(() => { track(Events.BUILDER_TABLE_SEARCHED, { query: e.target.value }); }, 1000); } }}
             placeholder={t('table.search', lang)}
             className="pl-9 pr-3 py-1.5 min-h-[36px] w-full sm:w-48 text-xs rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]"
           />
