@@ -4,7 +4,7 @@ import { injected, walletConnect } from 'wagmi/connectors';
 
 // Hyperliquid uses Arbitrum for wallet signatures
 // WalletConnect project ID - get one at https://cloud.reown.com
-const WALLETCONNECT_PROJECT_ID = '0b1e0ed9b0c3c7b8c3b2e1d4f5a6b7c8'; // placeholder
+const WALLETCONNECT_PROJECT_ID = '2b94db6c6e635e7bebd0b4b52b2beb37';
 
 export const wagmiConfig = createConfig({
   chains: [arbitrum],
