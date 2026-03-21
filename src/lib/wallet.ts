@@ -1,24 +1,23 @@
 import { http, createConfig } from 'wagmi';
-import { arbitrum } from 'wagmi/chains';
+import { arbitrum, arbitrumSepolia } from 'wagmi/chains';
 import { injected, walletConnect } from 'wagmi/connectors';
 
-// Hyperliquid uses a custom EIP-712 signing chain ID (0x66eee = 421614).
-// This is NOT a real EVM chain — it's Hyperliquid's own signing identifier.
-// We connect wallets to Arbitrum (which wallets know), then sign with
-// eth_signTypedData_v4 directly to bypass chain ID validation.
+// Hyperliquid EIP-712 signing uses chainId 421614 (= Arbitrum Sepolia).
+// We connect to Arbitrum initially, then switch to Arbitrum Sepolia
+// before signing so the wallet's active chain matches the EIP-712 domain.
 const WALLETCONNECT_PROJECT_ID = '2b94db6c6e635e7bebd0b4b52b2beb37';
 
-export const HL_CHAIN_ID = 0x66eee; // 421614 — Hyperliquid signing chain ID
+export const HL_CHAIN_ID = arbitrumSepolia.id; // 421614
 
 export const wagmiConfig = createConfig({
-  chains: [arbitrum],
+  chains: [arbitrum, arbitrumSepolia],
   connectors: [
-    // injected() auto-detects: MetaMask, Phantom, Rabby, OneKey, OKX, Coinbase, etc.
     injected(),
     walletConnect({ projectId: WALLETCONNECT_PROJECT_ID }),
   ],
   transports: {
     [arbitrum.id]: http(),
+    [arbitrumSepolia.id]: http(),
   },
 });
 

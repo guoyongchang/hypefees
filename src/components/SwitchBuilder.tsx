@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { useAccount, useConnect, useDisconnect, useConnectorClient } from 'wagmi';
+import { useAccount, useConnect, useDisconnect, useSignTypedData, useSwitchChain } from 'wagmi';
 import { injected } from 'wagmi/connectors';
 import WalletProvider from './WalletProvider';
 import { useLang, t } from '../lib/i18n';
@@ -15,57 +15,15 @@ import {
   submitAction,
 } from '../lib/wallet';
 
-// Sign EIP-712 via raw eth_signTypedData_v4 to bypass wallet chain validation.
-// Hyperliquid uses chainId 421614 which is a signing ID, not a real chain.
-// Calling the RPC method directly avoids wagmi/wallet chain mismatch checks.
-async function signTypedDataRaw(
-  provider: any,
-  account: string,
-  domain: Record<string, any>,
-  types: Record<string, any>,
-  primaryType: string,
-  message: Record<string, any>,
-): Promise<string> {
-  // Convert BigInt values to hex strings for JSON serialization
-  const sanitize = (obj: any): any => {
-    if (typeof obj === 'bigint') return `0x${obj.toString(16)}`;
-    if (Array.isArray(obj)) return obj.map(sanitize);
-    if (obj && typeof obj === 'object') {
-      const out: any = {};
-      for (const [k, v] of Object.entries(obj)) out[k] = sanitize(v);
-      return out;
-    }
-    return obj;
-  };
-
-  const typedData = {
-    types: {
-      EIP712Domain: [
-        { name: 'name', type: 'string' },
-        { name: 'version', type: 'string' },
-        { name: 'chainId', type: 'uint256' },
-        { name: 'verifyingContract', type: 'address' },
-      ],
-      ...types,
-    },
-    domain: sanitize(domain),
-    primaryType,
-    message: sanitize(message),
-  };
-
-  return provider.request({
-    method: 'eth_signTypedData_v4',
-    params: [account, JSON.stringify(typedData)],
-  });
-}
-
 type Step = 'idle' | 'approving' | 'setting-referrer' | 'done' | 'error';
 
 function SwitchBuilderInner() {
   const [lang] = useLang();
-  const { address, isConnected, connector } = useAccount();
+  const { address, isConnected } = useAccount();
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
+  const { signTypedDataAsync } = useSignTypedData();
+  const { switchChainAsync } = useSwitchChain();
 
   const [step, setStep] = useState<Step>('idle');
   const [error, setError] = useState<string | null>(null);
@@ -83,22 +41,22 @@ function SwitchBuilderInner() {
   }, [connect, connectors]);
 
   const handleApproveBuilder = useCallback(async () => {
-    if (!isConnected || !address || !connector) return;
+    if (!isConnected) return;
     setStep('approving');
     setError(null);
 
     try {
+      // Switch to Arbitrum Sepolia (chainId 421614) to match EIP-712 domain
+      try { await switchChainAsync({ chainId: HL_CHAIN_ID }); } catch {}
+
       const { action, message, nonce } = buildApproveBuilderFeeAction(ONEKEY_BUILDER_ADDRESS, '0.01%');
 
-      const provider = await connector.getProvider();
-      const sig = await signTypedDataRaw(
-        provider,
-        address,
-        EIP712_DOMAIN,
-        APPROVE_BUILDER_FEE_TYPES,
-        'HyperliquidTransaction:ApproveBuilderFee',
+      const sig = await signTypedDataAsync({
+        domain: EIP712_DOMAIN,
+        types: APPROVE_BUILDER_FEE_TYPES,
+        primaryType: 'HyperliquidTransaction:ApproveBuilderFee',
         message,
-      );
+      });
 
       // Parse signature
       const r = '0x' + sig.slice(2, 66);
@@ -128,24 +86,20 @@ function SwitchBuilderInner() {
       }
       setStep('error');
     }
-  }, [isConnected, address, connector]);
+  }, [isConnected, signTypedDataAsync, switchChainAsync]);
 
   const handleSetReferrer = useCallback(async () => {
-    if (!address || !connector) return;
     setStep('setting-referrer');
 
     try {
       const { action, message, nonce } = buildSetReferrerAction(ONEKEY_REFERRAL_CODE);
 
-      const provider = await connector.getProvider();
-      const sig = await signTypedDataRaw(
-        provider,
-        address,
-        EIP712_DOMAIN,
-        SET_REFERRER_TYPES,
-        'HyperliquidTransaction:SetReferrer',
+      const sig = await signTypedDataAsync({
+        domain: EIP712_DOMAIN,
+        types: SET_REFERRER_TYPES,
+        primaryType: 'HyperliquidTransaction:SetReferrer',
         message,
-      );
+      });
 
       const r = '0x' + sig.slice(2, 66);
       const s = '0x' + sig.slice(66, 130);
@@ -164,7 +118,7 @@ function SwitchBuilderInner() {
       setReferralSuccess(false);
       setStep('done');
     }
-  }, [address, connector]);
+  }, [signTypedDataAsync]);
 
   // Success state
   if (step === 'done') {
