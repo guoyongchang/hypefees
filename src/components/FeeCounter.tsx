@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useLang, t } from '../lib/i18n';
 
 // Total builder revenue from cached data (~$68.7M as of snapshot)
 // This ticks up based on estimated daily rate (~$200K/day across all builders)
@@ -8,6 +9,7 @@ const DAILY_RATE = 200_000; // ~$200K/day estimated from revenue growth
 const PER_MS = DAILY_RATE / 86_400_000;
 
 export default function FeeCounter() {
+  const [lang] = useLang();
   const [value, setValue] = useState(BASE_REVENUE);
   const rafRef = useRef<number>(0);
 
@@ -39,7 +41,7 @@ export default function FeeCounter() {
       <span className="tabular-nums tracking-tight">
         <span className="font-semibold text-[var(--color-text-secondary)]">{formatted}</span>
         {' '}
-        <span className="text-[var(--color-text-muted)]">in avoidable fees</span>
+        <span className="text-[var(--color-text-muted)]">{t('counter.avoidableFees', lang)}</span>
       </span>
     </div>
   );

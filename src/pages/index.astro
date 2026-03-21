@@ -6,6 +6,9 @@ import TranslatedText from '../components/TranslatedText.tsx';
 import HeroSection from '../components/HeroSection.tsx';
 import BuilderTable from '../components/BuilderTable.tsx';
 import FeeSimulator from '../components/FeeSimulator.tsx';
+import SectionAbout from '../components/SectionAbout.tsx';
+import SectionHowItWorks from '../components/SectionHowItWorks.tsx';
+import SectionFAQ from '../components/SectionFAQ.tsx';
 import ScrollReveal from '../components/ScrollReveal.astro';
 ---
 
@@ -27,22 +30,7 @@ import ScrollReveal from '../components/ScrollReveal.astro';
   <section class="section-alt" style="padding-top: var(--space-section); padding-bottom: var(--space-section);">
     <div class="max-w-3xl reveal">
       <h2 class="mb-4"><TranslatedText client:load k="section.whatAre" /></h2>
-      <div class="space-y-3 text-[var(--text-sm)] text-[var(--color-text-secondary)] leading-relaxed" style="font-size: var(--text-sm);">
-        <p>
-          Third-party wallets like Phantom, MetaMask, and Rabby attach a
-          <strong class="text-[var(--color-text)]">builder fee</strong> to every trade you execute on Hyperliquid.
-          This is charged on top of the exchange's base fees (0.035% taker / 0.01% maker at VIP 0).
-        </p>
-        <p>
-          Builder fees range from <strong class="text-[var(--color-text)]">0% to 0.10%</strong>.
-          At the maximum rate, $1M in monthly volume costs you an extra
-          <strong class="text-[var(--color-text)]">$1,000</strong> — paid to the wallet provider, not Hyperliquid.
-        </p>
-        <p>
-          Some wallets charge nothing. OneKey has a 0% builder fee.
-          HypeFees exists to make this visible and help you choose.
-        </p>
-      </div>
+      <SectionAbout client:load />
     </div>
   </section>
 
@@ -51,7 +39,7 @@ import ScrollReveal from '../components/ScrollReveal.astro';
     <div class="reveal">
       <h2 class="mb-1"><TranslatedText client:load k="section.comparison" /></h2>
       <p class="text-[var(--color-text-secondary)] mb-6" style="font-size: var(--text-sm);">
-        240+ wallets and frontends compared. Your total cost = Hyperliquid base fee + builder fee.
+        <TranslatedText client:load k="comparison.subtitle" />
       </p>
     </div>
     <div class="reveal" style="transition-delay: 100ms;">
@@ -64,7 +52,7 @@ import ScrollReveal from '../components/ScrollReveal.astro';
     <div class="reveal">
       <h2 class="mb-1"><TranslatedText client:load k="section.calculator" /></h2>
       <p class="text-[var(--color-text-secondary)] mb-6" style="font-size: var(--text-sm);">
-        How builder fees compound across different volumes.
+        <TranslatedText client:load k="calculator.subtitle" />
       </p>
     </div>
     <div class="reveal" style="transition-delay: 100ms;">
@@ -76,47 +64,7 @@ import ScrollReveal from '../components/ScrollReveal.astro';
   <section style="padding-top: var(--space-section); padding-bottom: var(--space-section);">
     <div class="max-w-3xl reveal">
       <h2 class="mb-4"><TranslatedText client:load k="section.howItWorks" /></h2>
-      <div class="space-y-3 text-[var(--color-text-secondary)] leading-relaxed" style="font-size: var(--text-sm);">
-        <p>
-          Wallets register as "builders" on Hyperliquid and set a fee rate.
-          Every order placed through that wallet includes the builder fee automatically.
-          The maximum is 0.10% (10 basis points) on perpetual contracts.
-        </p>
-
-        <h3 class="pt-4 text-[var(--color-text)]">Base Exchange Fees by VIP Tier</h3>
-        <div class="overflow-x-auto mt-3">
-          <table class="w-full border border-[var(--color-border)] rounded-lg overflow-hidden" style="font-size: var(--text-xs);">
-            <thead>
-              <tr class="bg-[var(--color-bg-secondary)]">
-                <th class="text-left px-3 py-2.5 font-medium">Tier</th>
-                <th class="text-left px-3 py-2.5 font-medium">14-Day Volume</th>
-                <th class="text-left px-3 py-2.5 font-medium">Taker</th>
-                <th class="text-left px-3 py-2.5 font-medium">Maker</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-[var(--color-border)]">
-              <tr><td class="px-3 py-2">VIP 0</td><td class="px-3 py-2">&lt; $5M</td><td class="px-3 py-2">0.035%</td><td class="px-3 py-2">0.010%</td></tr>
-              <tr><td class="px-3 py-2">VIP 1</td><td class="px-3 py-2">$5M–$25M</td><td class="px-3 py-2">0.030%</td><td class="px-3 py-2">0.008%</td></tr>
-              <tr><td class="px-3 py-2">VIP 2</td><td class="px-3 py-2">$25M–$100M</td><td class="px-3 py-2">0.025%</td><td class="px-3 py-2">0.005%</td></tr>
-              <tr><td class="px-3 py-2">VIP 3</td><td class="px-3 py-2">$100M–$500M</td><td class="px-3 py-2">0.020%</td><td class="px-3 py-2">0.002%</td></tr>
-              <tr><td class="px-3 py-2">VIP 4</td><td class="px-3 py-2">$500M–$2B</td><td class="px-3 py-2">0.018%</td><td class="px-3 py-2">0.001%</td></tr>
-              <tr><td class="px-3 py-2">VIP 5</td><td class="px-3 py-2">$2B–$7B</td><td class="px-3 py-2">0.015%</td><td class="px-3 py-2">0.0005%</td></tr>
-              <tr><td class="px-3 py-2">VIP 6</td><td class="px-3 py-2">&gt; $7B</td><td class="px-3 py-2">0.014%</td><td class="px-3 py-2">0.000%</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <p class="mt-3">
-          Your effective rate = base fee + builder fee. A VIP 0 taker with a 0.05% builder pays
-          0.085% total. With a 0% builder, you pay only 0.035%.
-        </p>
-
-        <h3 class="pt-4 text-[var(--color-text)]">Switching Builders</h3>
-        <p>
-          Sign an EIP-712 message called
-          <code class="bg-[var(--color-bg-elevated)] px-1.5 py-0.5 rounded" style="font-size: var(--text-xs);">approveBuilderFee</code>
-          — no gas, no fund transfers. Up to 10 active builder approvals. Switch back anytime.
-        </p>
-      </div>
+      <SectionHowItWorks client:load />
     </div>
   </section>
 
@@ -126,84 +74,7 @@ import ScrollReveal from '../components/ScrollReveal.astro';
       <h2 class="mb-6"><TranslatedText client:load k="section.faq" /></h2>
     </div>
     <div class="space-y-2 max-w-3xl reveal" style="transition-delay: 80ms;">
-      <details class="group border border-[var(--color-border)] rounded-xl bg-[var(--color-bg-card)]">
-        <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)]">
-          What is a Hyperliquid builder fee?
-        </summary>
-        <div class="px-5 pb-4 text-[var(--color-text-secondary)] leading-relaxed" style="font-size: var(--text-sm);">
-          An additional fee your wallet charges on top of Hyperliquid's exchange fees. Rates are set by each wallet
-          independently and range from 0% to 0.10%. The fee goes to the wallet provider.
-        </div>
-      </details>
-      <details class="group border border-[var(--color-border)] rounded-xl bg-[var(--color-bg-card)]">
-        <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)]">
-          Which wallets have the lowest fees?
-        </summary>
-        <div class="px-5 pb-4 text-[var(--color-text-secondary)] leading-relaxed" style="font-size: var(--text-sm);">
-          OneKey charges 0%. Several others also offer 0% builder fees. See the comparison table above.
-        </div>
-      </details>
-      <details class="group border border-[var(--color-border)] rounded-xl bg-[var(--color-bg-card)]">
-        <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)]">
-          How much can builder fees cost per year?
-        </summary>
-        <div class="px-5 pb-4 text-[var(--color-text-secondary)] leading-relaxed" style="font-size: var(--text-sm);">
-          At $1M/month volume: Phantom (0.05%) costs $6,000/year. MetaMask (0.10%) costs $12,000/year.
-          A 0% builder costs $0.
-        </div>
-      </details>
-      <details class="group border border-[var(--color-border)] rounded-xl bg-[var(--color-bg-card)]">
-        <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)]">
-          How do I switch builders?
-        </summary>
-        <div class="px-5 pb-4 text-[var(--color-text-secondary)] leading-relaxed" style="font-size: var(--text-sm);">
-          Connect your wallet and sign an EIP-712 message. No gas fees, no fund transfers.
-          Takes effect immediately. Your positions and history are not affected.
-        </div>
-      </details>
-      <details class="group border border-[var(--color-border)] rounded-xl bg-[var(--color-bg-card)]">
-        <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)]">
-          Is switching safe?
-        </summary>
-        <div class="px-5 pb-4 text-[var(--color-text-secondary)] leading-relaxed" style="font-size: var(--text-sm);">
-          Yes. You're only signing a message — no tokens approved, no smart contract calls, no funds moved.
-          You can have up to 10 active builder approvals and switch back anytime.
-        </div>
-      </details>
-      <details class="group border border-[var(--color-border)] rounded-xl bg-[var(--color-bg-card)]">
-        <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)]">
-          Does Phantom charge a builder fee?
-        </summary>
-        <div class="px-5 pb-4 text-[var(--color-text-secondary)] leading-relaxed" style="font-size: var(--text-sm);">
-          Yes — 0.05%. On $1M volume, that's $500 extra. Effective VIP 0 taker rate: 0.085%.
-        </div>
-      </details>
-      <details class="group border border-[var(--color-border)] rounded-xl bg-[var(--color-bg-card)]">
-        <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)]">
-          Does MetaMask charge a builder fee?
-        </summary>
-        <div class="px-5 pb-4 text-[var(--color-text-secondary)] leading-relaxed" style="font-size: var(--text-sm);">
-          Yes — 0.10%, the maximum allowed. On $1M volume, that's $1,000.
-        </div>
-      </details>
-      <details class="group border border-[var(--color-border)] rounded-xl bg-[var(--color-bg-card)]">
-        <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)]">
-          Can I check my past builder fees?
-        </summary>
-        <div class="px-5 pb-4 text-[var(--color-text-secondary)] leading-relaxed" style="font-size: var(--text-sm);">
-          Enter your address at the top of this page. HypeFees pulls your full trade history
-          from Hyperliquid's public API and breaks down exchange fees vs. builder fees.
-        </div>
-      </details>
-      <details class="group border border-[var(--color-border)] rounded-xl bg-[var(--color-bg-card)]">
-        <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)]">
-          Where does this data come from?
-        </summary>
-        <div class="px-5 pb-4 text-[var(--color-text-secondary)] leading-relaxed" style="font-size: var(--text-sm);">
-          Builder data from HyperTracker (CoinMarketMan). Fee breakdowns from Hyperliquid's public API.
-          All on-chain and verifiable. HypeFees is independent and open-source.
-        </div>
-      </details>
+      <SectionFAQ client:load />
     </div>
   </section>
 

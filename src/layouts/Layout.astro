@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import FeeCounter from '../components/FeeCounter.tsx';
+import TranslatedText from '../components/TranslatedText.tsx';
 
 // Security headers
 Astro.response.headers.set('X-Content-Type-Options', 'nosniff');
@@ -81,22 +82,20 @@ const {
               <span class="text-base font-bold text-[var(--color-text)]">Hype<span class="text-[var(--color-accent)]">Fees</span></span>
             </div>
             <p class="text-xs leading-relaxed">
-              Independent, open-source Hyperliquid builder fee comparison tool.
-              Compare wallet fees, check your spending, and switch to save.
-              Not affiliated with Hyperliquid or any wallet provider.
+              <TranslatedText client:load k="footer.description" />
             </p>
           </div>
           <div>
-            <div class="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] mb-3">Tools</div>
+            <div class="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] mb-3"><TranslatedText client:load k="footer.tools" /></div>
             <ul class="space-y-2 text-xs">
-              <li><a href="#main" class="hover:text-[var(--color-text-secondary)] transition-colors py-1 inline-flex items-center min-h-[44px]">Fee Lookup</a></li>
-              <li><a href="#main" class="hover:text-[var(--color-text-secondary)] transition-colors py-1 inline-flex items-center min-h-[44px]">Builder Comparison</a></li>
-              <li><a href="#main" class="hover:text-[var(--color-text-secondary)] transition-colors py-1 inline-flex items-center min-h-[44px]">Fee Calculator</a></li>
-              <li><a href="#main" class="hover:text-[var(--color-text-secondary)] transition-colors py-1 inline-flex items-center min-h-[44px]">One-Click Switch</a></li>
+              <li><a href="#main" class="hover:text-[var(--color-text-secondary)] transition-colors py-1 inline-flex items-center min-h-[44px]"><TranslatedText client:load k="footer.feeLookup" /></a></li>
+              <li><a href="#main" class="hover:text-[var(--color-text-secondary)] transition-colors py-1 inline-flex items-center min-h-[44px]"><TranslatedText client:load k="footer.builderComparison" /></a></li>
+              <li><a href="#main" class="hover:text-[var(--color-text-secondary)] transition-colors py-1 inline-flex items-center min-h-[44px]"><TranslatedText client:load k="footer.feeCalculator" /></a></li>
+              <li><a href="#main" class="hover:text-[var(--color-text-secondary)] transition-colors py-1 inline-flex items-center min-h-[44px]"><TranslatedText client:load k="footer.oneClickSwitch" /></a></li>
             </ul>
           </div>
           <div>
-            <div class="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] mb-3">Resources</div>
+            <div class="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] mb-3"><TranslatedText client:load k="footer.resources" /></div>
             <ul class="space-y-2 text-xs">
               <li><a href="https://hyperliquid.gitbook.io/hyperliquid-docs/trading/fees" target="_blank" rel="noopener noreferrer" class="hover:text-[var(--color-text-secondary)] transition-colors py-1 inline-flex items-center min-h-[44px]">Hyperliquid Fee Docs</a></li>
               <li><a href="https://hyperliquid.gitbook.io/hyperliquid-docs/trading/builder-codes" target="_blank" rel="noopener noreferrer" class="hover:text-[var(--color-text-secondary)] transition-colors py-1 inline-flex items-center min-h-[44px]">Builder Codes Docs</a></li>
@@ -105,7 +104,7 @@ const {
             </ul>
           </div>
           <div>
-            <div class="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] mb-3">Project</div>
+            <div class="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] mb-3"><TranslatedText client:load k="footer.project" /></div>
             <ul class="space-y-2 text-xs">
               <li><a href="https://github.com/rayston92/hypefees" target="_blank" rel="noopener noreferrer" class="hover:text-[var(--color-text-secondary)] transition-colors py-1 inline-flex items-center min-h-[44px]">GitHub</a></li>
               <li><a href="https://github.com/rayston92/hypefees/issues" target="_blank" rel="noopener noreferrer" class="hover:text-[var(--color-text-secondary)] transition-colors py-1 inline-flex items-center min-h-[44px]">Report Issue</a></li>
@@ -114,13 +113,10 @@ const {
         </div>
         <div class="border-t border-[var(--color-border)] mt-8 pt-6 text-xs text-[var(--color-text-muted)] space-y-2">
           <p>
-            Data sourced from Hyperliquid's public API and HyperTracker by CoinMarketMan. All fee data is
-            on-chain and independently verifiable. Information is provided for reference only — always verify
-            on-chain before making financial decisions.
+            <TranslatedText client:load k="footer.disclaimer1" />
           </p>
           <p>
-            HypeFees is not a financial advisor. Trading perpetual futures involves substantial risk.
-            Builder fee comparison data is updated daily.
+            <TranslatedText client:load k="footer.disclaimer2" />
           </p>
         </div>
       </div>

@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import type { Builder } from '../lib/fees';
 import { formatFeePercent, totalTakerFee, totalMakerFee, formatVolume } from '../lib/fees';
+import { useLang, t } from '../lib/i18n';
+import type { Lang } from '../lib/i18n';
 import builderIcons from '../data/builder-icons.json';
 import curatedData from '../data/curated-builders.json';
 
@@ -24,13 +26,17 @@ for (const b of curatedData.builders) {
   CURATED[b.refCode] = b as CuratedInfo;
 }
 
-const TYPE_LABELS: Record<string, string> = {
-  wallet: 'Wallet',
-  terminal: 'Terminal',
-  platform: 'Platform',
-  frontend: 'Frontend',
-  bot: 'Bot',
-};
+function getTypeLabel(type: string | undefined, lang: Lang): string {
+  if (!type) return '';
+  const map: Record<string, string> = {
+    wallet: t('table.wallet', lang),
+    terminal: t('table.terminal', lang),
+    platform: t('table.platform', lang),
+    frontend: t('table.frontend', lang),
+    bot: t('table.bot', lang),
+  };
+  return map[type] || type;
+}
 
 function PlatformBadge({ active, label, title }: { active: boolean; label: string; title: string }) {
   return (
@@ -47,18 +53,19 @@ function PlatformBadge({ active, label, title }: { active: boolean; label: strin
   );
 }
 
-function HardwareBadge({ hardware }: { hardware: string }) {
+function HardwareBadge({ hardware, lang }: { hardware: string; lang: Lang }) {
   if (hardware === 'none') return <span className="text-[var(--color-text-muted)] text-xs opacity-40">—</span>;
-  if (hardware === 'own') return <span className="text-xs font-medium text-[var(--color-accent)]" title="Own hardware wallet (OneKey Classic, Pro, Touch, Mini)">Own HW</span>;
+  if (hardware === 'own') return <span className="text-xs font-medium text-[var(--color-accent)]" title="Own hardware wallet (OneKey Classic, Pro, Touch, Mini)">{t('table.ownHW', lang)}</span>;
   const parts: string[] = [];
   if (hardware.includes('ledger')) parts.push('Ledger');
   if (hardware.includes('trezor')) parts.push('Trezor');
   if (hardware.includes('onekey')) parts.push('OneKey');
-  if (parts.length > 0) return <span className="text-xs text-[var(--color-text-secondary)]" title={`Supports ${parts.join(', ')}`}>{parts.join(' · ')}</span>;
+  if (parts.length > 0) return <span className="text-xs text-[var(--color-text-secondary)]" title={`${t('table.supports', lang)} ${parts.join(', ')}`}>{parts.join(' · ')}</span>;
   return <span className="text-xs text-[var(--color-text-muted)]">{hardware}</span>;
 }
 
 export default function BuilderTable() {
+  const [lang] = useLang();
   const [builders, setBuilders] = useState<Builder[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -153,7 +160,7 @@ export default function BuilderTable() {
   }
 
   if (error) {
-    return <div className="text-center py-16 text-[var(--color-danger)]">Failed to load: {error}</div>;
+    return <div className="text-center py-16 text-[var(--color-danger)]">{t('table.failedToLoad', lang)} {error}</div>;
   }
 
   return (
@@ -168,7 +175,7 @@ export default function BuilderTable() {
               : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]'
           }`}
         >
-          Top Wallets
+          {t('table.topWallets', lang)}
         </button>
         <button
           onClick={() => setViewMode('all')}
@@ -178,7 +185,7 @@ export default function BuilderTable() {
               : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]'
           }`}
         >
-          All Builders ({builders.length})
+          {t('table.allBuilders', lang)} ({builders.length})
         </button>
       </div>
 
@@ -187,36 +194,36 @@ export default function BuilderTable() {
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-[var(--color-bg-secondary)] border-b border-[var(--color-border)]">
-              <th className="text-left px-4 py-3 font-medium text-[var(--color-text-secondary)]">Builder</th>
+              <th className="text-left px-4 py-3 font-medium text-[var(--color-text-secondary)]">{t('table.builder', lang)}</th>
               <th
                 className="px-4 py-3 font-medium text-[var(--color-text-secondary)] cursor-pointer hover:text-[var(--color-text)] select-none text-left"
                 onClick={() => handleSort('usageFee')}
               >
-                Builder Fee <SortIcon active={sortKey === 'usageFee'} dir={sortDir} />
+                {t('table.builderFee', lang)} <SortIcon active={sortKey === 'usageFee'} dir={sortDir} />
               </th>
               <th
                 className="px-4 py-3 font-medium text-[var(--color-text-secondary)] cursor-pointer hover:text-[var(--color-text)] select-none text-left"
                 onClick={() => handleSort('totalTaker')}
               >
-                Eff. Taker <SortIcon active={sortKey === 'totalTaker'} dir={sortDir} />
+                {t('table.effTaker', lang)} <SortIcon active={sortKey === 'totalTaker'} dir={sortDir} />
               </th>
               {viewMode === 'featured' && (
                 <>
-                  <th className="px-4 py-3 font-medium text-[var(--color-text-secondary)] text-center">Platforms</th>
-                  <th className="px-4 py-3 font-medium text-[var(--color-text-secondary)] text-center">Hardware</th>
+                  <th className="px-4 py-3 font-medium text-[var(--color-text-secondary)] text-center">{t('table.platforms', lang)}</th>
+                  <th className="px-4 py-3 font-medium text-[var(--color-text-secondary)] text-center">{t('table.hardware', lang)}</th>
                 </>
               )}
               <th
                 className="px-4 py-3 font-medium text-[var(--color-text-secondary)] cursor-pointer hover:text-[var(--color-text)] select-none text-right"
                 onClick={() => handleSort('users')}
               >
-                Users <SortIcon active={sortKey === 'users'} dir={sortDir} />
+                {t('table.users', lang)} <SortIcon active={sortKey === 'users'} dir={sortDir} />
               </th>
               <th
                 className="px-4 py-3 font-medium text-[var(--color-text-secondary)] cursor-pointer hover:text-[var(--color-text)] select-none text-right"
                 onClick={() => handleSort('volume')}
               >
-                Volume <SortIcon active={sortKey === 'volume'} dir={sortDir} />
+                {t('table.volume', lang)} <SortIcon active={sortKey === 'volume'} dir={sortDir} />
               </th>
             </tr>
           </thead>
@@ -244,13 +251,13 @@ export default function BuilderTable() {
                           <span className="font-medium truncate">{builder.refCode || `${builder.address.slice(0, 6)}...`}</span>
                           {isZeroFee && (
                             <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[var(--color-success)] text-white font-medium shrink-0">
-                              Best
+                              {t('table.best', lang)}
                             </span>
                           )}
                         </div>
                         {curated && (
                           <span className="text-[10px] text-[var(--color-text-muted)]">
-                            {TYPE_LABELS[curated.type] || curated.type}
+                            {getTypeLabel(curated.type, lang)}
                           </span>
                         )}
                       </div>
@@ -259,7 +266,7 @@ export default function BuilderTable() {
 
                   {/* Builder Fee */}
                   <td className={`px-4 py-3 tabular-nums ${isZeroFee ? 'text-[var(--color-success)] font-semibold' : ''}`}>
-                    {builder.usageFee === 0 ? 'FREE' : formatFeePercent(builder.usageFee)}
+                    {builder.usageFee === 0 ? t('table.free', lang) : formatFeePercent(builder.usageFee)}
                   </td>
 
                   {/* Effective Taker */}
@@ -272,15 +279,15 @@ export default function BuilderTable() {
                     <>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-center gap-0.5">
-                          <PlatformBadge active={curated.platforms.ios} label="iOS" title="iOS App" />
-                          <PlatformBadge active={curated.platforms.android} label="And" title="Android App" />
-                          <PlatformBadge active={curated.platforms.desktop} label="Mac" title="Desktop App" />
-                          <PlatformBadge active={curated.platforms.extension} label="Ext" title="Browser Extension" />
-                          <PlatformBadge active={curated.platforms.web} label="Web" title="Web App" />
+                          <PlatformBadge active={curated.platforms.ios} label="iOS" title={t('table.iOSApp', lang)} />
+                          <PlatformBadge active={curated.platforms.android} label="And" title={t('table.androidApp', lang)} />
+                          <PlatformBadge active={curated.platforms.desktop} label="Mac" title={t('table.desktopApp', lang)} />
+                          <PlatformBadge active={curated.platforms.extension} label="Ext" title={t('table.browserExt', lang)} />
+                          <PlatformBadge active={curated.platforms.web} label="Web" title={t('table.webApp', lang)} />
                         </div>
                       </td>
                       <td className="px-4 py-3 text-center">
-                        <HardwareBadge hardware={curated.hardware} />
+                        <HardwareBadge hardware={curated.hardware} lang={lang} />
                       </td>
                     </>
                   )}
@@ -309,8 +316,8 @@ export default function BuilderTable() {
 
       <p className="mt-3 text-xs text-[var(--color-text-muted)]">
         {viewMode === 'featured'
-          ? `Showing ${sorted.length} top wallets and frontends. Switch to "All Builders" to see all ${builders.length}.`
-          : `${sorted.length} builders tracked. Data from HyperTracker.`
+          ? t('table.showing', lang, { n: String(sorted.length), total: String(builders.length) })
+          : t('table.trackingInfo', lang, { n: String(sorted.length) })
         }
       </p>
     </div>

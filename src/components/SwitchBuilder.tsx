@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { useAccount, useConnect, useDisconnect, useSignTypedData } from 'wagmi';
 import { injected } from 'wagmi/connectors';
 import WalletProvider from './WalletProvider';
+import { useLang, t } from '../lib/i18n';
 import {
   ONEKEY_BUILDER_ADDRESS,
   ONEKEY_REFERRAL_CODE,
@@ -16,6 +17,7 @@ import {
 type Step = 'idle' | 'approving' | 'setting-referrer' | 'done' | 'error';
 
 function SwitchBuilderInner() {
+  const [lang] = useLang();
   const { address, isConnected } = useAccount();
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
@@ -117,16 +119,16 @@ function SwitchBuilderInner() {
             </svg>
           </div>
           <div>
-            <h2 className="text-xl md:text-2xl font-bold text-[#5ef0d0]">You're set — 0% builder fees</h2>
+            <h2 className="text-xl md:text-2xl font-bold text-[#5ef0d0]">{t('switch.success', lang)}</h2>
             <p className="text-[#8aaa9e] mt-2">
-              Builder approval confirmed{referralSuccess ? ' and referral code applied' : ''}.
-              Your future trades will use 0% builder fees.
+              {t('switch.approvalConfirmed', lang)}{referralSuccess ? t('switch.referralApplied', lang) : ''}.
+              {t('switch.futureTradesSub', lang)}
             </p>
             <button
               onClick={() => { disconnect(); setStep('idle'); setApproveSuccess(false); setReferralSuccess(false); }}
               className="mt-4 text-sm text-[#5a756b] hover:text-[#8aaa9e] transition-colors"
             >
-              Disconnect wallet
+              {t('switch.disconnect', lang)}
             </button>
           </div>
         </div>
@@ -137,9 +139,9 @@ function SwitchBuilderInner() {
   return (
     <div className="rounded-2xl overflow-hidden bg-[#0a2e2a] p-8 md:p-12">
       <div className="max-w-2xl">
-        <h2 className="text-xl md:text-2xl font-bold text-[#5ef0d0]">Switch to 0% builder fees</h2>
+        <h2 className="text-xl md:text-2xl font-bold text-[#5ef0d0]">{t('switch.title', lang)}</h2>
         <p className="text-[#8aaa9e] mt-2 leading-relaxed">
-          0.10% per trade = $1,000 on every $1M volume. Connect your wallet to switch.
+          {t('switch.subtitle', lang)}
         </p>
 
         <div className="mt-6">
@@ -148,7 +150,7 @@ function SwitchBuilderInner() {
               onClick={handleConnect}
               className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#5ef0d0] text-[#0a2e2a] font-semibold hover:bg-[#7ff5dc] transition-colors min-h-[44px]"
             >
-              Connect Wallet
+              {t('switch.connectWallet', lang)}
             </button>
           ) : (
             <div className="space-y-4">
@@ -160,7 +162,7 @@ function SwitchBuilderInner() {
                   onClick={() => disconnect()}
                   className="text-xs text-[#5a756b] hover:text-[#8aaa9e] transition-colors ml-2"
                 >
-                  disconnect
+                  {t('switch.disconnect', lang)}
                 </button>
               </div>
 
@@ -172,7 +174,7 @@ function SwitchBuilderInner() {
                   }`}>
                     {approveSuccess ? '✓' : '1'}
                   </div>
-                  <span className="text-[#e4efe9] text-sm">Approve 0% builder fee</span>
+                  <span className="text-[#e4efe9] text-sm">{t('switch.approve', lang)}</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
@@ -180,7 +182,7 @@ function SwitchBuilderInner() {
                   }`}>
                     {referralSuccess ? '✓' : '2'}
                   </div>
-                  <span className="text-[#8aaa9e] text-sm">Apply referral discount (optional)</span>
+                  <span className="text-[#8aaa9e] text-sm">{t('switch.referral', lang)}</span>
                 </div>
               </div>
 
@@ -196,10 +198,10 @@ function SwitchBuilderInner() {
                 className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#5ef0d0] text-[#0a2e2a] font-semibold hover:bg-[#7ff5dc] transition-colors min-h-[44px] disabled:opacity-50"
               >
                 {step === 'approving'
-                  ? 'Waiting for signature...'
+                  ? t('switch.waitingSignature', lang)
                   : step === 'setting-referrer'
-                    ? 'Setting referral...'
-                    : 'Switch to 0% Fee'}
+                    ? t('switch.settingReferral', lang)
+                    : t('switch.switchBtn', lang)}
                 {step === 'idle' && (
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M5 12h14M12 5l7 7-7 7" />
@@ -208,7 +210,7 @@ function SwitchBuilderInner() {
               </button>
 
               <p className="text-xs text-[#5a756b]">
-                Two signatures required — no gas fees, no funds transferred.
+                {t('switch.twoSignatures', lang)}
               </p>
             </div>
           )}
