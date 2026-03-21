@@ -1,4 +1,7 @@
 import { useEffect, useRef } from 'react';
+import builderIcons from '../data/builder-icons.json';
+
+const ICON_MAP: Record<string, string> = builderIcons;
 
 const BUILDERS = [
   { name: 'OneKey',   fee: '0%',     rate: 0,       color: '#00c9a7', best: true },
@@ -7,6 +10,8 @@ const BUILDERS = [
   { name: 'Phantom',  fee: '0.05%',  rate: 0.0005,  color: '#f59e0b', best: false },
   { name: 'MetaMask', fee: '0.10%',  rate: 0.001,   color: '#ef4444', best: false },
 ];
+
+const TRADE_AMOUNT = 1_000_000; // $1M
 
 const PARTICLE_COUNT = 120;
 
@@ -42,12 +47,24 @@ export default function HeroFlow() {
   const particlesRef = useRef<Particle[]>([]);
   const timeRef = useRef(0);
   const rafRef = useRef<number>(0);
+  const iconImagesRef = useRef<Map<string, HTMLImageElement>>(new Map());
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+
+    // Preload builder icons
+    for (const b of BUILDERS) {
+      const src = ICON_MAP[b.name];
+      if (src) {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.src = src;
+        iconImagesRef.current.set(b.name, img);
+      }
+    }
 
     const dpr = window.devicePixelRatio || 1;
     let W = 0, H = 0;
@@ -105,11 +122,14 @@ export default function HeroFlow() {
 
     function drawNode(
       x: number, y: number, label: string, sub: string | null,
-      color: string, isBest: boolean, isEnd: boolean,
+      color: string, isBest: boolean, isEnd: boolean, icon: HTMLImageElement | null,
     ) {
       const theme = getThemeColors();
-      const w = isEnd ? 100 : 114;
+      const w = isEnd ? 110 : 130;
       const h = isEnd ? 42 : 48;
+      const hasIcon = icon && icon.complete && icon.naturalWidth > 0;
+      const iconSize = 18;
+      const textOffsetX = hasIcon ? 12 : 0; // shift text right to make room for icon
 
       ctx!.save();
       roundRect(ctx!, x - w / 2, y - h / 2, w, h, 10);
@@ -126,17 +146,32 @@ export default function HeroFlow() {
       ctx!.shadowBlur = 0;
       ctx!.restore();
 
+      // Draw icon
+      if (hasIcon) {
+        ctx!.save();
+        const ix = x - w / 2 + 10;
+        const iy = y - iconSize / 2;
+        ctx!.beginPath();
+        ctx!.arc(ix + iconSize / 2, iy + iconSize / 2, iconSize / 2, 0, Math.PI * 2);
+        ctx!.closePath();
+        ctx!.clip();
+        ctx!.drawImage(icon!, ix, iy, iconSize, iconSize);
+        ctx!.restore();
+      }
+
+      const labelX = hasIcon ? x + textOffsetX : x;
+
       ctx!.textAlign = 'center';
       ctx!.textBaseline = 'middle';
       ctx!.font = '500 12px "Roobert", system-ui, sans-serif';
       ctx!.fillStyle = isBest ? '#00c9a7' : theme.text;
-      ctx!.fillText(label, x, sub ? y - 7 : y);
+      ctx!.fillText(label, labelX, sub ? y - 7 : y);
 
       if (sub) {
         ctx!.font = '600 10px ui-monospace, monospace';
         ctx!.fillStyle = isBest ? '#00c9a7' : color;
         ctx!.globalAlpha = isBest ? 1 : 0.6;
-        ctx!.fillText(sub, x, y + 9);
+        ctx!.fillText(sub, labelX, y + 9);
         ctx!.globalAlpha = 1;
       }
 
@@ -235,24 +270,26 @@ export default function HeroFlow() {
       }
 
       // Nodes
-      drawNode(leftX, userY, 'Your Trade', '$10,000', theme.text, false, true);
+      drawNode(leftX, userY, 'Your Trade', '$1,000,000', theme.text, false, true, null);
       for (const node of nodes) {
-        drawNode(node.x, node.y, node.name, node.fee, node.color, node.best, false);
+        const icon = iconImagesRef.current.get(node.name) || null;
+        drawNode(node.x, node.y, node.name, node.fee, node.color, node.best, false, icon);
       }
-      drawNode(rightX, hlY, 'Hyperliquid', 'L1', theme.text, false, true);
+      drawNode(rightX, hlY, 'Hyperliquid', 'L1', theme.text, false, true, null);
 
       // Savings callout
       const best = nodes.find((n) => n.best);
       const worst = nodes[nodes.length - 1];
       if (best && worst) {
-        const save = ((worst.rate - best.rate) * 10000).toFixed(0);
+        const saveAmount = Math.round((worst.rate - best.rate) * TRADE_AMOUNT);
+        const saveFormatted = saveAmount >= 1000 ? `${(saveAmount / 1000).toFixed(0)}K` : `${saveAmount}`;
         const cx = best.x, cy = best.y - 40;
         const pulse = 0.8 + 0.2 * Math.sin(timeRef.current * 2.5);
 
         ctx!.save();
         ctx!.globalAlpha = pulse;
         ctx!.font = '600 10px ui-monospace, monospace';
-        const txt = `Save $${save} per $10k`;
+        const txt = `Save $${saveFormatted} per $1M trade`;
         const tw = ctx!.measureText(txt).width + 20;
         ctx!.fillStyle = theme.saveBg;
         roundRect(ctx!, cx - tw / 2, cy - 11, tw, 22, 6);

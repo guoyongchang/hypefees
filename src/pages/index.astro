@@ -9,7 +9,7 @@ import FeeSimulator from '../components/FeeSimulator.tsx';
 <Layout>
   <ThemeToggle client:load slot="header-actions" />
 
-  <!-- Hero: single React island with input + animation + results -->
+  <!-- Hero -->
   <section class="hero-section relative overflow-hidden -mx-4 px-4">
     <div class="hero-grid absolute inset-0 pointer-events-none" aria-hidden="true"></div>
     <div class="relative z-10">
@@ -17,62 +17,229 @@ import FeeSimulator from '../components/FeeSimulator.tsx';
     </div>
   </section>
 
-  <!-- Builder Fee Comparison Table -->
+  <!-- What Are Hyperliquid Builder Fees — SEO explainer -->
   <section class="section-alt py-14">
-    <h2 class="text-xl md:text-2xl font-bold mb-1">Builder Fee Comparison</h2>
+    <div class="max-w-3xl">
+      <h2 class="text-xl md:text-2xl font-bold mb-4">What Are Hyperliquid Builder Fees?</h2>
+      <div class="space-y-3 text-sm text-[var(--color-text-secondary)] leading-relaxed">
+        <p>
+          Hyperliquid is a high-performance Layer 1 blockchain built for perpetual futures trading.
+          When you access Hyperliquid through a third-party wallet or frontend — such as Phantom, MetaMask,
+          Rabby, or any other interface — that wallet may attach a <strong class="text-[var(--color-text)]">builder fee</strong>
+          to every trade you execute.
+        </p>
+        <p>
+          Builder fees are charged on top of Hyperliquid's base exchange fees (0.035% taker / 0.01% maker for VIP 0).
+          They range from <strong class="text-[var(--color-text)]">0% to 0.10%</strong> depending on which wallet you use.
+          At 0.10%, a trader doing $1M in monthly volume pays an extra <strong class="text-[var(--color-text)]">$1,000</strong>
+          that goes entirely to the wallet provider — not to Hyperliquid.
+        </p>
+        <p>
+          Some wallets like OneKey charge 0% builder fees. That means the only fee you pay is Hyperliquid's
+          base exchange fee. No markup, no hidden charges. HypeFees exists to make this information
+          transparent and help traders choose the most cost-effective wallet.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Builder Fee Comparison Table -->
+  <section class="py-14">
+    <h2 class="text-xl md:text-2xl font-bold mb-1">Hyperliquid Builder Fee Comparison</h2>
     <p class="text-sm text-[var(--color-text-secondary)] mb-8">
-      Sorted by fee rate. Total = Hyperliquid base fee + builder fee.
+      Compare builder fees across 240+ wallets and frontends. Sorted by fee rate.
+      Total = Hyperliquid base fee + builder fee.
     </p>
     <BuilderTable client:load />
   </section>
 
   <!-- Fee Simulator -->
-  <section class="py-14">
-    <h2 class="text-xl md:text-2xl font-bold mb-1">Fee Simulator</h2>
+  <section class="section-alt py-14">
+    <h2 class="text-xl md:text-2xl font-bold mb-1">Hyperliquid Fee Calculator</h2>
     <p class="text-sm text-[var(--color-text-secondary)] mb-8">
-      See how much you'd pay across builders at any volume.
+      Calculate your total trading costs across different builders and volumes. Adjust the slider to see how
+      builder fees compound as your trading volume grows.
     </p>
     <FeeSimulator client:load />
   </section>
 
-  <!-- FAQ -->
+  <!-- How Builder Fees Work — SEO content -->
+  <section class="py-14">
+    <div class="max-w-3xl">
+      <h2 class="text-xl md:text-2xl font-bold mb-4">How Hyperliquid Builder Fees Work</h2>
+      <div class="space-y-3 text-sm text-[var(--color-text-secondary)] leading-relaxed">
+        <p>
+          Hyperliquid uses a system called <strong class="text-[var(--color-text)]">builder codes</strong>.
+          When a wallet or trading frontend integrates with Hyperliquid, it registers as a "builder"
+          and sets a fee rate. Every order placed through that frontend automatically includes the
+          builder fee as an additional charge.
+        </p>
+        <p>
+          The builder fee is specified per-order and is measured in tenths of basis points.
+          For perpetual contracts, the maximum allowed builder fee is 0.10% (10 basis points).
+          The fee applies to both buy and sell orders. Builders must maintain at least 100 USDC
+          in their perps account to be eligible.
+        </p>
+
+        <h3 class="text-base font-semibold text-[var(--color-text)] pt-3">Hyperliquid Base Exchange Fees (Without Builder Fees)</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs border border-[var(--color-border)] rounded-lg overflow-hidden">
+            <thead>
+              <tr class="bg-[var(--color-bg-secondary)]">
+                <th class="text-left px-3 py-2 font-medium">VIP Tier</th>
+                <th class="text-left px-3 py-2 font-medium">14-Day Volume</th>
+                <th class="text-left px-3 py-2 font-medium">Taker Fee</th>
+                <th class="text-left px-3 py-2 font-medium">Maker Fee</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[var(--color-border)]">
+              <tr><td class="px-3 py-2">VIP 0</td><td class="px-3 py-2">&lt; $5M</td><td class="px-3 py-2">0.035%</td><td class="px-3 py-2">0.010%</td></tr>
+              <tr><td class="px-3 py-2">VIP 1</td><td class="px-3 py-2">$5M–$25M</td><td class="px-3 py-2">0.030%</td><td class="px-3 py-2">0.008%</td></tr>
+              <tr><td class="px-3 py-2">VIP 2</td><td class="px-3 py-2">$25M–$100M</td><td class="px-3 py-2">0.025%</td><td class="px-3 py-2">0.005%</td></tr>
+              <tr><td class="px-3 py-2">VIP 3</td><td class="px-3 py-2">$100M–$500M</td><td class="px-3 py-2">0.020%</td><td class="px-3 py-2">0.002%</td></tr>
+              <tr><td class="px-3 py-2">VIP 4</td><td class="px-3 py-2">$500M–$2B</td><td class="px-3 py-2">0.018%</td><td class="px-3 py-2">0.001%</td></tr>
+              <tr><td class="px-3 py-2">VIP 5</td><td class="px-3 py-2">$2B–$7B</td><td class="px-3 py-2">0.015%</td><td class="px-3 py-2">0.0005%</td></tr>
+              <tr><td class="px-3 py-2">VIP 6</td><td class="px-3 py-2">&gt; $7B</td><td class="px-3 py-2">0.014%</td><td class="px-3 py-2">0.000%</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Builder fees are added on top of the base fees above. For example, if you are VIP 0 (0.035% taker)
+          and your wallet charges a 0.05% builder fee, your effective taker fee is 0.085% per trade.
+          With a 0% builder fee wallet, you pay only 0.035%.
+        </p>
+
+        <h3 class="text-base font-semibold text-[var(--color-text)] pt-3">How to Change Your Builder</h3>
+        <p>
+          Switching builders is a simple, gasless process. You sign an EIP-712 typed message called
+          <code class="text-xs bg-[var(--color-bg-elevated)] px-1.5 py-0.5 rounded">approveBuilderFee</code>
+          with your wallet. This tells Hyperliquid which builder to route your trades through and the
+          maximum fee rate you approve. No funds are transferred and no gas is required.
+          You can have up to 10 active builder approvals and switch between them at any time.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ — expanded for SEO -->
   <section class="section-alt py-14">
-    <h2 class="text-xl md:text-2xl font-bold mb-8">FAQ</h2>
+    <h2 class="text-xl md:text-2xl font-bold mb-8">Frequently Asked Questions</h2>
     <div class="space-y-3 max-w-3xl">
       <details class="group border border-[var(--color-border)] rounded-xl bg-[var(--color-bg-card)]">
         <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)] transition-colors">
-          What is a builder fee?
+          What is a Hyperliquid builder fee?
         </summary>
         <div class="px-5 pb-4 text-[var(--color-text-secondary)] text-sm leading-relaxed">
-          When you trade on Hyperliquid through a third-party wallet (Phantom, MetaMask, etc.),
-          that wallet adds a builder fee on top of Hyperliquid's exchange fees. Rates range from 0% to 0.10%.
+          A builder fee is an additional trading fee charged by third-party wallets and trading interfaces when
+          you execute trades on Hyperliquid. It is added on top of Hyperliquid's base exchange fees. Builder fees
+          range from 0% to 0.10% and are set by each wallet provider independently. The fee goes to the wallet
+          provider, not to Hyperliquid.
         </div>
       </details>
+
       <details class="group border border-[var(--color-border)] rounded-xl bg-[var(--color-bg-card)]">
         <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)] transition-colors">
-          How do I switch to a cheaper builder?
+          Which wallets charge the lowest builder fees on Hyperliquid?
         </summary>
         <div class="px-5 pb-4 text-[var(--color-text-secondary)] text-sm leading-relaxed">
-          Connect your wallet above and approve a new builder with a lower fee.
-          It's a single on-chain signature — your funds, positions, and history are not affected.
+          Several wallets charge 0% builder fees, meaning you only pay Hyperliquid's base exchange fees.
+          OneKey is the most widely used 0% builder fee wallet. You can see the complete comparison in the
+          builder fee table above, sorted by fee rate from lowest to highest.
         </div>
       </details>
+
       <details class="group border border-[var(--color-border)] rounded-xl bg-[var(--color-bg-card)]">
         <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)] transition-colors">
-          Is switching safe?
+          How much do builder fees cost per year?
         </summary>
         <div class="px-5 pb-4 text-[var(--color-text-secondary)] text-sm leading-relaxed">
-          Yes. You're approving a builder address with a fee cap — no funds are transferred.
-          You can switch back or change builders at any time. Up to 10 builder approvals can be active.
+          It depends on your trading volume. A trader doing $1M per month in volume with a 0.05% builder
+          fee (like Phantom) pays $500/month or $6,000/year in builder fees alone. With MetaMask at
+          0.10%, that doubles to $12,000/year. Switching to a 0% builder eliminates this cost entirely.
+          Use the fee simulator above to calculate your specific situation.
         </div>
       </details>
+
       <details class="group border border-[var(--color-border)] rounded-xl bg-[var(--color-bg-card)]">
         <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)] transition-colors">
-          Where does this data come from?
+          How do I switch to a lower-fee builder on Hyperliquid?
         </summary>
         <div class="px-5 pb-4 text-[var(--color-text-secondary)] text-sm leading-relaxed">
-          Builder data from HyperTracker (CoinMarketMan). Fee breakdowns from Hyperliquid's public API.
-          Everything is verifiable on-chain.
+          Connect your wallet on HypeFees and use the one-click switch feature. You sign an EIP-712
+          message (no gas required) that approves a new builder with a lower fee rate. The switch takes
+          effect immediately. Your existing positions, orders, and trading history are not affected.
+          You can switch back at any time.
+        </div>
+      </details>
+
+      <details class="group border border-[var(--color-border)] rounded-xl bg-[var(--color-bg-card)]">
+        <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)] transition-colors">
+          Is it safe to switch Hyperliquid builders?
+        </summary>
+        <div class="px-5 pb-4 text-[var(--color-text-secondary)] text-sm leading-relaxed">
+          Yes. Switching builders only changes which wallet provider receives the builder fee portion of your
+          trading costs. No funds are transferred, no tokens are approved, and no smart contract interactions
+          occur. You are simply signing a message that tells Hyperliquid your preferred builder and maximum
+          fee cap. You can have up to 10 active builder approvals simultaneously.
+        </div>
+      </details>
+
+      <details class="group border border-[var(--color-border)] rounded-xl bg-[var(--color-bg-card)]">
+        <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)] transition-colors">
+          What is the difference between Hyperliquid exchange fees and builder fees?
+        </summary>
+        <div class="px-5 pb-4 text-[var(--color-text-secondary)] text-sm leading-relaxed">
+          Hyperliquid exchange fees are the base trading fees charged by the Hyperliquid protocol itself. These
+          are the same regardless of which wallet you use and vary by VIP tier (based on your 14-day trading
+          volume). Builder fees are additional fees charged by your wallet provider on top of the exchange fees.
+          Your total trading cost = exchange fee + builder fee. HypeFees shows both so you can see the full picture.
+        </div>
+      </details>
+
+      <details class="group border border-[var(--color-border)] rounded-xl bg-[var(--color-bg-card)]">
+        <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)] transition-colors">
+          Can I check how much I've paid in builder fees?
+        </summary>
+        <div class="px-5 pb-4 text-[var(--color-text-secondary)] text-sm leading-relaxed">
+          Yes. Enter your Ethereum address in the lookup at the top of this page. HypeFees will fetch your
+          complete trading history from Hyperliquid's public API and show you a breakdown of total fees
+          paid, how much went to Hyperliquid (exchange fees), and how much went to builders (extra fees).
+          All data is on-chain and verifiable.
+        </div>
+      </details>
+
+      <details class="group border border-[var(--color-border)] rounded-xl bg-[var(--color-bg-card)]">
+        <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)] transition-colors">
+          Does Phantom charge a builder fee on Hyperliquid?
+        </summary>
+        <div class="px-5 pb-4 text-[var(--color-text-secondary)] text-sm leading-relaxed">
+          Yes. Phantom charges a 0.05% builder fee on Hyperliquid trades. This means for every $10,000
+          in trading volume through Phantom, you pay an additional $5 in builder fees on top of Hyperliquid's
+          base exchange fees. For a VIP 0 taker, your effective rate with Phantom is 0.085% per trade.
+        </div>
+      </details>
+
+      <details class="group border border-[var(--color-border)] rounded-xl bg-[var(--color-bg-card)]">
+        <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)] transition-colors">
+          Does MetaMask charge a builder fee on Hyperliquid?
+        </summary>
+        <div class="px-5 pb-4 text-[var(--color-text-secondary)] text-sm leading-relaxed">
+          Yes. MetaMask charges 0.10% — the maximum allowed builder fee on Hyperliquid. This is the highest
+          builder fee among major wallets. On $1M in trading volume, MetaMask's builder fee costs $1,000.
+          Switching to a 0% builder like OneKey eliminates this cost entirely.
+        </div>
+      </details>
+
+      <details class="group border border-[var(--color-border)] rounded-xl bg-[var(--color-bg-card)]">
+        <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)] transition-colors">
+          Where does HypeFees get its data?
+        </summary>
+        <div class="px-5 pb-4 text-[var(--color-text-secondary)] text-sm leading-relaxed">
+          Builder fee rates, user counts, and volumes are aggregated from public Hyperliquid network data via
+          the HyperTracker API by CoinMarketMan. Individual fee breakdowns are fetched directly from
+          Hyperliquid's public API (userFillsByTime endpoint). All data is on-chain and independently
+          verifiable. HypeFees is an independent, open-source project — not affiliated with Hyperliquid
+          or any wallet provider.
         </div>
       </details>
     </div>

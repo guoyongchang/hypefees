@@ -69,32 +69,54 @@ const {
 
     <footer class="border-t border-[var(--color-border)]">
       <div class="max-w-6xl mx-auto px-4 py-10 text-sm text-[var(--color-text-muted)]">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div>
-            <div class="flex items-center gap-2 mb-2">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div class="col-span-2 md:col-span-1">
+            <div class="flex items-center gap-2 mb-3">
               <img src="/logo.png" alt="" width="24" height="24" class="rounded" loading="lazy" aria-hidden="true" />
               <span class="text-base font-bold text-[var(--color-text)]">Hype<span class="text-[var(--color-accent)]">Fees</span></span>
             </div>
-            <p class="text-sm leading-relaxed">
-              Independent Hyperliquid fee comparison tool. Not affiliated with Hyperliquid.
+            <p class="text-xs leading-relaxed">
+              Independent, open-source Hyperliquid builder fee comparison tool.
+              Compare wallet fees, check your spending, and switch to save.
+              Not affiliated with Hyperliquid or any wallet provider.
             </p>
           </div>
           <div>
+            <div class="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] mb-3">Tools</div>
+            <ul class="space-y-2 text-xs">
+              <li><a href="#main" class="hover:text-[var(--color-text-secondary)] transition-colors py-1 inline-flex items-center min-h-[44px]">Fee Lookup</a></li>
+              <li><a href="#main" class="hover:text-[var(--color-text-secondary)] transition-colors py-1 inline-flex items-center min-h-[44px]">Builder Comparison</a></li>
+              <li><a href="#main" class="hover:text-[var(--color-text-secondary)] transition-colors py-1 inline-flex items-center min-h-[44px]">Fee Calculator</a></li>
+              <li><a href="#main" class="hover:text-[var(--color-text-secondary)] transition-colors py-1 inline-flex items-center min-h-[44px]">One-Click Switch</a></li>
+            </ul>
+          </div>
+          <div>
             <div class="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] mb-3">Resources</div>
-            <ul class="space-y-2">
+            <ul class="space-y-2 text-xs">
               <li><a href="https://hyperliquid.gitbook.io/hyperliquid-docs/trading/fees" target="_blank" rel="noopener noreferrer" class="hover:text-[var(--color-text-secondary)] transition-colors py-1 inline-flex items-center min-h-[44px]">Hyperliquid Fee Docs</a></li>
               <li><a href="https://hyperliquid.gitbook.io/hyperliquid-docs/trading/builder-codes" target="_blank" rel="noopener noreferrer" class="hover:text-[var(--color-text-secondary)] transition-colors py-1 inline-flex items-center min-h-[44px]">Builder Codes Docs</a></li>
+              <li><a href="https://app.coinmarketman.com/hypertracker/builders" target="_blank" rel="noopener noreferrer" class="hover:text-[var(--color-text-secondary)] transition-colors py-1 inline-flex items-center min-h-[44px]">HyperTracker</a></li>
+              <li><a href="https://app.hyperliquid.xyz" target="_blank" rel="noopener noreferrer" class="hover:text-[var(--color-text-secondary)] transition-colors py-1 inline-flex items-center min-h-[44px]">Hyperliquid App</a></li>
             </ul>
           </div>
           <div>
             <div class="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] mb-3">Project</div>
-            <ul class="space-y-2">
+            <ul class="space-y-2 text-xs">
               <li><a href="https://github.com/rayston92/hypefees" target="_blank" rel="noopener noreferrer" class="hover:text-[var(--color-text-secondary)] transition-colors py-1 inline-flex items-center min-h-[44px]">GitHub</a></li>
+              <li><a href="https://github.com/rayston92/hypefees/issues" target="_blank" rel="noopener noreferrer" class="hover:text-[var(--color-text-secondary)] transition-colors py-1 inline-flex items-center min-h-[44px]">Report Issue</a></li>
             </ul>
           </div>
         </div>
-        <div class="border-t border-[var(--color-border)] mt-8 pt-6 text-xs text-[var(--color-text-muted)]">
-          Data sourced from Hyperliquid public API and HyperTracker. All information is for reference only — verify on-chain before making decisions.
+        <div class="border-t border-[var(--color-border)] mt-8 pt-6 text-xs text-[var(--color-text-muted)] space-y-2">
+          <p>
+            Data sourced from Hyperliquid's public API and HyperTracker by CoinMarketMan. All fee data is
+            on-chain and independently verifiable. Information is provided for reference only — always verify
+            on-chain before making financial decisions.
+          </p>
+          <p>
+            HypeFees is not a financial advisor. Trading perpetual futures involves substantial risk.
+            Builder fee comparison data is updated daily.
+          </p>
         </div>
       </div>
     </footer>
