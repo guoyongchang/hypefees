@@ -67,13 +67,13 @@ export default function HeroSection() {
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && !loading && handleLookup()}
-                  placeholder="0x..."
+                  placeholder="Enter your ETH address (0x...)"
                   className="flex-1 px-4 py-3 min-h-[44px] rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] font-mono text-sm"
                 />
                 <button
                   onClick={handleLookup}
                   disabled={loading}
-                  className="px-6 py-3 min-h-[44px] rounded-xl bg-[var(--color-accent)] text-white font-medium hover:bg-[var(--color-accent-hover)] transition-colors disabled:opacity-50 shrink-0"
+                  className="px-6 py-3 min-h-[44px] rounded-xl bg-[var(--color-text)] text-[var(--color-bg)] font-medium hover:opacity-85 transition-opacity disabled:opacity-50 shrink-0"
                 >
                   {loading ? 'Loading...' : 'Look Up'}
                 </button>
