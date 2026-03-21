@@ -910,13 +910,15 @@ export default function ShareCard({ result, address }: ShareCardProps) {
             }}
           />
 
-          {/* Modal content — wide, no scroll */}
+          {/* Modal content — scrollable on mobile */}
           <div
             style={{
               position: 'relative',
               zIndex: 1,
               width: '100%',
               maxWidth: 820,
+              maxHeight: '90vh',
+              overflowY: 'auto',
             }}
           >
             {/* Close button */}
@@ -969,8 +971,8 @@ export default function ShareCard({ result, address }: ShareCardProps) {
               />
 
               <div style={{ position: 'relative', zIndex: 1 }}>
-                {/* Row 1: Hero number + Rank side by side */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 24, marginBottom: 16 }}>
+                {/* Row 1: Hero number + Rank side by side (stacks on mobile) */}
+                <div className="share-modal-hero" style={{ marginBottom: 16 }}>
                   {/* Left: big number */}
                   <div style={{ flex: '0 0 auto' }}>
                     <div
@@ -1014,14 +1016,14 @@ export default function ShareCard({ result, address }: ShareCardProps) {
                 </div>
 
                 {/* Row 2: 4 stat cards in one row */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 8 }}>
+                <div className="share-modal-stats" style={{ marginBottom: 8 }}>
                   {statCards.map((card, i) => (
                     <StatCard key={i} {...card} />
                   ))}
                 </div>
 
                 {/* Row 3: two inline stat cards side by side */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
+                <div className="share-modal-inline" style={{ marginBottom: 8 }}>
                   <InlineStatCard
                     style={{ gridColumn: 'auto' }}
                     segments={[

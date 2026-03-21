@@ -263,6 +263,36 @@ table tbody tr {
   transform: rotate(15deg);
 }
 
+/* ── Share card modal responsive ── */
+.share-modal-hero {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.share-modal-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.share-modal-inline {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+@media (max-width: 640px) {
+  .share-modal-hero {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .share-modal-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+  .share-modal-inline {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ── Reduced motion ── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
