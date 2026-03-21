@@ -13,10 +13,113 @@ interface Props {
   description?: string;
 }
 
+const SITE_URL = 'https://hypefees.com';
+
 const {
-  title = 'HypeFees — Compare Hyperliquid Builder Fees',
-  description = 'Compare builder fees across all Hyperliquid wallet providers. Find the lowest fees, check your spending, and switch to save money.',
+  title = 'HypeFees — Compare Hyperliquid Builder Fees & Save on Trading Costs',
+  description = 'Compare builder fees across Hyperliquid wallets. Check your hidden fees, find the cheapest wallet, and switch builders in one click to save thousands.',
 } = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, SITE_URL).href;
+
+const faqStructuredData = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is a Hyperliquid builder fee?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "An extra fee your wallet quietly adds on top of Hyperliquid's exchange fees. Each wallet sets its own rate — anywhere from 0% to 0.10%. The money goes to the wallet provider, not the exchange."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which wallets have the lowest fees?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "OneKey charges 0%. Several others also offer 0% builder fees. Check the comparison table on HypeFees to find the best option for you."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How much can builder fees cost per year?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "At $1M/month volume: Phantom (0.05%) costs $6,000/year. MetaMask (0.10%) costs $12,000/year. A 0% builder costs $0."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I switch to a different builder?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Connect your wallet and sign an EIP-712 message — that's it. No gas fees, no fund transfers, takes effect instantly. Your positions and history stay exactly the same."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is switching safe?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Completely. You're just signing a message — no tokens approved, no smart contract calls, no funds moved. You can have up to 10 active builder approvals and switch back anytime."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does Phantom charge a builder fee?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes — 0.05%. On $1M volume, that's $500 extra. Your effective VIP 0 taker rate becomes 0.085%."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does MetaMask charge a builder fee?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes — 0.10%, the maximum allowed. On $1M volume, that's $1,000 extra."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I check my past builder fees?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Enter your address on HypeFees. It pulls your full trade history from Hyperliquid's public API and shows you exactly how much went to exchange fees vs. builder fees."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Where does this data come from?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Builder data from HyperTracker (CoinMarketMan). Fee breakdowns from Hyperliquid's public API. Everything is on-chain and verifiable. HypeFees is independent and open-source."
+      }
+    }
+  ]
+};
+
+const webAppStructuredData = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "HypeFees",
+  "url": SITE_URL,
+  "description": description,
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "author": {
+    "@type": "Organization",
+    "name": "HypeFees",
+    "url": SITE_URL
+  }
+};
 ---
 
 <!doctype html>
@@ -26,16 +129,36 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light dark" />
     <meta name="description" content={description} />
+    <meta name="keywords" content="Hyperliquid, builder fees, trading fees, wallet comparison, Phantom fees, MetaMask fees, OneKey, crypto trading, fee calculator, builder codes, DeFi fees" />
+    <meta name="author" content="HypeFees" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <link rel="canonical" href={canonicalURL} />
     <link rel="icon" type="image/png" href="/logo.png" />
     <link rel="preload" href="/fonts/RoobertVF.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+    <link rel="dns-prefetch" href="https://api.hyperliquid.xyz" />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <!-- Open Graph -->
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content="/logo.png" />
+    <meta property="og:image" content={`${SITE_URL}/logo.png`} />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:site_name" content="HypeFees" />
+    <meta property="og:locale" content="en_US" />
+    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@hypefees" />
+    <meta name="twitter:creator" content="@hypefees" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={`${SITE_URL}/logo.png`} />
+    <!-- Structured Data -->
+    <script type="application/ld+json" set:html={JSON.stringify(webAppStructuredData)} />
+    <script type="application/ld+json" set:html={JSON.stringify(faqStructuredData)} />
     <title>{title}</title>
     <script is:inline>
       // Theme initialization - prevent flash
