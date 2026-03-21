@@ -25,19 +25,23 @@ function HeroSectionInner() {
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
 
-  // Auto-fill once when wallet connects (not on every render)
-  const didAutoFill = useRef(false);
+  // Only fill address when user explicitly clicks "Connect Wallet"
+  // Track whether user triggered the connect action
+  const userTriggeredConnect = useRef(false);
   useEffect(() => {
-    if (isConnected && walletAddr && !didAutoFill.current) {
+    if (userTriggeredConnect.current && isConnected && walletAddr) {
       setAddress(walletAddr);
-      didAutoFill.current = true;
+      userTriggeredConnect.current = false;
     }
   }, [isConnected, walletAddr]);
 
   const handleConnectWallet = useCallback(() => {
     if (isConnected && walletAddr) {
+      // Already connected — just fill the address
       setAddress(walletAddr);
     } else {
+      // Mark that user initiated this connect
+      userTriggeredConnect.current = true;
       const injected = connectors.find((c) => c.id === 'injected');
       if (injected) connect({ connector: injected });
       else if (connectors.length > 0) connect({ connector: connectors[0] });
