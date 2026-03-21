@@ -6,9 +6,7 @@ const VOLUME_MIN = 10_000;
 const VOLUME_MAX = 100_000_000;
 
 // Known builder display names
-const BUILDER_NAMES: Record<string, string> = {
-  '1KREF': 'OneKey',
-};
+const BUILDER_NAMES: Record<string, string> = {};
 
 function getBuilderName(builder: Builder): string {
   if (builder.refCode && BUILDER_NAMES[builder.refCode]) return BUILDER_NAMES[builder.refCode];
@@ -59,8 +57,9 @@ export default function FeeSimulator() {
     // Direct HL (no builder fee)
     const direct = calculateFees(volume, 0, vipTier);
 
-    // Each builder
-    const results = builders.map((b) => {
+    // Top 15 builders by volume for readability
+    const topBuilders = [...builders].sort((a, b) => b.volume - a.volume).slice(0, 15);
+    const results = topBuilders.map((b) => {
       const fees = calculateFees(volume, b.usageFee, vipTier);
       return {
         name: getBuilderName(b),
