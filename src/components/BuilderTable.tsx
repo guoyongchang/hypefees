@@ -72,6 +72,7 @@ export default function BuilderTable() {
   const [sortKey, setSortKey] = useState<SortKey>('default');
   const [sortDir, setSortDir] = useState<SortDir>('asc');
   const [viewMode, setViewMode] = useState<ViewMode>('featured');
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     fetch('/api/builders')
@@ -90,11 +91,17 @@ export default function BuilderTable() {
   }, []);
 
   const filtered = useMemo(() => {
-    if (viewMode === 'featured') {
-      return builders.filter((b) => b.refCode && CURATED[b.refCode]?.featured);
+    let list = viewMode === 'featured'
+      ? builders.filter((b) => b.refCode && CURATED[b.refCode]?.featured)
+      : builders;
+
+    if (search.trim()) {
+      const q = search.trim().toLowerCase();
+      list = list.filter((b) => b.refCode?.toLowerCase().includes(q));
     }
-    return builders;
-  }, [builders, viewMode]);
+
+    return list;
+  }, [builders, viewMode, search]);
 
   const sorted = useMemo(() => {
     const copy = [...filtered];
@@ -165,12 +172,12 @@ export default function BuilderTable() {
 
   return (
     <div>
-      {/* View toggle */}
-      <div className="flex items-center gap-2 mb-4">
+      {/* View toggle + search */}
+      <div className="flex items-center gap-2 mb-4 flex-wrap">
         <button
-          onClick={() => setViewMode('featured')}
+          onClick={() => { setViewMode('featured'); setSearch(''); }}
           className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors min-h-[36px] ${
-            viewMode === 'featured'
+            viewMode === 'featured' && !search
               ? 'bg-[var(--color-accent-light)] text-[var(--color-accent)]'
               : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]'
           }`}
@@ -178,15 +185,28 @@ export default function BuilderTable() {
           {t('table.topWallets', lang)}
         </button>
         <button
-          onClick={() => setViewMode('all')}
+          onClick={() => { setViewMode('all'); setSearch(''); }}
           className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors min-h-[36px] ${
-            viewMode === 'all'
+            viewMode === 'all' || search
               ? 'bg-[var(--color-accent-light)] text-[var(--color-accent)]'
               : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]'
           }`}
         >
           {t('table.allBuilders', lang)} ({builders.length})
         </button>
+        <div className="relative ml-auto">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.3-4.3" />
+          </svg>
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); if (e.target.value && viewMode === 'featured') setViewMode('all'); }}
+            placeholder={t('table.search', lang)}
+            className="pl-9 pr-3 py-1.5 min-h-[36px] w-48 text-xs rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]"
+          />
+        </div>
       </div>
 
       {/* Table */}
@@ -312,10 +332,16 @@ export default function BuilderTable() {
             })}
           </tbody>
         </table>
+
+        {sorted.length === 0 && search && (
+          <div className="text-center py-12 text-[var(--color-text-muted)] text-sm">
+            {t('table.noResults', lang, { q: search })}
+          </div>
+        )}
       </div>
 
       <p className="mt-3 text-xs text-[var(--color-text-muted)]">
-        {viewMode === 'featured'
+        {viewMode === 'featured' && !search
           ? t('table.showing', lang, { n: String(sorted.length), total: String(builders.length) })
           : t('table.trackingInfo', lang, { n: String(sorted.length) })
         }
