@@ -4,6 +4,7 @@ import { fetchUserFills, calculateFeeBreakdown, type FeeBreakdown, type FillProg
 import { formatUSD, formatVolume } from '../lib/fees';
 import { useLang, t } from '../lib/i18n';
 import WalletProvider from './WalletProvider';
+import WalletModal from './WalletModal';
 import SwitchBuilder from './SwitchBuilder';
 import ShareCard from './ShareCard';
 import HeroFlow from './HeroFlow';
@@ -20,33 +21,27 @@ function HeroSectionInner() {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<FeeBreakdown | null>(null);
 
-  // Wallet connection for auto-fill
+  // Wallet modal for connecting
+  const [showWalletModal, setShowWalletModal] = useState(false);
   const { address: walletAddr, isConnected } = useAccount();
-  const { connect, connectors } = useConnect();
-  const { disconnect } = useDisconnect();
 
-  // Only fill address when user explicitly clicks "Connect Wallet"
-  // Track whether user triggered the connect action
-  const userTriggeredConnect = useRef(false);
+  // Fill address after wallet connects (only when modal was open)
+  const pendingConnect = useRef(false);
   useEffect(() => {
-    if (userTriggeredConnect.current && isConnected && walletAddr) {
+    if (pendingConnect.current && isConnected && walletAddr) {
       setAddress(walletAddr);
-      userTriggeredConnect.current = false;
+      pendingConnect.current = false;
     }
   }, [isConnected, walletAddr]);
 
   const handleConnectWallet = useCallback(() => {
     if (isConnected && walletAddr) {
-      // Already connected — just fill the address
       setAddress(walletAddr);
     } else {
-      // Mark that user initiated this connect
-      userTriggeredConnect.current = true;
-      const injected = connectors.find((c) => c.id === 'injected');
-      if (injected) connect({ connector: injected });
-      else if (connectors.length > 0) connect({ connector: connectors[0] });
+      pendingConnect.current = true;
+      setShowWalletModal(true);
     }
-  }, [isConnected, walletAddr, connect, connectors]);
+  }, [isConnected, walletAddr]);
 
   async function handleLookup() {
     const trimmed = address.trim();
@@ -253,6 +248,15 @@ function HeroSectionInner() {
           </div>
         </div>
       )}
+
+      <WalletModal
+        open={showWalletModal}
+        onClose={() => setShowWalletModal(false)}
+        onConnected={() => {
+          pendingConnect.current = true;
+          setShowWalletModal(false);
+        }}
+      />
     </div>
   );
 }
