@@ -23,6 +23,11 @@ import SwitchBuilder from '../components/SwitchBuilder.tsx';
     </div>
   </section>
 
+  <!-- Switch Builder — right after hero -->
+  <section class="pb-14">
+    <SwitchBuilder client:load />
+  </section>
+
   <!-- Builder Fee Comparison Table -->
   <section class="section-alt py-14">
     <h2 class="text-xl md:text-2xl font-bold mb-1">Builder Fee Comparison</h2>
@@ -39,11 +44,6 @@ import SwitchBuilder from '../components/SwitchBuilder.tsx';
       See how much you'd pay across builders at any volume.
     </p>
     <FeeSimulator client:load />
-  </section>
-
-  <!-- Switch Builder (wallet connect + one-click) -->
-  <section class="py-14">
-    <SwitchBuilder client:load />
   </section>
 
   <!-- FAQ -->
