@@ -194,7 +194,7 @@ export default function BuilderTable() {
         >
           {t('table.allBuilders', lang)} ({builders.length})
         </button>
-        <div className="relative ml-auto">
+        <div className="relative w-full sm:w-auto sm:ml-auto">
           <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="11" cy="11" r="8" />
             <path d="m21 21-4.3-4.3" />
@@ -204,7 +204,7 @@ export default function BuilderTable() {
             value={search}
             onChange={(e) => { setSearch(e.target.value); if (e.target.value && viewMode === 'featured') setViewMode('all'); }}
             placeholder={t('table.search', lang)}
-            className="pl-9 pr-3 py-1.5 min-h-[36px] w-48 text-xs rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]"
+            className="pl-9 pr-3 py-1.5 min-h-[36px] w-full sm:w-48 text-xs rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]"
           />
         </div>
       </div>
@@ -229,18 +229,18 @@ export default function BuilderTable() {
               </th>
               {viewMode === 'featured' && (
                 <>
-                  <th className="px-4 py-3 font-medium text-[var(--color-text-secondary)] text-center">{t('table.platforms', lang)}</th>
-                  <th className="px-4 py-3 font-medium text-[var(--color-text-secondary)] text-center">{t('table.hardware', lang)}</th>
+                  <th className="hidden md:table-cell px-4 py-3 font-medium text-[var(--color-text-secondary)] text-center">{t('table.platforms', lang)}</th>
+                  <th className="hidden md:table-cell px-4 py-3 font-medium text-[var(--color-text-secondary)] text-center">{t('table.hardware', lang)}</th>
                 </>
               )}
               <th
-                className="px-4 py-3 font-medium text-[var(--color-text-secondary)] cursor-pointer hover:text-[var(--color-text)] select-none text-right"
+                className="hidden sm:table-cell px-4 py-3 font-medium text-[var(--color-text-secondary)] cursor-pointer hover:text-[var(--color-text)] select-none text-right"
                 onClick={() => handleSort('users')}
               >
                 {t('table.users', lang)} <SortIcon active={sortKey === 'users'} dir={sortDir} />
               </th>
               <th
-                className="px-4 py-3 font-medium text-[var(--color-text-secondary)] cursor-pointer hover:text-[var(--color-text)] select-none text-right"
+                className="hidden sm:table-cell px-4 py-3 font-medium text-[var(--color-text-secondary)] cursor-pointer hover:text-[var(--color-text)] select-none text-right"
                 onClick={() => handleSort('volume')}
               >
                 {t('table.volume', lang)} <SortIcon active={sortKey === 'volume'} dir={sortDir} />
@@ -294,10 +294,10 @@ export default function BuilderTable() {
                     {formatFeePercent(totalTakerFee(builder.usageFee))}
                   </td>
 
-                  {/* Platforms (featured view only) */}
+                  {/* Platforms (featured, hidden on mobile) */}
                   {viewMode === 'featured' && curated && (
                     <>
-                      <td className="px-4 py-3">
+                      <td className="hidden md:table-cell px-4 py-3">
                         <div className="flex items-center justify-center gap-0.5">
                           <PlatformBadge active={curated.platforms.ios} label="iOS" title={t('table.iOSApp', lang)} />
                           <PlatformBadge active={curated.platforms.android} label="And" title={t('table.androidApp', lang)} />
@@ -306,25 +306,25 @@ export default function BuilderTable() {
                           <PlatformBadge active={curated.platforms.web} label="Web" title={t('table.webApp', lang)} />
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-center">
+                      <td className="hidden md:table-cell px-4 py-3 text-center">
                         <HardwareBadge hardware={curated.hardware} lang={lang} />
                       </td>
                     </>
                   )}
                   {viewMode === 'featured' && !curated && (
                     <>
-                      <td className="px-4 py-3 text-center text-[var(--color-text-muted)] text-xs">—</td>
-                      <td className="px-4 py-3 text-center text-[var(--color-text-muted)] text-xs">—</td>
+                      <td className="hidden md:table-cell px-4 py-3 text-center text-[var(--color-text-muted)] text-xs">—</td>
+                      <td className="hidden md:table-cell px-4 py-3 text-center text-[var(--color-text-muted)] text-xs">—</td>
                     </>
                   )}
 
-                  {/* Users */}
-                  <td className="px-4 py-3 text-right tabular-nums">
+                  {/* Users (hidden on small mobile) */}
+                  <td className="hidden sm:table-cell px-4 py-3 text-right tabular-nums">
                     {builder.users.toLocaleString()}
                   </td>
 
-                  {/* Volume */}
-                  <td className="px-4 py-3 text-right tabular-nums">
+                  {/* Volume (hidden on small mobile) */}
+                  <td className="hidden sm:table-cell px-4 py-3 text-right tabular-nums">
                     {formatVolume(builder.volume)}
                   </td>
                 </tr>

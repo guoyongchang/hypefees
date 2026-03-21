@@ -178,7 +178,7 @@ export default function FeeSimulator() {
       <div className="space-y-2">
         {/* Direct HL baseline */}
         <div className="flex items-center gap-3 p-3 rounded-lg bg-[var(--color-bg-secondary)] border border-[var(--color-border)]">
-          <div className="w-36 text-sm font-medium truncate">{t('sim.directHL', lang)}</div>
+          <div className="w-24 sm:w-36 text-xs sm:text-sm font-medium truncate">{t('sim.directHL', lang)}</div>
           <div className="flex-1">
             <div
               className="h-6 rounded bg-[var(--color-accent)]/20 flex items-center"
@@ -187,7 +187,7 @@ export default function FeeSimulator() {
               <span className="px-2 text-xs font-medium tabular-nums">{formatUSD(simResults.direct.total)}</span>
             </div>
           </div>
-          <div className="w-24 text-right text-xs text-[var(--color-text-muted)]">{t('sim.baseline', lang)}</div>
+          <div className="w-16 sm:w-24 text-right text-xs text-[var(--color-text-muted)]">{t('sim.baseline', lang)}</div>
         </div>
 
         {simResults.results.slice(0, 15).map((r) => (
@@ -199,7 +199,7 @@ export default function FeeSimulator() {
                 : 'bg-[var(--color-bg-card)] border-[var(--color-border)]'
             }`}
           >
-            <div className="w-36 text-sm font-medium truncate flex items-center gap-1.5">
+            <div className="w-24 sm:w-36 text-xs sm:text-sm font-medium truncate flex items-center gap-1.5">
               {getBuilderIcon(r.name) ? (
                 <img src={getBuilderIcon(r.name)!} alt="" width={16} height={16} className="rounded-full shrink-0" loading="lazy" />
               ) : (
@@ -217,7 +217,7 @@ export default function FeeSimulator() {
                 <span className="px-2 text-xs font-medium tabular-nums">{formatUSD(r.total)}</span>
               </div>
             </div>
-            <div className={`w-24 text-right text-xs tabular-nums ${r.savings > 0 ? 'text-[var(--color-danger)]' : 'text-[var(--color-success)]'}`}>
+            <div className={`w-16 sm:w-24 text-right text-xs tabular-nums ${r.savings > 0 ? 'text-[var(--color-danger)]' : 'text-[var(--color-success)]'}`}>
               {r.savings > 0 ? `+${formatUSD(r.savings)}` : t('sim.best', lang)}
             </div>
           </div>
