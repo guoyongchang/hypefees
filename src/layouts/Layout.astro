@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import FeeCounter from '../components/FeeCounter.tsx';
 
 // Security headers
 Astro.response.headers.set('X-Content-Type-Options', 'nosniff');
@@ -57,7 +58,8 @@ const {
           <img src="/logo.png" alt="" width="28" height="28" class="rounded-md" aria-hidden="true" />
           <span class="text-xl font-bold tracking-tight">Hype<span class="text-[var(--color-accent)]">Fees</span></span>
         </a>
-        <div class="flex items-center gap-3" id="header-actions">
+        <div class="flex items-center gap-4" id="header-actions">
+          <FeeCounter client:load />
           <slot name="header-actions" />
         </div>
       </nav>
