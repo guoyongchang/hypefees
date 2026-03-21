@@ -186,22 +186,22 @@ function SwitchBuilderInner() {
   // Success state
   if (step === 'done') {
     return (
-      <div className="rounded-2xl overflow-hidden bg-[#0a2e2a] p-8 md:p-12">
+      <div className="rounded-2xl overflow-hidden bg-[var(--color-switch-bg)] p-8 md:p-12">
         <div className="flex items-start gap-4">
-          <div className="mt-1 text-[#5ef0d0]">
+          <div className="mt-1 text-[var(--color-switch-accent)]">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M20 6L9 17l-5-5" />
             </svg>
           </div>
           <div>
-            <h2 className="text-xl md:text-2xl font-bold text-[#5ef0d0]">{t('switch.success', lang)}</h2>
-            <p className="text-[#8aaa9e] mt-2">
+            <h2 className="text-xl md:text-2xl font-bold text-[var(--color-switch-accent)]">{t('switch.success', lang)}</h2>
+            <p className="text-[var(--color-switch-muted)] mt-2">
               {t('switch.approvalConfirmed', lang)}{referralSuccess ? t('switch.referralApplied', lang) : ''}.
               {t('switch.futureTradesSub', lang)}
             </p>
             <button
               onClick={() => { disconnect(); setStep('idle'); setApproveSuccess(false); setReferralSuccess(false); }}
-              className="mt-4 text-sm text-[#5a756b] hover:text-[#8aaa9e] transition-colors"
+              className="mt-4 text-sm text-[var(--color-switch-dim)] hover:text-[var(--color-switch-muted)] transition-colors"
             >
               {t('switch.disconnect', lang)}
             </button>
@@ -212,10 +212,10 @@ function SwitchBuilderInner() {
   }
 
   return (
-    <div className="rounded-2xl overflow-hidden bg-[#0a2e2a] p-8 md:p-12">
+    <div className="rounded-2xl overflow-hidden bg-[var(--color-switch-bg)] p-8 md:p-12">
       <div className="max-w-2xl">
-        <h2 className="text-xl md:text-2xl font-bold text-[#5ef0d0]">{t('switch.title', lang)}</h2>
-        <p className="text-[#8aaa9e] mt-2 leading-relaxed">
+        <h2 className="text-xl md:text-2xl font-bold text-[var(--color-switch-accent)]">{t('switch.title', lang)}</h2>
+        <p className="text-[var(--color-switch-muted)] mt-2 leading-relaxed">
           {t('switch.subtitle', lang)}
         </p>
 
@@ -223,19 +223,19 @@ function SwitchBuilderInner() {
           {!isConnected ? (
             <button
               onClick={handleConnect}
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#5ef0d0] text-[#0a2e2a] font-semibold hover:bg-[#7ff5dc] transition-colors min-h-[44px]"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[var(--color-switch-accent)] text-[#0a2e2a] font-semibold hover:opacity-90 transition-colors min-h-[44px]"
             >
               {t('switch.connectWallet', lang)}
             </button>
           ) : (
             <div className="space-y-4">
               {/* Connected state */}
-              <div className="flex items-center gap-3 text-sm text-[#8aaa9e]">
-                <div className="w-2 h-2 rounded-full bg-[#5ef0d0]" />
+              <div className="flex items-center gap-3 text-sm text-[var(--color-switch-muted)]">
+                <div className="w-2 h-2 rounded-full bg-[var(--color-switch-accent)]" />
                 {address?.slice(0, 6)}...{address?.slice(-4)}
                 <button
                   onClick={() => disconnect()}
-                  className="text-xs text-[#5a756b] hover:text-[#8aaa9e] transition-colors ml-2"
+                  className="text-xs text-[var(--color-switch-dim)] hover:text-[var(--color-switch-muted)] transition-colors ml-2"
                 >
                   {t('switch.disconnect', lang)}
                 </button>
@@ -245,19 +245,19 @@ function SwitchBuilderInner() {
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
                   <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                    approveSuccess ? 'bg-[#5ef0d0] text-[#0a2e2a]' : 'border border-[#5ef0d0] text-[#5ef0d0]'
+                    approveSuccess ? 'bg-[var(--color-switch-accent)] text-[#0a2e2a]' : 'border border-[#5ef0d0] text-[var(--color-switch-accent)]'
                   }`}>
                     {approveSuccess ? '✓' : '1'}
                   </div>
-                  <span className="text-[#e4efe9] text-sm">{t('switch.approve', lang)}</span>
+                  <span className="text-[var(--color-switch-text)] text-sm">{t('switch.approve', lang)}</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                    referralSuccess ? 'bg-[#5ef0d0] text-[#0a2e2a]' : 'border border-[#5a756b] text-[#5a756b]'
+                    referralSuccess ? 'bg-[var(--color-switch-accent)] text-[#0a2e2a]' : 'border border-[#5a756b] text-[var(--color-switch-dim)]'
                   }`}>
                     {referralSuccess ? '✓' : '2'}
                   </div>
-                  <span className="text-[#8aaa9e] text-sm">{t('switch.referral', lang)}</span>
+                  <span className="text-[var(--color-switch-muted)] text-sm">{t('switch.referral', lang)}</span>
                 </div>
               </div>
 
@@ -270,7 +270,7 @@ function SwitchBuilderInner() {
               <button
                 onClick={handleApproveBuilder}
                 disabled={step === 'approving' || step === 'setting-referrer'}
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#5ef0d0] text-[#0a2e2a] font-semibold hover:bg-[#7ff5dc] transition-colors min-h-[44px] disabled:opacity-50"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[var(--color-switch-accent)] text-[#0a2e2a] font-semibold hover:opacity-90 transition-colors min-h-[44px] disabled:opacity-50"
               >
                 {step === 'approving'
                   ? t('switch.waitingSignature', lang)
@@ -284,7 +284,7 @@ function SwitchBuilderInner() {
                 )}
               </button>
 
-              <p className="text-xs text-[#5a756b]">
+              <p className="text-xs text-[var(--color-switch-dim)]">
                 {t('switch.twoSignatures', lang)}
               </p>
             </div>

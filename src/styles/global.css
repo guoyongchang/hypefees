@@ -37,19 +37,24 @@
 }
 
 @theme {
-  --color-bg: #fafcfb;
-  --color-bg-secondary: #f3f6f5;
-  --color-bg-card: #fafcfb;
-  --color-bg-elevated: #edf0ee;
+  --color-bg: #f8faf9;
+  --color-bg-secondary: #eef2f0;
+  --color-bg-card: #ffffff;
+  --color-bg-elevated: #e8edeb;
   --color-text: #0c1a1a;
   --color-text-secondary: #3d5047;
-  --color-text-muted: #7a8f87;
-  --color-border: #d8e0dc;
-  --color-accent: #00c9a7;
-  --color-accent-hover: #00b396;
-  --color-accent-light: #e6faf6;
+  --color-text-muted: #6b8079;
+  --color-border: #cdd8d3;
+  --color-accent: #00a88a;
+  --color-accent-hover: #00937a;
+  --color-accent-light: #e0f7f1;
+  --color-switch-bg: #0b2e28;
+  --color-switch-text: #e4efe9;
+  --color-switch-muted: #8aaa9e;
+  --color-switch-dim: #5a756b;
+  --color-switch-accent: #5ef0d0;
   --color-success: #16a34a;
-  --color-success-bg: #f0fdf4;
+  --color-success-bg: #ecfdf3;
   --color-warning: #d97706;
   --color-warning-bg: #fffbeb;
   --color-danger: #dc2626;
@@ -72,6 +77,11 @@
   --color-accent: #5ef0d0;
   --color-accent-hover: #7ff5dc;
   --color-accent-light: #0a2e28;
+  --color-switch-bg: #0a2e28;
+  --color-switch-text: #e4efe9;
+  --color-switch-muted: #8aaa9e;
+  --color-switch-dim: #5a756b;
+  --color-switch-accent: #5ef0d0;
   --color-success: #22c55e;
   --color-success-bg: #052e16;
   --color-warning: #f59e0b;
@@ -223,10 +233,14 @@ table tbody tr {
 /* ── Card hover — subtle, not bouncy ── */
 .card-hover {
   transition: transform 0.25s var(--ease-out-quart), box-shadow 0.25s var(--ease-out-quart);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
 }
 .card-hover:hover {
   transform: translateY(-1px);
-  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+:root.dark .card-hover {
+  box-shadow: none;
 }
 :root.dark .card-hover:hover {
   box-shadow: 0 2px 12px rgba(0,0,0,0.25);
