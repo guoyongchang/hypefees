@@ -2,42 +2,41 @@ import { useRef, useCallback } from 'react';
 import type { FeeBreakdown } from '../lib/api';
 import { formatUSD, formatVolume } from '../lib/fees';
 
-// ~442K total HL traders, power-law distribution
-// We estimate rank percentile from total fees paid
-function estimateRank(totalFees: number): { percentile: number; rank: string } {
-  // Rough distribution: most traders pay < $50, whales pay $100K+
-  // Using log-normal approximation
-  if (totalFees >= 100000) return { percentile: 99.9, rank: 'Top 0.1%' };
-  if (totalFees >= 50000) return { percentile: 99.5, rank: 'Top 0.5%' };
-  if (totalFees >= 10000) return { percentile: 99, rank: 'Top 1%' };
-  if (totalFees >= 5000) return { percentile: 97, rank: 'Top 3%' };
-  if (totalFees >= 1000) return { percentile: 90, rank: 'Top 10%' };
-  if (totalFees >= 500) return { percentile: 80, rank: 'Top 20%' };
-  if (totalFees >= 100) return { percentile: 60, rank: 'Top 40%' };
-  if (totalFees >= 10) return { percentile: 30, rank: 'Top 70%' };
-  return { percentile: 10, rank: 'Newcomer' };
+function estimateRank(totalFees: number): { percentile: number; rank: string; title: string } {
+  if (totalFees >= 100000) return { percentile: 99.9, rank: 'Top 0.1%', title: 'Legendary Degen' };
+  if (totalFees >= 50000) return { percentile: 99.5, rank: 'Top 0.5%', title: 'Whale Status' };
+  if (totalFees >= 10000) return { percentile: 99, rank: 'Top 1%', title: 'Fee Machine' };
+  if (totalFees >= 5000) return { percentile: 97, rank: 'Top 3%', title: 'Heavy Hitter' };
+  if (totalFees >= 1000) return { percentile: 90, rank: 'Top 10%', title: 'Serious Trader' };
+  if (totalFees >= 500) return { percentile: 80, rank: 'Top 20%', title: 'Active Trader' };
+  if (totalFees >= 100) return { percentile: 60, rank: 'Top 40%', title: 'Getting Started' };
+  if (totalFees >= 10) return { percentile: 30, rank: 'Top 70%', title: 'Explorer' };
+  return { percentile: 10, rank: 'Newcomer', title: 'Just Arrived' };
 }
 
-// Fun equivalents
-function getFunFacts(totalFees: number): { emoji: string; text: string }[] {
-  const facts: { emoji: string; text: string }[] = [];
+function getFunLines(totalFees: number, builderFees: number, volume: number, fillCount: number): string[] {
+  const lines: string[] = [];
   const iphones = totalFees / 999;
   const coffees = totalFees / 5;
-  const teslas = totalFees / 35000;
-  const btc = totalFees / 85000;
-  const flights = totalFees / 800;
+  const months = 14; // approx
 
-  if (iphones >= 1) facts.push({ emoji: '📱', text: `${iphones.toFixed(1)} iPhones` });
-  if (teslas >= 0.1) facts.push({ emoji: '🚗', text: `${(teslas * 100).toFixed(0)}% of a Tesla` });
-  if (teslas >= 1) facts[facts.length - 1] = { emoji: '🚗', text: `${teslas.toFixed(1)} Teslas` };
-  if (btc >= 0.01) facts.push({ emoji: '₿', text: `${btc.toFixed(3)} BTC` });
-  if (flights >= 1) facts.push({ emoji: '✈️', text: `${flights.toFixed(0)} round-trip flights` });
-  if (coffees >= 1 && totalFees < 100) facts.push({ emoji: '☕', text: `${coffees.toFixed(0)} coffees` });
+  if (volume >= 1_000_000) lines.push(`You moved ${formatVolume(volume)} through Hyperliquid`);
+  else lines.push(`${formatVolume(volume)} in total trading volume`);
 
-  return facts.slice(0, 3);
+  lines.push(`That's ${fillCount.toLocaleString()} trades across ~${months} months`);
+
+  if (iphones >= 1) lines.push(`Your fees could buy ${iphones.toFixed(1)} iPhones`);
+  else if (coffees >= 5) lines.push(`Your fees could buy ${Math.floor(coffees)} coffees`);
+
+  if (builderFees > 0) {
+    const pct = ((builderFees / totalFees) * 100).toFixed(0);
+    lines.push(`${pct}% of your fees went to wallet builders`);
+  }
+
+  return lines;
 }
 
-function formatDate(ts: number): string {
+function formatMonth(ts: number): string {
   return new Date(ts).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
 }
 
@@ -47,261 +46,222 @@ interface ShareCardProps {
 }
 
 export default function ShareCard({ result, address }: ShareCardProps) {
-  const cardRef = useRef<HTMLDivElement>(null);
-  const { percentile, rank } = estimateRank(result.totalFees);
-  const funFacts = getFunFacts(result.totalFees);
+  const { percentile, rank, title } = estimateRank(result.totalFees);
+  const funLines = getFunLines(result.totalFees, result.builderFees, result.totalVolume, result.fillCount);
   const shortAddr = `${address.slice(0, 6)}...${address.slice(-4)}`;
   const period = result.firstTradeTime && result.lastTradeTime
-    ? `${formatDate(result.firstTradeTime)} – ${formatDate(result.lastTradeTime)}`
+    ? `${formatMonth(result.firstTradeTime)} – ${formatMonth(result.lastTradeTime)}`
     : '';
+  const barPct = Math.min(percentile, 99.9);
 
   const generateImage = useCallback(async () => {
-    const card = cardRef.current;
-    if (!card) return;
-
-    // Twitter optimal: 1200x675 (16:9)
     const W = 1200, H = 675;
     const canvas = document.createElement('canvas');
     canvas.width = W;
     canvas.height = H;
     const ctx = canvas.getContext('2d')!;
 
-    // Background
-    ctx.fillStyle = '#0a1a1a';
-    ctx.fillRect(0, 0, W, H);
-
-    // Rounded corners clip
-    const r = 32;
+    // Rounded clip
+    const r = 40;
     ctx.beginPath();
-    ctx.moveTo(r, 0); ctx.lineTo(W - r, 0); ctx.quadraticCurveTo(W, 0, W, r);
-    ctx.lineTo(W, H - r); ctx.quadraticCurveTo(W, H, W - r, H);
-    ctx.lineTo(r, H); ctx.quadraticCurveTo(0, H, 0, H - r);
-    ctx.lineTo(0, r); ctx.quadraticCurveTo(0, 0, r, 0);
-    ctx.closePath(); ctx.clip();
+    ctx.roundRect(0, 0, W, H, r);
+    ctx.clip();
 
-    // Re-fill after clip
-    ctx.fillStyle = '#0a1a1a';
+    // BG gradient — Wrapped-style
+    const bgGrad = ctx.createLinearGradient(0, 0, W, H);
+    bgGrad.addColorStop(0, '#041210');
+    bgGrad.addColorStop(0.5, '#0a1f1a');
+    bgGrad.addColorStop(1, '#061512');
+    ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, W, H);
 
-    // Subtle grid
-    ctx.strokeStyle = 'rgba(94,240,208,0.04)';
-    ctx.lineWidth = 1;
-    for (let x = 0; x < W; x += 60) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
-    for (let y = 0; y < H; y += 60) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+    // Decorative circles
+    ctx.globalAlpha = 0.06;
+    ctx.fillStyle = '#5ef0d0';
+    ctx.beginPath(); ctx.arc(W * 0.85, H * 0.15, 200, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(W * 0.1, H * 0.85, 150, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha = 1;
 
-    // Gradient accent at top
-    const grad = ctx.createLinearGradient(0, 0, W, 0);
-    grad.addColorStop(0, 'rgba(0,201,167,0.15)');
-    grad.addColorStop(1, 'rgba(0,201,167,0)');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, W, 4);
+    const lx = 80, rx = W - 80;
 
-    const lx = 72, rx = W - 72;
-
-    // Title row
-    ctx.font = '700 14px system-ui, sans-serif';
+    // Header
+    ctx.font = '600 13px system-ui, sans-serif';
     ctx.fillStyle = '#5ef0d0';
     ctx.textAlign = 'left';
-    ctx.fillText('HypeFees', lx, 52);
+    ctx.fillText('HypeFees Wrapped', lx, 56);
 
-    ctx.font = '400 13px ui-monospace, monospace';
-    ctx.fillStyle = '#5e7e72';
+    ctx.font = '400 12px ui-monospace, monospace';
+    ctx.fillStyle = '#4a6b60';
     ctx.textAlign = 'right';
-    ctx.fillText(shortAddr, rx, 52);
+    ctx.fillText(`${shortAddr}  •  ${period}`, rx, 56);
 
-    // Divider
-    ctx.strokeStyle = '#1d3b37';
-    ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(lx, 72); ctx.lineTo(rx, 72); ctx.stroke();
-
-    // Main stat: Total Fees
-    ctx.font = '700 56px system-ui, sans-serif';
+    // Big number
+    ctx.font = '800 72px system-ui, sans-serif';
     ctx.fillStyle = '#e8f0ec';
     ctx.textAlign = 'left';
-    ctx.fillText(formatUSD(result.totalFees), lx, 140);
+    ctx.fillText(formatUSD(result.totalFees), lx, 150);
 
-    ctx.font = '400 16px system-ui, sans-serif';
-    ctx.fillStyle = '#5e7e72';
-    ctx.fillText('total fees paid on Hyperliquid', lx, 168);
+    ctx.font = '400 18px system-ui, sans-serif';
+    ctx.fillStyle = '#6a8c80';
+    ctx.fillText('in total fees paid on Hyperliquid', lx, 180);
 
-    // Rank badge
-    ctx.font = '700 24px system-ui, sans-serif';
+    // Rank section (right side)
+    ctx.font = '800 36px system-ui, sans-serif';
     ctx.fillStyle = '#5ef0d0';
     ctx.textAlign = 'right';
-    ctx.fillText(rank, rx, 130);
+    ctx.fillText(rank, rx, 136);
 
-    ctx.font = '400 13px system-ui, sans-serif';
-    ctx.fillStyle = '#5e7e72';
-    ctx.fillText(`Top ${(100 - percentile).toFixed(1)}% of all traders`, rx, 155);
+    ctx.font = '500 14px system-ui, sans-serif';
+    ctx.fillStyle = '#4a6b60';
+    ctx.fillText(title, rx, 162);
 
-    // Stats row
-    const statsY = 220;
-    const statItems = [
-      { label: 'Volume', value: formatVolume(result.totalVolume) },
-      { label: 'Trades', value: result.fillCount.toLocaleString() },
-      { label: 'Exchange Fees', value: formatUSD(result.hlFees) },
-      { label: 'Builder Fees', value: formatUSD(result.builderFees), color: result.builderFees > 0 ? '#f59e0b' : '#5ef0d0' },
-    ];
+    // Progress bar for rank
+    const pBarX = rx - 240, pBarY = 175, pBarW = 240, pBarH = 6;
+    ctx.fillStyle = '#1a3630';
+    ctx.beginPath(); ctx.roundRect(pBarX, pBarY, pBarW, pBarH, 3); ctx.fill();
+    ctx.fillStyle = '#5ef0d0';
+    ctx.beginPath(); ctx.roundRect(pBarX, pBarY, pBarW * (barPct / 100), pBarH, 3); ctx.fill();
 
-    const statW = (rx - lx) / statItems.length;
-    statItems.forEach((s, i) => {
-      const sx = lx + i * statW;
-      // Box
-      ctx.fillStyle = '#132928';
+    // Fun lines — narrative style
+    const startY = 230;
+    funLines.forEach((line, i) => {
+      const y = startY + i * 38;
+
+      // Number circle
       ctx.beginPath();
-      const bw = statW - 12, bh = 72, br = 10;
-      const bx = sx, by = statsY;
-      ctx.moveTo(bx + br, by); ctx.lineTo(bx + bw - br, by); ctx.quadraticCurveTo(bx + bw, by, bx + bw, by + br);
-      ctx.lineTo(bx + bw, by + bh - br); ctx.quadraticCurveTo(bx + bw, by + bh, bx + bw - br, by + bh);
-      ctx.lineTo(bx + br, by + bh); ctx.quadraticCurveTo(bx, by + bh, bx, by + bh - br);
-      ctx.lineTo(bx, by + br); ctx.quadraticCurveTo(bx, by, bx + br, by);
-      ctx.closePath(); ctx.fill();
+      ctx.arc(lx + 12, y + 2, 12, 0, Math.PI * 2);
+      ctx.fillStyle = '#132e28';
+      ctx.fill();
+      ctx.font = '700 11px system-ui, sans-serif';
+      ctx.fillStyle = '#5ef0d0';
+      ctx.textAlign = 'center';
+      ctx.fillText(`${i + 1}`, lx + 12, y + 6);
 
-      ctx.font = '400 11px system-ui, sans-serif';
-      ctx.fillStyle = '#5e7e72';
+      ctx.font = '500 17px system-ui, sans-serif';
+      ctx.fillStyle = '#c8ddd5';
       ctx.textAlign = 'left';
-      ctx.fillText(s.label, sx + 14, statsY + 24);
-
-      ctx.font = '700 20px system-ui, sans-serif';
-      ctx.fillStyle = s.color || '#e8f0ec';
-      ctx.fillText(s.value, sx + 14, statsY + 52);
+      ctx.fillText(line, lx + 36, y + 6);
     });
 
-    // Fee breakdown bar
-    const barY = 320;
-    ctx.fillStyle = '#5e7e72';
-    ctx.font = '400 11px system-ui, sans-serif';
-    ctx.textAlign = 'left';
-    ctx.fillText('Fee Breakdown', lx, barY);
+    // Stats row
+    const statsY = startY + funLines.length * 38 + 30;
+    const stats = [
+      { label: 'Volume', value: formatVolume(result.totalVolume) },
+      { label: 'Trades', value: result.fillCount.toLocaleString() },
+      { label: 'Exchange', value: formatUSD(result.hlFees) },
+      { label: 'Builder', value: formatUSD(result.builderFees), highlight: result.builderFees > 0 },
+    ];
 
-    const barTop = barY + 14, barH = 10, barW = rx - lx;
-    // BG
-    ctx.fillStyle = '#1d3b37';
-    ctx.beginPath();
-    ctx.roundRect(lx, barTop, barW, barH, 5);
-    ctx.fill();
-    // Exchange portion
-    const exW = (result.hlFees / result.totalFees) * barW;
+    const statW = (rx - lx) / stats.length;
+    stats.forEach((s, i) => {
+      const sx = lx + i * statW;
+      ctx.font = '400 11px system-ui, sans-serif';
+      ctx.fillStyle = '#4a6b60';
+      ctx.textAlign = 'left';
+      ctx.fillText(s.label, sx, statsY);
+
+      ctx.font = '700 22px system-ui, sans-serif';
+      ctx.fillStyle = s.highlight ? '#f59e0b' : '#e8f0ec';
+      ctx.fillText(s.value, sx, statsY + 28);
+    });
+
+    // Fee bar
+    const fbY = statsY + 56;
+    const fbW = rx - lx, fbH = 8;
+    ctx.fillStyle = '#1a3630';
+    ctx.beginPath(); ctx.roundRect(lx, fbY, fbW, fbH, 4); ctx.fill();
+    const exW = (result.hlFees / result.totalFees) * fbW;
     ctx.fillStyle = '#00c9a7';
-    ctx.beginPath();
-    ctx.roundRect(lx, barTop, exW, barH, 5);
-    ctx.fill();
-    // Builder portion
+    ctx.beginPath(); ctx.roundRect(lx, fbY, exW, fbH, 4); ctx.fill();
     if (result.builderFees > 0) {
       ctx.fillStyle = '#f59e0b';
-      ctx.fillRect(lx + exW, barTop, barW - exW, barH);
+      ctx.beginPath(); ctx.roundRect(lx + exW - 2, fbY, fbW - exW + 2, fbH, 4); ctx.fill();
     }
 
-    // Legend
-    ctx.fillStyle = '#00c9a7'; ctx.beginPath(); ctx.arc(lx + 5, barTop + 28, 4, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#98b5aa'; ctx.font = '400 11px system-ui, sans-serif'; ctx.fillText(`Exchange ${formatUSD(result.hlFees)}`, lx + 14, barTop + 32);
+    // Savings CTA
     if (result.builderFees > 0) {
-      ctx.fillStyle = '#f59e0b'; ctx.beginPath(); ctx.arc(rx - 120, barTop + 28, 4, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#98b5aa'; ctx.textAlign = 'left'; ctx.fillText(`Builder ${formatUSD(result.builderFees)}`, rx - 112, barTop + 32);
-    }
-
-    // Fun facts
-    if (funFacts.length > 0) {
-      const ffY = 410;
-      ctx.fillStyle = '#5e7e72';
-      ctx.font = '400 11px system-ui, sans-serif';
+      const ctaY = fbY + 32;
+      ctx.font = '600 16px system-ui, sans-serif';
+      ctx.fillStyle = '#5ef0d0';
       ctx.textAlign = 'left';
-      ctx.fillText('Your fees could have bought:', lx, ffY);
-
-      funFacts.forEach((f, i) => {
-        ctx.font = '500 18px system-ui, sans-serif';
-        ctx.fillStyle = '#e8f0ec';
-        ctx.fillText(`${f.emoji}  ${f.text}`, lx + i * 260, ffY + 30);
-      });
-    }
-
-    // Savings callout
-    if (result.builderFees > 0) {
-      const cyY = 490;
-      ctx.fillStyle = '#0d2e1a';
-      ctx.beginPath();
-      ctx.roundRect(lx, cyY, rx - lx, 56, 12);
-      ctx.fill();
-      ctx.strokeStyle = 'rgba(34,197,94,0.2)';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-
-      ctx.font = '600 15px system-ui, sans-serif';
-      ctx.fillStyle = '#22c55e';
-      ctx.textAlign = 'left';
-      ctx.fillText(`You could have saved ${formatUSD(result.builderFees)} with a 0% fee builder`, lx + 20, cyY + 34);
+      ctx.fillText(`💡 Switch to 0% fee — save ${formatUSD(result.builderFees)} next time`, lx, ctaY);
     }
 
     // Footer
-    ctx.font = '400 12px system-ui, sans-serif';
-    ctx.fillStyle = '#3d5047';
+    ctx.font = '500 13px system-ui, sans-serif';
+    ctx.fillStyle = '#2a4a42';
     ctx.textAlign = 'left';
-    ctx.fillText('hypefees.com', lx, H - 30);
-    if (period) {
-      ctx.textAlign = 'right';
-      ctx.fillText(period, rx, H - 30);
-    }
+    ctx.fillText('hypefees.com', lx, H - 36);
+
+    ctx.font = '400 11px system-ui, sans-serif';
+    ctx.fillStyle = '#1d3b37';
+    ctx.textAlign = 'right';
+    ctx.fillText('Check your fees at hypefees.com', rx, H - 36);
 
     // Border
     ctx.strokeStyle = '#1d3b37';
     ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(r, 0); ctx.lineTo(W - r, 0); ctx.quadraticCurveTo(W, 0, W, r);
-    ctx.lineTo(W, H - r); ctx.quadraticCurveTo(W, H, W - r, H);
-    ctx.lineTo(r, H); ctx.quadraticCurveTo(0, H, 0, H - r);
-    ctx.lineTo(0, r); ctx.quadraticCurveTo(0, 0, r, 0);
-    ctx.closePath(); ctx.stroke();
+    ctx.beginPath(); ctx.roundRect(0.5, 0.5, W - 1, H - 1, r); ctx.stroke();
 
     // Download
     const link = document.createElement('a');
-    link.download = `hypefees-${shortAddr}.png`;
+    link.download = `hypefees-wrapped-${shortAddr}.png`;
     link.href = canvas.toDataURL('image/png');
     link.click();
-  }, [result, address, shortAddr, period, rank, percentile, funFacts]);
+  }, [result, address, shortAddr, period, rank, title, barPct, funLines]);
 
   return (
     <div className="mt-8">
-      {/* On-page brag card */}
-      <div ref={cardRef} className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-6 space-y-5">
-        {/* Rank + headline */}
-        <div className="flex items-start justify-between">
-          <div>
-            <div className="text-xs text-[var(--color-text-muted)]">Your Hyperliquid fees</div>
-            <div className="text-3xl font-bold mt-1 tabular-nums">{formatUSD(result.totalFees)}</div>
-          </div>
-          <div className="text-right">
-            <div className="text-lg font-bold text-[var(--color-accent)] tabular-nums">{rank}</div>
-            <div className="text-xs text-[var(--color-text-muted)]">
-              Top {(100 - percentile).toFixed(1)}% of traders
+      <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-card)] overflow-hidden">
+        {/* Wrapped-style header */}
+        <div className="px-6 pt-6 pb-4">
+          <div className="flex items-start justify-between">
+            <div>
+              <div className="text-xs font-medium text-[var(--color-accent)] mb-1">Your Hyperliquid Wrapped</div>
+              <div className="text-3xl md:text-4xl font-extrabold tabular-nums tracking-tight">
+                {formatUSD(result.totalFees)}
+              </div>
+              <div className="text-sm text-[var(--color-text-muted)] mt-0.5">in total fees</div>
+            </div>
+            <div className="text-right">
+              <div className="text-xl font-bold text-[var(--color-accent)]">{rank}</div>
+              <div className="text-xs text-[var(--color-text-muted)]">{title}</div>
+              {/* Rank bar */}
+              <div className="mt-2 w-32 h-1.5 rounded-full bg-[var(--color-bg-elevated)] overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-[var(--color-accent)] transition-all duration-1000"
+                  style={{ width: `${barPct}%` }}
+                />
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Fun equivalents */}
-        {funFacts.length > 0 && (
-          <div className="flex flex-wrap gap-3">
-            {funFacts.map((f, i) => (
-              <div key={i} className="px-3 py-1.5 rounded-lg bg-[var(--color-bg-elevated)] text-sm">
-                <span className="mr-1.5">{f.emoji}</span>
-                <span className="text-[var(--color-text-secondary)]">{f.text}</span>
-              </div>
-            ))}
-          </div>
-        )}
+        {/* Narrative lines */}
+        <div className="px-6 pb-4 space-y-2">
+          {funLines.map((line, i) => (
+            <div key={i} className="flex items-center gap-3">
+              <span className="w-6 h-6 rounded-full bg-[var(--color-accent-light)] text-[var(--color-accent)] text-xs font-bold flex items-center justify-center shrink-0">
+                {i + 1}
+              </span>
+              <span className="text-sm text-[var(--color-text-secondary)]">{line}</span>
+            </div>
+          ))}
+        </div>
 
-        {/* Share button */}
-        <button
-          onClick={generateImage}
-          className="inline-flex items-center gap-2 px-4 py-2 min-h-[44px] rounded-xl bg-[var(--color-text)] text-[var(--color-bg)] text-sm font-medium hover:opacity-85 transition-opacity"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M4 16v1a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-1M7 10l5 5 5-5M12 15V3" />
-          </svg>
-          Download Share Card
-        </button>
-        <p className="text-xs text-[var(--color-text-muted)]">
-          Optimized for Twitter (1200×675). Share your trading stats.
-        </p>
+        {/* Action row */}
+        <div className="px-6 pb-6 flex flex-wrap items-center gap-3">
+          <button
+            onClick={generateImage}
+            className="inline-flex items-center gap-2 px-4 py-2 min-h-[44px] rounded-xl bg-[var(--color-text)] text-[var(--color-bg)] text-sm font-medium hover:opacity-85 transition-opacity"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M4 16v1a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-1M7 10l5 5 5-5M12 15V3" />
+            </svg>
+            Download Wrapped Card
+          </button>
+          <span className="text-xs text-[var(--color-text-muted)]">1200×675 · optimized for Twitter</span>
+        </div>
       </div>
     </div>
   );
