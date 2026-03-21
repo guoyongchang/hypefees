@@ -49,14 +49,11 @@ function HeroSectionInner() {
   }, [address]);
 
   const handleConnectWallet = useCallback(() => {
-    if (isConnected && walletAddr) {
-      setAddress(walletAddr);
-      autoLookupAddr.current = walletAddr;
-    } else {
-      pendingConnect.current = true;
-      setShowWalletModal(true);
-    }
-  }, [isConnected, walletAddr]);
+    // Always show the wallet modal — let the user choose
+    // Even if already connected, they might want a different address
+    pendingConnect.current = true;
+    setShowWalletModal(true);
+  }, []);
 
   async function handleLookup() {
     const trimmed = address.trim();

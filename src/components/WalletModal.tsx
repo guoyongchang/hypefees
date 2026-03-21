@@ -122,9 +122,10 @@ export default function WalletModal({ open, onClose, onConnected }: WalletModalP
   if (!open) return null;
 
   function handleWalletClick(wallet: typeof WALLETS[0]) {
-    track(Events.WALLET_SELECTED, { wallet_id: wallet.id, action: mobile ? 'deeplink' : (hasInjected ? 'connect' : 'install') });
-    if (!mobile && hasInjected) {
-      // Desktop with injected wallet — try direct connect
+    // If inside a dApp browser (injected wallet exists), always connect directly
+    // This works on both mobile (OneKey/OKX/MetaMask app) and desktop (extensions)
+    if (hasInjected) {
+      track(Events.WALLET_SELECTED, { wallet_id: wallet.id, action: 'connect' });
       const injected = connectors.find((c) => c.id === 'injected');
       if (injected) {
         connect({ connector: injected });
@@ -134,18 +135,18 @@ export default function WalletModal({ open, onClose, onConnected }: WalletModalP
       }
     }
 
+    // No injected wallet — need to open wallet app or install
     if (mobile) {
-      // Mobile — try native app scheme first, fallback to universal link
-      const nativeLink = wallet.mobileLink(currentUrl);
-      const universalLink = wallet.deepLink(currentUrl);
-      const link = nativeLink || universalLink;
+      track(Events.WALLET_SELECTED, { wallet_id: wallet.id, action: 'deeplink' });
+      const link = wallet.mobileLink(currentUrl) || wallet.deepLink(currentUrl);
       if (link) {
         window.location.href = link;
         return;
       }
     }
 
-    // Desktop without injected wallet — open download page
+    // Desktop without extension — open download page
+    track(Events.WALLET_SELECTED, { wallet_id: wallet.id, action: 'install' });
     if (wallet.desktopUrl) {
       window.open(wallet.desktopUrl, '_blank');
     }
