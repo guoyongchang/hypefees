@@ -1,32 +1,24 @@
 import { http, createConfig } from 'wagmi';
-import { defineChain } from 'viem';
+import { arbitrum } from 'wagmi/chains';
 import { injected, walletConnect } from 'wagmi/connectors';
 
-// Hyperliquid uses a custom EIP-712 signing chain ID (0x66eee = 421614)
-// This is NOT Arbitrum Sepolia — it's Hyperliquid's own signing identifier.
-// We define a custom chain so wallets don't reject the signature due to chainId mismatch.
+// Hyperliquid uses a custom EIP-712 signing chain ID (0x66eee = 421614).
+// This is NOT a real EVM chain — it's Hyperliquid's own signing identifier.
+// We connect wallets to Arbitrum (which wallets know), then sign with
+// eth_signTypedData_v4 directly to bypass chain ID validation.
 const WALLETCONNECT_PROJECT_ID = '2b94db6c6e635e7bebd0b4b52b2beb37';
 
 export const HL_CHAIN_ID = 0x66eee; // 421614 — Hyperliquid signing chain ID
 
-const hyperliquidSigningChain = defineChain({
-  id: HL_CHAIN_ID,
-  name: 'Hyperliquid',
-  nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
-  rpcUrls: {
-    default: { http: ['https://rpc.hyperliquid.xyz/evm'] },
-  },
-});
-
 export const wagmiConfig = createConfig({
-  chains: [hyperliquidSigningChain],
+  chains: [arbitrum],
   connectors: [
     // injected() auto-detects: MetaMask, Phantom, Rabby, OneKey, OKX, Coinbase, etc.
     injected(),
     walletConnect({ projectId: WALLETCONNECT_PROJECT_ID }),
   ],
   transports: {
-    [hyperliquidSigningChain.id]: http(),
+    [arbitrum.id]: http(),
   },
 });
 
