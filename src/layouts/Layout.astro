@@ -1,6 +1,11 @@
 ---
 import '../styles/global.css';
 
+// Security headers
+Astro.response.headers.set('X-Content-Type-Options', 'nosniff');
+Astro.response.headers.set('X-Frame-Options', 'DENY');
+Astro.response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+
 interface Props {
   title?: string;
   description?: string;

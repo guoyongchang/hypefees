@@ -42,6 +42,11 @@ export async function fetchUserFills(
   address: string,
   onProgress?: (progress: FillProgress) => void,
 ): Promise<UserFill[]> {
+  // Validate address format
+  if (!/^0x[a-fA-F0-9]{40}$/.test(address)) {
+    throw new Error('Invalid Ethereum address');
+  }
+
   const allFills: UserFill[] = [];
   let startTime = 0;
   const seen = new Set<number>(); // deduplicate by tid

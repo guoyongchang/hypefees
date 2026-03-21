@@ -108,5 +108,8 @@ export async function submitAction(
   const data = await res.json();
 
   if (data.status === 'ok') return { success: true };
-  return { success: false, error: data.response || JSON.stringify(data) };
+
+  // Sanitize error — don't expose raw API internals
+  const msg = typeof data.response === 'string' ? data.response : 'Transaction failed';
+  return { success: false, error: msg };
 }
