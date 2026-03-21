@@ -34,7 +34,7 @@ export const GET: APIRoute = async () => {
         return new Response(cached, {
           headers: {
             'Content-Type': 'application/json',
-            'Cache-Control': 'public, max-age=3600',
+            'Cache-Control': 'public, max-age=300, s-maxage=3600',
             'X-Cache': 'HIT',
           },
         });
@@ -62,7 +62,7 @@ export const GET: APIRoute = async () => {
         return new Response(responseBody, {
           headers: {
             'Content-Type': 'application/json',
-            'Cache-Control': 'public, max-age=3600',
+            'Cache-Control': 'public, max-age=300, s-maxage=3600',
             'X-Cache': 'MISS',
           },
         });
@@ -79,7 +79,7 @@ export const GET: APIRoute = async () => {
   return new Response(JSON.stringify({ builders: filtered }), {
     headers: {
       'Content-Type': 'application/json',
-      'Cache-Control': 'public, max-age=3600',
+      'Cache-Control': 'public, max-age=300, s-maxage=3600',
       'X-Cache': 'LOCAL',
     },
   });
