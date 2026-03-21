@@ -1,12 +1,10 @@
 import { useState, useCallback } from 'react';
-import { useAccount, useConnect, useDisconnect, useSignTypedData } from 'wagmi';
-import { injected } from 'wagmi/connectors';
+import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import WalletProvider from './WalletProvider';
 import { useLang, t } from '../lib/i18n';
 import {
   ONEKEY_BUILDER_ADDRESS,
   ONEKEY_REFERRAL_CODE,
-  HL_CHAIN_ID,
   EIP712_DOMAIN,
   APPROVE_BUILDER_FEE_TYPES,
   SET_REFERRER_TYPES,
@@ -15,8 +13,10 @@ import {
   submitAction,
 } from '../lib/wallet';
 
-// Fallback: sign via raw eth_signTypedData_v4 for wallets that reject
-// cross-chain EIP-712 (domain chainId 421614 while connected to Arbitrum 42161).
+// Sign via raw eth_signTypedData_v4 — bypasses wagmi's chain validation.
+// Hyperliquid's EIP-712 domain uses chainId 421614 which differs from the
+// connected chain (Arbitrum 42161). wagmi's signTypedData rejects this on
+// many wallets. Calling the RPC method directly avoids this entirely.
 async function signTypedDataRaw(
   provider: any,
   account: string,
@@ -62,7 +62,6 @@ function SwitchBuilderInner() {
   const { address, isConnected, connector } = useAccount();
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
-  const { signTypedDataAsync } = useSignTypedData();
 
   const [step, setStep] = useState<Step>('idle');
   const [error, setError] = useState<string | null>(null);
@@ -85,31 +84,16 @@ function SwitchBuilderInner() {
     setError(null);
 
     try {
+      const provider = await connector?.getProvider();
+      if (!provider || !address) throw new Error('Wallet not connected');
+
       const { action, message, nonce } = buildApproveBuilderFeeAction(ONEKEY_BUILDER_ADDRESS, '0.01%');
 
-      // Try wagmi signTypedData first (works with most wallets)
-      // If wallet rejects due to chainId mismatch, fallback to raw RPC
-      let sig: string;
-      try {
-        sig = await signTypedDataAsync({
-          domain: EIP712_DOMAIN,
-          types: APPROVE_BUILDER_FEE_TYPES,
-          primaryType: 'HyperliquidTransaction:ApproveBuilderFee',
-          message,
-        });
-      } catch (e: any) {
-        const msg = e?.message || '';
-        if (msg.includes('chainId') || msg.includes('chain')) {
-          // Fallback: raw eth_signTypedData_v4 bypasses chain validation
-          const provider = await connector?.getProvider();
-          if (!provider || !address) throw e;
-          sig = await signTypedDataRaw(provider, address, EIP712_DOMAIN, APPROVE_BUILDER_FEE_TYPES, 'HyperliquidTransaction:ApproveBuilderFee', message);
-        } else {
-          throw e;
-        }
-      }
+      const sig = await signTypedDataRaw(
+        provider, address, EIP712_DOMAIN, APPROVE_BUILDER_FEE_TYPES,
+        'HyperliquidTransaction:ApproveBuilderFee', message,
+      );
 
-      // Parse signature
       const r = '0x' + sig.slice(2, 66);
       const s = '0x' + sig.slice(66, 130);
       const v = parseInt(sig.slice(130, 132), 16);
@@ -120,49 +104,31 @@ function SwitchBuilderInner() {
       }
 
       setApproveSuccess(true);
-      // Auto-proceed to referral
       await handleSetReferrer();
     } catch (err: any) {
       const msg = err?.message || err?.shortMessage || '';
-      // User cancelled — silently reset
       if (msg.includes('User rejected') || msg.includes('denied') || msg.includes('cancelled')) {
         setStep('idle');
         return;
       }
-      // Chain mismatch — prompt user to switch network
-      if (msg.includes('chainId') || msg.includes('chain')) {
-        setError('Please switch your wallet to the Hyperliquid network and try again.');
-      } else {
-        setError(msg || 'Failed to approve builder');
-      }
+      setError(msg || 'Failed to approve builder');
       setStep('error');
     }
-  }, [isConnected, address, connector, signTypedDataAsync]);
+  }, [isConnected, address, connector]);
 
   const handleSetReferrer = useCallback(async () => {
     setStep('setting-referrer');
 
     try {
+      const provider = await connector?.getProvider();
+      if (!provider || !address) { setStep('done'); return; }
+
       const { action, message, nonce } = buildSetReferrerAction(ONEKEY_REFERRAL_CODE);
 
-      let sig: string;
-      try {
-        sig = await signTypedDataAsync({
-          domain: EIP712_DOMAIN,
-          types: SET_REFERRER_TYPES,
-          primaryType: 'HyperliquidTransaction:SetReferrer',
-          message,
-        });
-      } catch (e: any) {
-        const msg = e?.message || '';
-        if (msg.includes('chainId') || msg.includes('chain')) {
-          const provider = await connector?.getProvider();
-          if (!provider || !address) throw e;
-          sig = await signTypedDataRaw(provider, address, EIP712_DOMAIN, SET_REFERRER_TYPES, 'HyperliquidTransaction:SetReferrer', message);
-        } else {
-          throw e;
-        }
-      }
+      const sig = await signTypedDataRaw(
+        provider, address, EIP712_DOMAIN, SET_REFERRER_TYPES,
+        'HyperliquidTransaction:SetReferrer', message,
+      );
 
       const r = '0x' + sig.slice(2, 66);
       const s = '0x' + sig.slice(66, 130);
@@ -170,18 +136,16 @@ function SwitchBuilderInner() {
 
       const result = await submitAction(action, { r, s, v }, nonce);
       if (!result.success) {
-        // Referral might already be set — not critical
         console.warn('setReferrer:', result.error);
       }
 
       setReferralSuccess(true);
       setStep('done');
     } catch (err: any) {
-      // Referral failure is non-critical, still mark as done
       setReferralSuccess(false);
       setStep('done');
     }
-  }, [address, connector, signTypedDataAsync]);
+  }, [address, connector]);
 
   // Success state
   if (step === 'done') {
