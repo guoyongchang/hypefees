@@ -28,18 +28,30 @@ function HeroSectionInner() {
 
   useEffect(() => { trackPageView(); }, []);
 
-  // Fill address after wallet connects (only when modal was open)
+  // Fill address after wallet connects, then auto-lookup
   const pendingConnect = useRef(false);
+  const autoLookupAddr = useRef<string | null>(null);
+
   useEffect(() => {
     if (pendingConnect.current && isConnected && walletAddr) {
       setAddress(walletAddr);
+      autoLookupAddr.current = walletAddr;
       pendingConnect.current = false;
     }
   }, [isConnected, walletAddr]);
 
+  // Auto-trigger lookup when address was set via wallet connect
+  useEffect(() => {
+    if (autoLookupAddr.current && address === autoLookupAddr.current && !loading && !result) {
+      autoLookupAddr.current = null;
+      handleLookup();
+    }
+  }, [address]);
+
   const handleConnectWallet = useCallback(() => {
     if (isConnected && walletAddr) {
       setAddress(walletAddr);
+      autoLookupAddr.current = walletAddr;
     } else {
       pendingConnect.current = true;
       setShowWalletModal(true);
