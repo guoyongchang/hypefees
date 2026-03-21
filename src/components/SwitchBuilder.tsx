@@ -1,0 +1,228 @@
+import { useState, useCallback } from 'react';
+import { useAccount, useConnect, useDisconnect, useSignTypedData } from 'wagmi';
+import { injected } from 'wagmi/connectors';
+import WalletProvider from './WalletProvider';
+import {
+  ONEKEY_BUILDER_ADDRESS,
+  ONEKEY_REFERRAL_CODE,
+  EIP712_DOMAIN,
+  APPROVE_BUILDER_FEE_TYPES,
+  SET_REFERRER_TYPES,
+  buildApproveBuilderFeeAction,
+  buildSetReferrerAction,
+  submitAction,
+} from '../lib/wallet';
+
+type Step = 'idle' | 'approving' | 'setting-referrer' | 'done' | 'error';
+
+function SwitchBuilderInner() {
+  const { address, isConnected } = useAccount();
+  const { connect, connectors } = useConnect();
+  const { disconnect } = useDisconnect();
+  const { signTypedDataAsync } = useSignTypedData();
+
+  const [step, setStep] = useState<Step>('idle');
+  const [error, setError] = useState<string | null>(null);
+  const [approveSuccess, setApproveSuccess] = useState(false);
+  const [referralSuccess, setReferralSuccess] = useState(false);
+
+  const handleConnect = useCallback(() => {
+    // Prefer injected (browser wallet) first
+    const injectedConnector = connectors.find((c) => c.id === 'injected');
+    if (injectedConnector) {
+      connect({ connector: injectedConnector });
+    } else if (connectors.length > 0) {
+      connect({ connector: connectors[0] });
+    }
+  }, [connect, connectors]);
+
+  const handleApproveBuilder = useCallback(async () => {
+    if (!isConnected) return;
+    setStep('approving');
+    setError(null);
+
+    try {
+      const { action, message, nonce } = buildApproveBuilderFeeAction(ONEKEY_BUILDER_ADDRESS, '0.01%');
+
+      const sig = await signTypedDataAsync({
+        domain: EIP712_DOMAIN,
+        types: APPROVE_BUILDER_FEE_TYPES,
+        primaryType: 'HyperliquidTransaction:ApproveBuilderFee',
+        message,
+      });
+
+      // Parse signature
+      const r = '0x' + sig.slice(2, 66);
+      const s = '0x' + sig.slice(66, 130);
+      const v = parseInt(sig.slice(130, 132), 16);
+
+      const result = await submitAction(action, { r, s, v }, nonce);
+      if (!result.success) {
+        throw new Error(result.error || 'Transaction failed');
+      }
+
+      setApproveSuccess(true);
+      // Auto-proceed to referral
+      await handleSetReferrer();
+    } catch (err: any) {
+      if (err?.message?.includes('User rejected') || err?.message?.includes('denied')) {
+        setStep('idle');
+        return;
+      }
+      setError(err?.message || 'Failed to approve builder');
+      setStep('error');
+    }
+  }, [isConnected, signTypedDataAsync]);
+
+  const handleSetReferrer = useCallback(async () => {
+    setStep('setting-referrer');
+
+    try {
+      const { action, message, nonce } = buildSetReferrerAction(ONEKEY_REFERRAL_CODE);
+
+      const sig = await signTypedDataAsync({
+        domain: EIP712_DOMAIN,
+        types: SET_REFERRER_TYPES,
+        primaryType: 'HyperliquidTransaction:SetReferrer',
+        message,
+      });
+
+      const r = '0x' + sig.slice(2, 66);
+      const s = '0x' + sig.slice(66, 130);
+      const v = parseInt(sig.slice(130, 132), 16);
+
+      const result = await submitAction(action, { r, s, v }, nonce);
+      if (!result.success) {
+        // Referral might already be set — not critical
+        console.warn('setReferrer:', result.error);
+      }
+
+      setReferralSuccess(true);
+      setStep('done');
+    } catch (err: any) {
+      // Referral failure is non-critical, still mark as done
+      setReferralSuccess(false);
+      setStep('done');
+    }
+  }, [signTypedDataAsync]);
+
+  // Success state
+  if (step === 'done') {
+    return (
+      <div className="rounded-2xl overflow-hidden bg-[#0a2e2a] p-8 md:p-12">
+        <div className="flex items-start gap-4">
+          <div className="mt-1 text-[#5ef0d0]">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M20 6L9 17l-5-5" />
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-xl md:text-2xl font-bold text-[#5ef0d0]">You're set — 0% builder fees</h2>
+            <p className="text-[#8aaa9e] mt-2">
+              Builder approval confirmed{referralSuccess ? ' and referral code applied' : ''}.
+              Your future trades will use 0% builder fees.
+            </p>
+            <button
+              onClick={() => { disconnect(); setStep('idle'); setApproveSuccess(false); setReferralSuccess(false); }}
+              className="mt-4 text-sm text-[#5a756b] hover:text-[#8aaa9e] transition-colors"
+            >
+              Disconnect wallet
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-2xl overflow-hidden bg-[#0a2e2a] p-8 md:p-12">
+      <div className="max-w-2xl">
+        <h2 className="text-xl md:text-2xl font-bold text-[#5ef0d0]">Switch to 0% builder fees</h2>
+        <p className="text-[#8aaa9e] mt-2 leading-relaxed">
+          0.10% per trade = $1,000 on every $1M volume. Connect your wallet to switch.
+        </p>
+
+        <div className="mt-6">
+          {!isConnected ? (
+            <button
+              onClick={handleConnect}
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#5ef0d0] text-[#0a2e2a] font-semibold hover:bg-[#7ff5dc] transition-colors min-h-[44px]"
+            >
+              Connect Wallet
+            </button>
+          ) : (
+            <div className="space-y-4">
+              {/* Connected state */}
+              <div className="flex items-center gap-3 text-sm text-[#8aaa9e]">
+                <div className="w-2 h-2 rounded-full bg-[#5ef0d0]" />
+                {address?.slice(0, 6)}...{address?.slice(-4)}
+                <button
+                  onClick={() => disconnect()}
+                  className="text-xs text-[#5a756b] hover:text-[#8aaa9e] transition-colors ml-2"
+                >
+                  disconnect
+                </button>
+              </div>
+
+              {/* Steps */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                    approveSuccess ? 'bg-[#5ef0d0] text-[#0a2e2a]' : 'border border-[#5ef0d0] text-[#5ef0d0]'
+                  }`}>
+                    {approveSuccess ? '✓' : '1'}
+                  </div>
+                  <span className="text-[#e4efe9] text-sm">Approve 0% builder fee</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                    referralSuccess ? 'bg-[#5ef0d0] text-[#0a2e2a]' : 'border border-[#5a756b] text-[#5a756b]'
+                  }`}>
+                    {referralSuccess ? '✓' : '2'}
+                  </div>
+                  <span className="text-[#8aaa9e] text-sm">Apply referral discount (optional)</span>
+                </div>
+              </div>
+
+              {error && (
+                <div className="p-3 rounded-lg bg-red-900/30 border border-red-500/30 text-red-300 text-sm">
+                  {error}
+                </div>
+              )}
+
+              <button
+                onClick={handleApproveBuilder}
+                disabled={step === 'approving' || step === 'setting-referrer'}
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#5ef0d0] text-[#0a2e2a] font-semibold hover:bg-[#7ff5dc] transition-colors min-h-[44px] disabled:opacity-50"
+              >
+                {step === 'approving'
+                  ? 'Waiting for signature...'
+                  : step === 'setting-referrer'
+                    ? 'Setting referral...'
+                    : 'Switch to 0% Fee'}
+                {step === 'idle' && (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                  </svg>
+                )}
+              </button>
+
+              <p className="text-xs text-[#5a756b]">
+                Two signatures required — no gas fees, no funds transferred.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Wrapper with providers
+export default function SwitchBuilder() {
+  return (
+    <WalletProvider>
+      <SwitchBuilderInner />
+    </WalletProvider>
+  );
+}

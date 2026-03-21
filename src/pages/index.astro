@@ -4,140 +4,77 @@ import ThemeToggle from '../components/ThemeToggle.tsx';
 import BuilderTable from '../components/BuilderTable.tsx';
 import AddressLookup from '../components/AddressLookup.tsx';
 import FeeSimulator from '../components/FeeSimulator.tsx';
+import SwitchBuilder from '../components/SwitchBuilder.tsx';
 ---
 
 <Layout>
   <ThemeToggle client:load slot="header-actions" />
 
-  <!-- Hero — left-aligned with stat cards -->
+  <!-- Hero: Address Lookup is the primary action -->
   <section class="py-14 md:py-20">
-    <div class="max-w-3xl">
-      <p class="text-sm font-medium tracking-wider uppercase text-[var(--color-accent)] mb-3">Hyperliquid Fee Transparency</p>
-      <h1 class="text-3xl md:text-[2.75rem] font-bold tracking-tight leading-[1.15]">
-        Stop overpaying on<br class="hidden md:block" />
-        Hyperliquid trades
-      </h1>
-      <p class="mt-4 text-lg text-[var(--color-text-secondary)] max-w-xl leading-relaxed">
-        Third-party wallets add hidden builder fees to every trade. Compare rates, check your spending, and switch to save.
-      </p>
-    </div>
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-10">
-      <div class="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)]">
-        <div class="text-2xl font-bold tabular-nums text-[var(--color-accent)]">0%</div>
-        <div class="text-xs text-[var(--color-text-muted)] mt-1">Lowest builder fee</div>
-      </div>
-      <div class="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)]">
-        <div class="text-2xl font-bold tabular-nums">0.10%</div>
-        <div class="text-xs text-[var(--color-text-muted)] mt-1">Highest builder fee</div>
-      </div>
-      <div class="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)]">
-        <div class="text-2xl font-bold tabular-nums">8+</div>
-        <div class="text-xs text-[var(--color-text-muted)] mt-1">Active builders</div>
-      </div>
-      <div class="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)]">
-        <div class="text-2xl font-bold tabular-nums text-[var(--color-warning)]">$40M+</div>
-        <div class="text-xs text-[var(--color-text-muted)] mt-1">Total builder revenue</div>
-      </div>
+    <h1 class="text-3xl md:text-[2.75rem] font-bold tracking-tight leading-[1.15] max-w-2xl">
+      How much are you overpaying on Hyperliquid?
+    </h1>
+    <p class="mt-3 text-[var(--color-text-secondary)] max-w-xl">
+      Enter your address to see your fee breakdown instantly.
+    </p>
+    <div class="mt-8">
+      <AddressLookup client:load />
     </div>
   </section>
 
   <!-- Builder Fee Comparison Table -->
   <section class="section-alt py-14">
-    <div class="flex flex-col md:flex-row md:items-end justify-between gap-2 mb-8">
-      <div>
-        <h2 class="text-xl md:text-2xl font-bold">Builder Fee Comparison</h2>
-        <p class="text-sm text-[var(--color-text-secondary)] mt-1">
-          Base exchange rates (VIP 0): Taker 0.035%, Maker 0.01%. Total = base + builder fee.
-        </p>
-      </div>
-    </div>
+    <h2 class="text-xl md:text-2xl font-bold mb-1">Builder Fee Comparison</h2>
+    <p class="text-sm text-[var(--color-text-secondary)] mb-8">
+      Sorted by fee rate. Total = Hyperliquid base fee + builder fee.
+    </p>
     <BuilderTable client:load />
   </section>
 
-  <!-- Address Lookup — white bg -->
+  <!-- Fee Simulator -->
   <section class="py-14">
-    <div class="flex flex-col md:flex-row md:items-end justify-between gap-2 mb-8">
-      <div>
-        <h2 class="text-xl md:text-2xl font-bold">Check Your Fees</h2>
-        <p class="text-sm text-[var(--color-text-secondary)] mt-1">
-          Enter your address to see your fee breakdown — how much went to Hyperliquid vs. builders.
-        </p>
-      </div>
-    </div>
-    <AddressLookup client:load />
-  </section>
-
-  <!-- Fee Simulator — alt bg -->
-  <section class="section-alt py-14">
-    <div class="flex flex-col md:flex-row md:items-end justify-between gap-2 mb-8">
-      <div>
-        <h2 class="text-xl md:text-2xl font-bold">Fee Simulator</h2>
-        <p class="text-sm text-[var(--color-text-secondary)] mt-1">
-          Model your fee costs across different builders and trading volumes.
-        </p>
-      </div>
-    </div>
+    <h2 class="text-xl md:text-2xl font-bold mb-1">Fee Simulator</h2>
+    <p class="text-sm text-[var(--color-text-secondary)] mb-8">
+      See how much you'd pay across builders at any volume.
+    </p>
     <FeeSimulator client:load />
   </section>
 
-  <!-- Switch CTA — prominent, not a generic box -->
+  <!-- Switch Builder (wallet connect + one-click) -->
   <section class="py-14">
-    <div class="rounded-2xl overflow-hidden bg-[#0a2e2a] p-8 md:p-12">
-      <div class="max-w-2xl">
-        <h2 class="text-xl md:text-2xl font-bold text-[#5ef0d0]">Trade with 0% builder fees</h2>
-        <p class="text-[#8aaa9e] mt-2 leading-relaxed">
-          Some builders charge up to 0.10% per trade — that's $1,000 on every $1M in volume.
-          Switch to a 0% fee builder and keep more of your profits.
-        </p>
-        <div class="mt-6 flex flex-col sm:flex-row gap-3">
-          <a
-            href="https://app.hyperliquid.xyz/join/1KREF"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#5ef0d0] text-[#0a2e2a] font-semibold hover:bg-[#7ff5dc] transition-colors min-h-[44px]"
-          >
-            Switch Now — Free
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M5 12h14M12 5l7 7-7 7" />
-            </svg>
-          </a>
-          <span class="text-sm text-[#5a756b] flex items-center">
-            One-click wallet switching coming soon
-          </span>
-        </div>
-      </div>
-    </div>
+    <SwitchBuilder client:load />
   </section>
 
-  <!-- FAQ — alt bg -->
+  <!-- FAQ -->
   <section class="section-alt py-14">
-    <h2 class="text-xl md:text-2xl font-bold mb-8">Frequently Asked Questions</h2>
+    <h2 class="text-xl md:text-2xl font-bold mb-8">FAQ</h2>
     <div class="space-y-3 max-w-3xl">
       <details class="group border border-[var(--color-border)] rounded-xl bg-[var(--color-bg-card)]">
         <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)] transition-colors">
           What is a builder fee?
         </summary>
         <div class="px-5 pb-4 text-[var(--color-text-secondary)] text-sm leading-relaxed">
-          A builder fee is an additional fee charged by third-party wallets and interfaces when you trade on Hyperliquid.
-          It's added on top of Hyperliquid's base exchange fees. Different wallets charge different rates — some charge 0%.
+          When you trade on Hyperliquid through a third-party wallet (Phantom, MetaMask, etc.),
+          that wallet adds a builder fee on top of Hyperliquid's exchange fees. Rates range from 0% to 0.10%.
         </div>
       </details>
       <details class="group border border-[var(--color-border)] rounded-xl bg-[var(--color-bg-card)]">
         <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)] transition-colors">
-          How can I switch to a lower-fee builder?
+          How do I switch to a cheaper builder?
         </summary>
         <div class="px-5 pb-4 text-[var(--color-text-secondary)] text-sm leading-relaxed">
-          You can change your builder by approving a new builder fee on Hyperliquid. Use the "Switch Now" button above
-          to get started with a 0% fee builder. The process requires signing a transaction with your wallet.
+          Connect your wallet above and approve a new builder with a lower fee.
+          It's a single on-chain signature — your funds, positions, and history are not affected.
         </div>
       </details>
       <details class="group border border-[var(--color-border)] rounded-xl bg-[var(--color-bg-card)]">
         <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)] transition-colors">
-          Is it safe to switch builders?
+          Is switching safe?
         </summary>
         <div class="px-5 pb-4 text-[var(--color-text-secondary)] text-sm leading-relaxed">
-          Yes. Switching builders is an on-chain action on Hyperliquid. You simply approve a new builder address with its
-          fee rate. Your funds, positions, and trading history are not affected. You can switch back at any time.
+          Yes. You're approving a builder address with a fee cap — no funds are transferred.
+          You can switch back or change builders at any time. Up to 10 builder approvals can be active.
         </div>
       </details>
       <details class="group border border-[var(--color-border)] rounded-xl bg-[var(--color-bg-card)]">
@@ -145,8 +82,8 @@ import FeeSimulator from '../components/FeeSimulator.tsx';
           Where does this data come from?
         </summary>
         <div class="px-5 pb-4 text-[var(--color-text-secondary)] text-sm leading-relaxed">
-          Builder data is aggregated from public Hyperliquid network data via the HyperTracker API.
-          User fee breakdowns are fetched directly from Hyperliquid's public API. All data is verifiable on-chain.
+          Builder data from HyperTracker (CoinMarketMan). Fee breakdowns from Hyperliquid's public API.
+          Everything is verifiable on-chain.
         </div>
       </details>
     </div>
