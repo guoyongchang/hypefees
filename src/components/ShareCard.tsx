@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import type { FeeBreakdown } from '../lib/api';
 import { formatUSD, formatVolume } from '../lib/fees';
 import { useLang, t } from '../lib/i18n';
+import type { Lang } from '../lib/i18n';
 
 // ============================================================
 // Design Tokens — self-contained dark card palette
@@ -112,6 +113,18 @@ function yearsLabel(days: number): string {
   if (m === 1) return '1 month';
   if (days >= 2) return `${days} days`;
   return '1 day';
+}
+
+function yearsLabelI18n(days: number, lang: Lang): string {
+  if (days <= 0) return t('card.aMoment', lang);
+  const y = days / 365;
+  if (y >= 2) return `${y.toFixed(1)} ${t('card.years', lang)}`;
+  if (y >= 1) return `${y.toFixed(1)} ${t('card.year', lang)}`;
+  const m = Math.round(days / 30);
+  if (m >= 2) return `${m} ${t('card.months', lang)}`;
+  if (m === 1) return `1 ${t('card.month', lang)}`;
+  if (days >= 2) return `${days} ${t('card.days', lang)}`;
+  return `1 ${t('card.day', lang)}`;
 }
 
 // ============================================================
@@ -323,9 +336,10 @@ function Pill({ emoji, value, label, style }: { emoji: string; value: string; la
   );
 }
 
-function PercentileBar({ percent = 99.7, label = 'You are here', style }: {
-  percent?: number; label?: string; style?: React.CSSProperties;
+function PercentileBar({ percent = 99.7, label, lang, style }: {
+  percent?: number; label?: string; lang?: Lang; style?: React.CSSProperties;
 }) {
+  const resolvedLabel = label ?? t('card.youAreHere', lang ?? 'en' as Lang);
   return (
     <div style={style}>
       <div
@@ -382,7 +396,7 @@ function PercentileBar({ percent = 99.7, label = 'You are here', style }: {
             paddingRight: 4,
           }}
         >
-          {label} →
+          {resolvedLabel} →
         </span>
         <span style={{ position: 'absolute', right: 0 }}>100%</span>
         {/* Spacer for height */}
@@ -435,9 +449,10 @@ function HeroStat({ prefix, value, subtitle, label, style }: {
   );
 }
 
-function RankBadge({ emoji = '👑', rank, total, topPercent, children, style }: {
-  emoji?: string; rank: number; total: number; topPercent: number; children?: React.ReactNode; style?: React.CSSProperties;
+function RankBadge({ emoji = '👑', rank, total, topPercent, lang, children, style }: {
+  emoji?: string; rank: number; total: number; topPercent: number; lang?: Lang; children?: React.ReactNode; style?: React.CSSProperties;
 }) {
+  const l = lang ?? 'en' as Lang;
   return (
     <div
       style={{
@@ -459,12 +474,12 @@ function RankBadge({ emoji = '👑', rank, total, topPercent, children, style }:
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <EmojiBadge emoji={emoji} />
           <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.65)', lineHeight: 1.5 }}>
-            Global rank{' '}
+            {t('card.globalRank', l)}{' '}
             <strong style={{ color: tokens.colors.accent, fontWeight: 600 }}>
               #{rank.toLocaleString()}
             </strong>
             <br />
-            out of {total.toLocaleString()} traders
+            {t('card.outOf', l, { n: total.toLocaleString() })}
           </span>
         </div>
         <span
@@ -476,7 +491,7 @@ function RankBadge({ emoji = '👑', rank, total, topPercent, children, style }:
             letterSpacing: '-0.02em',
           }}
         >
-          Top {topPercent}%
+          {t('card.top', l, { n: String(topPercent) })}
         </span>
       </div>
       {children}
@@ -487,22 +502,22 @@ function RankBadge({ emoji = '👑', rank, total, topPercent, children, style }:
 // ============================================================
 // Pick best fun fact items based on fee amount
 // ============================================================
-function pickStatCards(f: FunFacts): { emoji: string; value: string; unit: string; label: string; description: string }[] {
+function pickStatCards(f: FunFacts, lang: Lang): { emoji: string; value: string; unit: string; label: string; description: string }[] {
   const cards: { emoji: string; value: string; unit: string; label: string; description: string }[] = [];
 
   // Always show coffees
   const coffeeDesc = f.coffees >= 365
-    ? `A cup a day for ${yearsLabel(f.coffees)}`
+    ? t('card.cupADay', lang, { t: yearsLabelI18n(f.coffees, lang) })
     : f.coffees >= 7
-      ? `${Math.round(f.coffees / 7)} weeks of daily coffee`
+      ? t('card.weeksOfCoffee', lang, { n: String(Math.round(f.coffees / 7)) })
       : f.coffees >= 1
-        ? `${f.coffees} morning pick-me-ups`
-        : 'Not even one latte yet';
+        ? t('card.pickMeUps', lang, { n: String(f.coffees) })
+        : t('card.noLatteYet', lang);
   cards.push({
     emoji: '☕',
     value: formatNum(Math.max(1, f.coffees)),
-    unit: f.coffees > 1 ? 'cups' : 'cup',
-    label: 'Starbucks grande lattes',
+    unit: f.coffees > 1 ? t('card.cups', lang) : t('card.cup', lang),
+    label: t('card.starbucks', lang),
     description: coffeeDesc,
   });
 
@@ -511,25 +526,25 @@ function pickStatCards(f: FunFacts): { emoji: string; value: string; unit: strin
     cards.push({
       emoji: '📱',
       value: f.iphones >= 10 ? String(Math.round(f.iphones)) : String(f.iphones),
-      unit: f.iphones >= 2 ? 'units' : 'unit',
-      label: 'iPhone 16 Pro Max',
-      description: f.iphones >= 10 ? 'Enough to open a small Apple Store' : 'A shiny new phone',
+      unit: f.iphones >= 2 ? t('card.units', lang) : t('card.unit', lang),
+      label: t('card.iphone', lang),
+      description: f.iphones >= 10 ? t('card.iphoneMany', lang) : t('card.iphoneOne', lang),
     });
   } else if (f.steamGames >= 1) {
     cards.push({
       emoji: '🎮',
       value: formatNum(f.steamGames),
-      unit: f.steamGames > 1 ? 'games' : 'game',
-      label: 'AAA Steam titles',
-      description: `${yearsLabel(f.steamGames * 30)} of gaming backlog`,
+      unit: f.steamGames > 1 ? t('card.games', lang) : t('card.game', lang),
+      label: t('card.steamGames', lang),
+      description: t('card.gamingBacklog', lang, { t: yearsLabelI18n(f.steamGames * 30, lang) }),
     });
   } else {
     cards.push({
       emoji: '🍺',
       value: formatNum(Math.max(1, f.beers)),
-      unit: f.beers > 1 ? 'beers' : 'beer',
-      label: 'Draft beers',
-      description: 'Cheers to the grind',
+      unit: f.beers > 1 ? t('card.beers', lang) : t('card.beer', lang),
+      label: t('card.draftBeers', lang),
+      description: t('card.cheers', lang),
     });
   }
 
@@ -538,25 +553,25 @@ function pickStatCards(f: FunFacts): { emoji: string; value: string; unit: strin
     cards.push({
       emoji: '✈️',
       value: String(f.flights),
-      unit: f.flights > 1 ? 'trips' : 'trip',
-      label: 'NYC ↔ London first class',
-      description: f.flights >= 4 ? `One every ${Math.round(f.daysBetween / f.flights / 7)} weeks` : 'Champagne at 35,000 feet',
+      unit: f.flights > 1 ? t('card.trips', lang) : t('card.trip', lang),
+      label: t('card.flights', lang),
+      description: f.flights >= 4 ? t('card.oneEvery', lang, { n: String(Math.round(f.daysBetween / f.flights / 7)) }) : t('card.champagne', lang),
     });
   } else if (f.uberRides >= 1) {
     cards.push({
       emoji: '🚕',
       value: formatNum(f.uberRides),
-      unit: f.uberRides > 1 ? 'rides' : 'ride',
-      label: 'Uber rides',
-      description: f.uberRides >= 30 ? `A ride every ${Math.round(f.daysBetween / f.uberRides)} days` : 'No walking needed',
+      unit: f.uberRides > 1 ? t('card.rides', lang) : t('card.ride', lang),
+      label: t('card.uberRides', lang),
+      description: f.uberRides >= 30 ? t('card.aRideEvery', lang, { n: String(Math.round(f.daysBetween / f.uberRides)) }) : t('card.noWalking', lang),
     });
   } else {
     cards.push({
       emoji: '🍕',
       value: String(Math.max(1, Math.round(f.coffees / 2))),
-      unit: 'slices',
-      label: 'Pizza slices',
-      description: 'Trading fuel',
+      unit: t('card.slices', lang),
+      label: t('card.pizzaSlices', lang),
+      description: t('card.tradingFuel', lang),
     });
   }
 
@@ -564,21 +579,21 @@ function pickStatCards(f: FunFacts): { emoji: string; value: string; unit: strin
   cards.push({
     emoji: '⛽',
     value: formatNum(Math.max(1, f.ethTxns)),
-    unit: f.ethTxns > 1 ? 'txns' : 'txn',
-    label: 'ETH L1 transfers',
-    description: 'At avg $10 gas per tx',
+    unit: f.ethTxns > 1 ? t('card.txns', lang) : t('card.txn', lang),
+    label: t('card.ethL1', lang),
+    description: t('card.ethL1Desc', lang),
   });
 
   return cards;
 }
 
-function pickPills(f: FunFacts): { emoji: string; value: string; label: string }[] {
+function pickPills(f: FunFacts, lang: Lang): { emoji: string; value: string; label: string }[] {
   const pills: { emoji: string; value: string; label: string }[] = [];
-  if (f.steamGames >= 2) pills.push({ emoji: '🎮', value: formatNum(f.steamGames), label: 'Steam AAA games' });
-  if (f.rentMonths >= 1) pills.push({ emoji: '🏠', value: String(f.rentMonths), label: 'mo Manhattan rent' });
-  if (f.beers >= 10) pills.push({ emoji: '🍺', value: formatNum(f.beers), label: 'draft beers' });
-  if (f.uberRides >= 5) pills.push({ emoji: '🚕', value: formatNum(f.uberRides), label: 'Uber rides' });
-  if (f.spotifyYears >= 1) pills.push({ emoji: '🎵', value: String(f.spotifyYears), label: 'yrs Spotify' });
+  if (f.steamGames >= 2) pills.push({ emoji: '🎮', value: formatNum(f.steamGames), label: t('card.steamPill', lang) });
+  if (f.rentMonths >= 1) pills.push({ emoji: '🏠', value: String(f.rentMonths), label: t('card.rentPill', lang) });
+  if (f.beers >= 10) pills.push({ emoji: '🍺', value: formatNum(f.beers), label: t('card.beersPill', lang) });
+  if (f.uberRides >= 5) pills.push({ emoji: '🚕', value: formatNum(f.uberRides), label: t('card.uberPill', lang) });
+  if (f.spotifyYears >= 1) pills.push({ emoji: '🎵', value: String(f.spotifyYears), label: t('card.spotifyPill', lang) });
   return pills.slice(0, 5);
 }
 
@@ -686,7 +701,7 @@ function generateImage(
   ctx.beginPath(); ctx.arc(dotX, pbY + 2.5, 3, 0, Math.PI * 2); ctx.fill();
 
   // ── 4 Stat cards (2×2) ──
-  const statCards = pickStatCards(funFacts);
+  const statCards = pickStatCards(funFacts, 'en' as Lang);
   const gridY = rbY + rbH + 14;
   const gap = 10;
   const cardW = (cw - gap) / 2;
@@ -777,7 +792,7 @@ function generateImage(
   }
 
   // ── Pills row ──
-  const pills = pickPills(funFacts);
+  const pills = pickPills(funFacts, 'en' as Lang);
   const pillY = inline2Y + inlineH + 16;
   let px = lx;
   pills.forEach((pill) => {
@@ -843,8 +858,8 @@ export default function ShareCard({ result, address }: ShareCardProps) {
     : 1;
 
   const funFacts = computeFunFacts(result.totalFees, daysBetween);
-  const statCards = pickStatCards(funFacts);
-  const pills = pickPills(funFacts);
+  const statCards = pickStatCards(funFacts, lang);
+  const pills = pickPills(funFacts, lang);
   const feeStr = formatUSD(result.totalFees).replace('$', '');
 
   const handleDownload = useCallback(() => {
@@ -978,7 +993,7 @@ export default function ShareCard({ result, address }: ShareCardProps) {
                         marginBottom: 6,
                       }}
                     >
-                      Total fees paid to Hyperliquid
+                      {t('card.totalFeesPaid', lang)}
                     </div>
                     <div
                       style={{
@@ -1002,8 +1017,9 @@ export default function ShareCard({ result, address }: ShareCardProps) {
                       rank={rankInfo.rank}
                       total={rankInfo.total}
                       topPercent={rankInfo.topPercent}
+                      lang={lang}
                     >
-                      <PercentileBar percent={rankInfo.percentile} />
+                      <PercentileBar percent={rankInfo.percentile} lang={lang} />
                     </RankBadge>
                   </div>
                 </div>
@@ -1021,22 +1037,22 @@ export default function ShareCard({ result, address }: ShareCardProps) {
                     style={{ gridColumn: 'auto' }}
                     segments={[
                       { type: 'emoji', content: '🌯' },
-                      { type: 'text', content: "That's" },
+                      { type: 'text', content: t('card.thats', lang) },
                       { type: 'number', content: formatNum(Math.max(1, funFacts.burritos)) },
-                      { type: 'text', content: funFacts.burritos > 1 ? 'Chipotle burritos' : 'Chipotle burrito' },
-                      { type: 'muted', content: `· ${yearsLabel(funFacts.burritos)}` },
+                      { type: 'text', content: funFacts.burritos > 1 ? t('card.burritos', lang) : t('card.burrito', lang) },
+                      { type: 'muted', content: `· ${t('card.lunchEveryDay', lang, { t: yearsLabelI18n(funFacts.burritos, lang) })}` },
                     ]}
                   />
                   <InlineStatCard
                     style={{ gridColumn: 'auto' }}
                     segments={[
                       { type: 'emoji', content: '💸' },
-                      { type: 'text', content: 'Paying' },
+                      { type: 'text', content: t('card.paying', lang) },
                       { type: 'number', content: `$${funFacts.dailyFee}` },
-                      { type: 'text', content: '/day' },
+                      { type: 'text', content: t('card.perDay', lang) },
                       { type: 'emoji', content: '🫡', size: 'sm' },
                       ...(funFacts.netflixMultiple >= 2
-                        ? [{ type: 'muted' as const, content: `· ${funFacts.netflixMultiple}x Netflix` }]
+                        ? [{ type: 'muted' as const, content: `· ${t('card.netflix', lang, { n: String(funFacts.netflixMultiple) })}` }]
                         : []),
                     ]}
                   />
@@ -1053,7 +1069,7 @@ export default function ShareCard({ result, address }: ShareCardProps) {
                   )}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexShrink: 0 }}>
                     <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.18)' }}>
-                      hypefees.com
+                      {t('card.poweredBy', lang)}
                     </span>
                     <span
                       style={{
@@ -1093,7 +1109,7 @@ export default function ShareCard({ result, address }: ShareCardProps) {
                 {t('share.download', lang)}
               </button>
               <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>
-                2400×1350 · optimized for Twitter
+                {t('card.optimized', lang)}
               </span>
             </div>
           </div>
