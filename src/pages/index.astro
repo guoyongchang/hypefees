@@ -1,0 +1,116 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ThemeToggle from '../components/ThemeToggle.tsx';
+import BuilderTable from '../components/BuilderTable.tsx';
+import AddressLookup from '../components/AddressLookup.tsx';
+import FeeSimulator from '../components/FeeSimulator.tsx';
+---
+
+<Layout>
+  <ThemeToggle client:load slot="header-actions" />
+
+  <!-- Hero -->
+  <section class="text-center py-12 md:py-16">
+    <h1 class="text-4xl md:text-5xl font-bold tracking-tight leading-tight">
+      Compare Hyperliquid<br />
+      <span class="text-[var(--color-accent)]">Builder Fees</span>
+    </h1>
+    <p class="mt-4 text-lg text-[var(--color-text-secondary)] max-w-2xl mx-auto">
+      Every trade on Hyperliquid through a third-party wallet includes a hidden builder fee.
+      See how much you're really paying — and how to pay less.
+    </p>
+  </section>
+
+  <!-- Builder Fee Comparison Table -->
+  <section class="mb-16">
+    <h2 class="text-2xl font-bold mb-6">All Builder Fees</h2>
+    <p class="text-[var(--color-text-secondary)] mb-6">
+      Builder fees are charged on top of Hyperliquid's base exchange fees. Base rates (VIP 0): Taker 0.035%, Maker 0.01%.
+      "Total" columns show the combined rate you actually pay.
+    </p>
+    <BuilderTable client:load />
+  </section>
+
+  <!-- Address Lookup -->
+  <section class="mb-16">
+    <h2 class="text-2xl font-bold mb-2">Check Your Fees</h2>
+    <p class="text-[var(--color-text-secondary)] mb-6">
+      Enter your Ethereum address to see how much you've paid in total fees — and how much went to builders vs. Hyperliquid.
+    </p>
+    <AddressLookup client:load />
+  </section>
+
+  <!-- Fee Simulator -->
+  <section class="mb-16">
+    <h2 class="text-2xl font-bold mb-2">Fee Simulator</h2>
+    <p class="text-[var(--color-text-secondary)] mb-6">
+      Estimate how much you'd pay in fees across different builders for a given trading volume.
+    </p>
+    <FeeSimulator client:load />
+  </section>
+
+  <!-- Switch CTA -->
+  <section class="mb-16 text-center p-8 rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-secondary)]">
+    <h2 class="text-2xl font-bold mb-2">Switch to 0% Builder Fee</h2>
+    <p class="text-[var(--color-text-secondary)] mb-6">
+      Stop overpaying. Switch your builder to one with 0% fees and start saving on every trade.
+    </p>
+    <a
+      href="https://app.hyperliquid.xyz/join/1KREF"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[var(--color-accent)] text-white font-medium hover:bg-[var(--color-accent-hover)] transition-colors"
+    >
+      Switch Now — 0% Fee
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M5 12h14M12 5l7 7-7 7" />
+      </svg>
+    </a>
+    <p class="text-xs text-[var(--color-text-muted)] mt-3">
+      Wallet connection and one-click switching coming soon.
+    </p>
+  </section>
+
+  <!-- FAQ -->
+  <section class="mb-8">
+    <h2 class="text-2xl font-bold mb-6">Frequently Asked Questions</h2>
+    <div class="space-y-4">
+      <details class="group border border-[var(--color-border)] rounded-xl">
+        <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)] transition-colors">
+          What is a builder fee?
+        </summary>
+        <div class="px-5 pb-4 text-[var(--color-text-secondary)] text-sm">
+          A builder fee is an additional fee charged by third-party wallets and interfaces when you trade on Hyperliquid.
+          It's added on top of Hyperliquid's base exchange fees. Different wallets charge different rates — some charge 0%.
+        </div>
+      </details>
+      <details class="group border border-[var(--color-border)] rounded-xl">
+        <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)] transition-colors">
+          How can I switch to a lower-fee builder?
+        </summary>
+        <div class="px-5 pb-4 text-[var(--color-text-secondary)] text-sm">
+          You can change your builder by approving a new builder fee on Hyperliquid. Use the "Switch Now" button above
+          to get started with a 0% fee builder. The process requires signing a transaction with your wallet.
+        </div>
+      </details>
+      <details class="group border border-[var(--color-border)] rounded-xl">
+        <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)] transition-colors">
+          Is it safe to switch builders?
+        </summary>
+        <div class="px-5 pb-4 text-[var(--color-text-secondary)] text-sm">
+          Yes. Switching builders is an on-chain action on Hyperliquid. You simply approve a new builder address with its
+          fee rate. Your funds, positions, and trading history are not affected. You can switch back at any time.
+        </div>
+      </details>
+      <details class="group border border-[var(--color-border)] rounded-xl">
+        <summary class="px-5 py-4 cursor-pointer font-medium hover:text-[var(--color-accent)] transition-colors">
+          Where does this data come from?
+        </summary>
+        <div class="px-5 pb-4 text-[var(--color-text-secondary)] text-sm">
+          Builder data is aggregated from public Hyperliquid network data via the HyperTracker API.
+          User fee breakdowns are fetched directly from Hyperliquid's public API. All data is verifiable on-chain.
+        </div>
+      </details>
+    </div>
+  </section>
+</Layout>
