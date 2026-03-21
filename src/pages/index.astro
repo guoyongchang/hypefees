@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import ThemeToggle from '../components/ThemeToggle.tsx';
+import HeroFlow from '../components/HeroFlow.tsx';
 import BuilderTable from '../components/BuilderTable.tsx';
 import AddressLookup from '../components/AddressLookup.tsx';
 import FeeSimulator from '../components/FeeSimulator.tsx';
@@ -9,16 +10,32 @@ import FeeSimulator from '../components/FeeSimulator.tsx';
 <Layout>
   <ThemeToggle client:load slot="header-actions" />
 
-  <!-- Hero: Address Lookup + Switch Builder as one flow -->
-  <section class="py-14 md:py-20">
-    <h1 class="text-3xl md:text-[2.75rem] font-bold tracking-tight leading-[1.15] max-w-2xl">
-      How much are you overpaying on Hyperliquid?
-    </h1>
-    <p class="mt-3 text-[var(--color-text-secondary)] max-w-xl">
-      Enter your address to see your fee breakdown instantly.
-    </p>
-    <div class="mt-8">
-      <AddressLookup client:load />
+  <!-- Hero: Flow animation + address lookup -->
+  <section class="hero-section relative overflow-hidden -mx-4 px-4">
+    <!-- Grid background (Linear-style) -->
+    <div class="hero-grid absolute inset-0 pointer-events-none" aria-hidden="true"></div>
+
+    <div class="relative z-10 pt-12 md:pt-20 pb-14 md:pb-20">
+      <div class="text-center max-w-3xl mx-auto mb-8 md:mb-12">
+        <h1 class="text-3xl md:text-[2.75rem] font-bold tracking-tight leading-[1.15]">
+          Every trade has a hidden fee.<br />
+          <span class="text-[var(--color-accent)]">See yours.</span>
+        </h1>
+        <p class="mt-4 text-[var(--color-text-secondary)] max-w-lg mx-auto">
+          Wallets add builder fees on top of Hyperliquid's exchange rate.
+          Some charge 0.10%. Some charge nothing.
+        </p>
+      </div>
+
+      <!-- Flow animation -->
+      <div class="max-w-4xl mx-auto mb-10 md:mb-14 rounded-2xl overflow-hidden border border-[var(--color-border)] bg-[#08080c]">
+        <HeroFlow client:load />
+      </div>
+
+      <!-- Address lookup -->
+      <div class="max-w-2xl mx-auto">
+        <AddressLookup client:load />
+      </div>
     </div>
   </section>
 
@@ -83,3 +100,16 @@ import FeeSimulator from '../components/FeeSimulator.tsx';
     </div>
   </section>
 </Layout>
+
+<style>
+  /* Linear-style grid background */
+  .hero-grid {
+    background-image:
+      linear-gradient(var(--color-border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--color-border) 1px, transparent 1px);
+    background-size: 64px 64px;
+    opacity: 0.3;
+    mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, black 30%, transparent 100%);
+    -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, black 30%, transparent 100%);
+  }
+</style>
