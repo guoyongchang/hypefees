@@ -878,7 +878,7 @@ export default function ShareCard({ result, address }: ShareCardProps) {
               </div>
             </div>
           </div>
-          <span className="text-xs text-[var(--color-text-muted)] group-hover:text-[var(--color-accent)] transition-colors shrink-0">
+          <span className="px-4 py-2 text-xs font-medium rounded-full bg-[var(--color-accent)] text-white shrink-0 group-hover:opacity-90 transition-opacity">
             {t('share.viewCard', lang)}
           </span>
         </button>
