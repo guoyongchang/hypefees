@@ -89,39 +89,37 @@ function HeroSectionInner() {
               {t('hero.subtitle', lang)}
             </p>
             <div className="mt-8">
-              <div className="flex gap-3">
-                <input
-                  type="text"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && !loading && handleLookup()}
-                  placeholder={t('hero.input.placeholder', lang)}
-                  aria-label="Ethereum wallet address"
-                  className="flex-1 px-4 py-3 min-h-[44px] rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] font-mono text-sm"
-                />
+              <input
+                type="text"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && !loading && handleLookup()}
+                placeholder={t('hero.input.placeholder', lang)}
+                aria-label="Ethereum wallet address"
+                className="w-full px-4 py-3 min-h-[44px] rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] font-mono text-sm"
+              />
+              <div className="mt-3 flex gap-3">
                 <button
                   onClick={handleLookup}
                   disabled={loading}
                   aria-label="Check my builder fees"
-                  className="px-6 py-3 min-h-[44px] rounded-xl bg-[var(--color-text)] text-[var(--color-bg)] font-medium hover:opacity-85 transition-opacity disabled:opacity-50 shrink-0"
+                  className="flex-1 py-3 min-h-[44px] rounded-xl bg-[var(--color-text)] text-[var(--color-bg)] font-medium hover:opacity-85 transition-opacity disabled:opacity-50"
                 >
                   {loading ? t('hero.btn.loading', lang) : t('hero.btn.lookup', lang)}
                 </button>
-              </div>
-              <div className="mt-3 flex items-center gap-3">
                 <button
                   onClick={handleConnectWallet}
-                  className="inline-flex items-center gap-1.5 text-xs text-[var(--color-accent)] hover:underline"
+                  className="flex-1 py-3 min-h-[44px] rounded-xl border border-[var(--color-accent)] text-[var(--color-accent)] font-medium hover:bg-[var(--color-accent-light)] transition-colors inline-flex items-center justify-center gap-2"
                 >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0">
                     <rect x="2" y="6" width="20" height="12" rx="2" />
                     <path d="M22 10h-6a2 2 0 0 0 0 4h6" />
                   </svg>
                   {t('hero.connectWallet', lang)}
                 </button>
               </div>
-              <p className="mt-2 text-[10px] text-[var(--color-text-muted)] flex items-center gap-1">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0">
+              <p className="mt-3 text-[10px] text-[var(--color-text-muted)] flex items-center gap-1.5">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 opacity-50">
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                 </svg>
                 {t('hero.safetyNote', lang)}
