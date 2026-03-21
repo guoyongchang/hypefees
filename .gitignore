@@ -27,3 +27,5 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 .gstack/
+.next/
+next-env.d.ts

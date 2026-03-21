@@ -80,6 +80,18 @@
   --color-danger-bg: #450a0a;
 }
 
+/* ── Cursor pointer for all interactive elements ── */
+button,
+a,
+select,
+summary,
+[role="button"],
+label[for],
+input[type="range"],
+.card-hover {
+  cursor: pointer;
+}
+
 /* ── Base ── */
 body {
   background-color: var(--color-bg);
