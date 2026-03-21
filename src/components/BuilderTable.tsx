@@ -261,7 +261,15 @@ export default function BuilderTable() {
                   {/* Builder name + icon + type */}
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2.5">
-                      {icon ? (
+                      {curated?.url ? (
+                        <a href={curated.url} target="_blank" rel="noopener noreferrer" className="shrink-0 hover:opacity-80 transition-opacity">
+                          {icon ? (
+                            <img src={icon} alt={builder.refCode || ''} width={22} height={22} className="rounded-full" loading="lazy" />
+                          ) : (
+                            <div className="w-[22px] h-[22px] rounded-full bg-[var(--color-bg-elevated)]" />
+                          )}
+                        </a>
+                      ) : icon ? (
                         <img src={icon} alt="" width={22} height={22} className="rounded-full shrink-0" loading="lazy" />
                       ) : (
                         <div className="w-[22px] h-[22px] rounded-full bg-[var(--color-bg-elevated)] shrink-0" />
@@ -270,7 +278,7 @@ export default function BuilderTable() {
                         <div className="flex items-center gap-1.5">
                           <span className="font-medium truncate">{builder.refCode || `${builder.address.slice(0, 6)}...`}</span>
                           {isZeroFee && (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[var(--color-success)] text-white font-medium shrink-0">
+                            <span className="text-[10px] px-1.5 py-0.5 rounded-full border border-[var(--color-success)] text-[var(--color-success)] font-semibold shrink-0">
                               {t('table.best', lang)}
                             </span>
                           )}
