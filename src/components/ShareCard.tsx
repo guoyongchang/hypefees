@@ -606,6 +606,7 @@ function generateImage(
   period: string,
   rankInfo: ReturnType<typeof estimateRank>,
   funFacts: FunFacts,
+  lang: Lang,
 ) {
   const W = 1200, H = 675;
   const S = 2; // 2x resolution for sharpness
@@ -633,22 +634,21 @@ function generateImage(
   ctx.fillRect(0, 0, W, H);
 
   const lx = 60, rx = W - 60;
-  const cw = rx - lx; // content width
+  const cw = rx - lx;
 
   // ── Header label ──
   ctx.font = '500 11px system-ui, sans-serif';
   ctx.fillStyle = 'rgba(255,255,255,0.3)';
   ctx.textAlign = 'center';
   ctx.letterSpacing = '0.14em';
-  ctx.fillText('TOTAL FEES PAID TO HYPERLIQUID', W / 2, 50);
+  ctx.fillText(t('card.totalFeesPaid', lang).toUpperCase(), W / 2, 50);
   ctx.letterSpacing = '0';
 
   // ── Big number ──
-  const feeParts = formatUSD(result.totalFees);
   ctx.font = '700 62px ui-monospace, "SF Mono", monospace';
   ctx.fillStyle = '#ffffff';
   ctx.textAlign = 'center';
-  ctx.fillText(feeParts, W / 2, 110);
+  ctx.fillText(formatUSD(result.totalFees), W / 2, 110);
 
   // ── Period ──
   ctx.font = '400 13px system-ui, sans-serif';
@@ -658,30 +658,28 @@ function generateImage(
   // ── Rank badge area ──
   const rbY = 158, rbH = 70;
   ctx.fillStyle = 'rgba(30,241,125,0.05)';
-  ctx.beginPath();
-  ctx.roundRect(lx, rbY, cw, rbH, 12);
-  ctx.fill();
-  ctx.strokeStyle = 'rgba(30,241,125,0.1)';
-  ctx.lineWidth = 1;
-  ctx.stroke();
+  ctx.beginPath(); ctx.roundRect(lx, rbY, cw, rbH, 12); ctx.fill();
+  ctx.strokeStyle = 'rgba(30,241,125,0.1)'; ctx.lineWidth = 1; ctx.stroke();
 
   // Rank text left
+  const rankLabel = `👑  ${t('card.globalRank', lang)}`;
   ctx.font = '400 13px system-ui, sans-serif';
   ctx.fillStyle = 'rgba(255,255,255,0.55)';
   ctx.textAlign = 'left';
-  ctx.fillText(`👑  Global rank`, lx + 18, rbY + 24);
+  ctx.fillText(rankLabel, lx + 18, rbY + 24);
+  const rankLabelW = ctx.measureText(rankLabel).width;
   ctx.font = '600 13px system-ui, sans-serif';
   ctx.fillStyle = tokens.colors.accent;
-  ctx.fillText(`#${rankInfo.rank.toLocaleString()}`, lx + 140, rbY + 24);
+  ctx.fillText(` #${rankInfo.rank.toLocaleString()}`, lx + 18 + rankLabelW, rbY + 24);
   ctx.font = '400 12px system-ui, sans-serif';
   ctx.fillStyle = 'rgba(255,255,255,0.35)';
-  ctx.fillText(`out of ${rankInfo.total.toLocaleString()} traders`, lx + 18, rbY + 42);
+  ctx.fillText(t('card.outOf', lang, { n: rankInfo.total.toLocaleString() }), lx + 18, rbY + 42);
 
   // Top percent right
   ctx.font = '700 22px ui-monospace, monospace';
   ctx.fillStyle = tokens.colors.accent;
   ctx.textAlign = 'right';
-  ctx.fillText(`Top ${rankInfo.topPercent}%`, rx - 18, rbY + 30);
+  ctx.fillText(t('card.top', lang, { n: String(rankInfo.topPercent) }), rx - 18, rbY + 30);
 
   // Percentile bar
   const pbX = lx + 18, pbY = rbY + 54, pbW = cw - 36, pbH = 5;
@@ -693,7 +691,6 @@ function generateImage(
   ctx.fillStyle = grad;
   ctx.beginPath(); ctx.roundRect(pbX, pbY, pbW * (rankInfo.percentile / 100), pbH, 3); ctx.fill();
 
-  // Dot
   const dotX = pbX + pbW * (rankInfo.percentile / 100);
   ctx.fillStyle = tokens.colors.accent;
   ctx.beginPath(); ctx.arc(dotX, pbY + 2.5, 6, 0, Math.PI * 2); ctx.fill();
@@ -701,7 +698,7 @@ function generateImage(
   ctx.beginPath(); ctx.arc(dotX, pbY + 2.5, 3, 0, Math.PI * 2); ctx.fill();
 
   // ── 4 Stat cards (2×2) ──
-  const statCards = pickStatCards(funFacts, 'en' as Lang);
+  const statCards = pickStatCards(funFacts, lang);
   const gridY = rbY + rbH + 14;
   const gap = 10;
   const cardW = (cw - gap) / 2;
@@ -712,36 +709,22 @@ function generateImage(
     const cx = lx + col * (cardW + gap);
     const cy = gridY + row * (cardH + gap);
 
-    // Card bg
     ctx.fillStyle = 'rgba(255,255,255,0.025)';
     ctx.beginPath(); ctx.roundRect(cx, cy, cardW, cardH, 12); ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
-    ctx.lineWidth = 1;
-    ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 1; ctx.stroke();
 
-    // Emoji
-    ctx.font = `${20}px system-ui, sans-serif`;
-    ctx.textAlign = 'left';
-    ctx.fillStyle = '#ffffff';
+    ctx.font = '20px system-ui, sans-serif'; ctx.textAlign = 'left'; ctx.fillStyle = '#fff';
     ctx.fillText(card.emoji, cx + 16, cy + 30);
 
-    // Value + unit
-    ctx.font = '700 22px ui-monospace, monospace';
-    ctx.fillStyle = '#ffffff';
+    ctx.font = '700 22px ui-monospace, monospace'; ctx.fillStyle = '#fff';
     ctx.fillText(card.value, cx + 48, cy + 30);
     const valW = ctx.measureText(card.value).width;
-    ctx.font = '500 12px system-ui, sans-serif';
-    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.font = '500 12px system-ui, sans-serif'; ctx.fillStyle = 'rgba(255,255,255,0.4)';
     ctx.fillText(card.unit, cx + 48 + valW + 4, cy + 30);
 
-    // Label
-    ctx.font = '500 11px system-ui, sans-serif';
-    ctx.fillStyle = 'rgba(255,255,255,0.45)';
+    ctx.font = '500 11px system-ui, sans-serif'; ctx.fillStyle = 'rgba(255,255,255,0.45)';
     ctx.fillText(card.label, cx + 48, cy + 50);
-
-    // Description
-    ctx.font = '400 10px system-ui, sans-serif';
-    ctx.fillStyle = 'rgba(255,255,255,0.25)';
+    ctx.font = '400 10px system-ui, sans-serif'; ctx.fillStyle = 'rgba(255,255,255,0.25)';
     ctx.fillText(card.description, cx + 48, cy + 64);
   });
 
@@ -754,19 +737,21 @@ function generateImage(
   ctx.beginPath(); ctx.roundRect(lx, inlineY, cw, inlineH, 12); ctx.fill();
   ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 1; ctx.stroke();
 
+  const burritoLabel = funFacts.burritos > 1 ? t('card.burritos', lang) : t('card.burrito', lang);
   ctx.textAlign = 'left';
   let tx = lx + 16;
   ctx.font = '16px system-ui'; ctx.fillStyle = '#fff';
   ctx.fillText('🌯', tx, inlineY + 26); tx += 32;
   ctx.font = '500 14px system-ui'; ctx.fillStyle = 'rgba(255,255,255,0.7)';
-  ctx.fillText("That's", tx, inlineY + 26); tx += ctx.measureText("That's").width + 8;
+  const thatsStr = t('card.thats', lang);
+  ctx.fillText(thatsStr, tx, inlineY + 26); tx += ctx.measureText(thatsStr).width + 8;
   ctx.font = '700 15px ui-monospace, monospace'; ctx.fillStyle = '#fff';
-  ctx.fillText(formatNum(funFacts.burritos), tx, inlineY + 26); tx += ctx.measureText(formatNum(funFacts.burritos)).width + 8;
+  const burritoNum = formatNum(Math.max(1, funFacts.burritos));
+  ctx.fillText(burritoNum, tx, inlineY + 26); tx += ctx.measureText(burritoNum).width + 8;
   ctx.font = '500 14px system-ui'; ctx.fillStyle = 'rgba(255,255,255,0.7)';
-  ctx.fillText('Chipotle burritos', tx, inlineY + 26); tx += ctx.measureText('Chipotle burritos').width + 12;
+  ctx.fillText(burritoLabel, tx, inlineY + 26); tx += ctx.measureText(burritoLabel).width + 12;
   ctx.font = '400 13px system-ui'; ctx.fillStyle = 'rgba(255,255,255,0.25)';
-  const burritoDays = Math.round(funFacts.burritos);
-  ctx.fillText(`· lunch every day for ${yearsLabel(burritoDays)}`, tx, inlineY + 26);
+  ctx.fillText(`· ${yearsLabelI18n(funFacts.burritos, lang)}`, tx, inlineY + 26);
 
   // Daily fee line
   const inline2Y = inlineY + inlineH + gap;
@@ -774,25 +759,27 @@ function generateImage(
   ctx.beginPath(); ctx.roundRect(lx, inline2Y, cw, inlineH, 12); ctx.fill();
   ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 1; ctx.stroke();
 
+  const payingStr = t('card.paying', lang);
+  const perDayStr = t('card.perDay', lang);
   tx = lx + 16;
   ctx.font = '16px system-ui'; ctx.fillStyle = '#fff';
   ctx.fillText('💸', tx, inline2Y + 26); tx += 32;
   ctx.font = '500 14px system-ui'; ctx.fillStyle = 'rgba(255,255,255,0.7)';
-  ctx.fillText('Paying', tx, inline2Y + 26); tx += ctx.measureText('Paying').width + 8;
+  ctx.fillText(payingStr, tx, inline2Y + 26); tx += ctx.measureText(payingStr).width + 8;
   ctx.font = '700 15px ui-monospace, monospace'; ctx.fillStyle = '#fff';
   const dailyStr = `$${funFacts.dailyFee}`;
   ctx.fillText(dailyStr, tx, inline2Y + 26); tx += ctx.measureText(dailyStr).width + 6;
   ctx.font = '500 14px system-ui'; ctx.fillStyle = 'rgba(255,255,255,0.7)';
-  ctx.fillText('/day to Hyperliquid', tx, inline2Y + 26); tx += ctx.measureText('/day to Hyperliquid').width + 8;
+  ctx.fillText(perDayStr, tx, inline2Y + 26); tx += ctx.measureText(perDayStr).width + 8;
   ctx.font = '14px system-ui'; ctx.fillStyle = '#fff';
   ctx.fillText('🫡', tx, inline2Y + 26); tx += 24;
   if (funFacts.netflixMultiple >= 2) {
     ctx.font = '400 13px system-ui'; ctx.fillStyle = 'rgba(255,255,255,0.25)';
-    ctx.fillText(`· ${funFacts.netflixMultiple}x your Netflix sub`, tx, inline2Y + 26);
+    ctx.fillText(`· ${t('card.netflix', lang, { n: String(funFacts.netflixMultiple) })}`, tx, inline2Y + 26);
   }
 
   // ── Pills row ──
-  const pills = pickPills(funFacts, 'en' as Lang);
+  const pills = pickPills(funFacts, lang);
   const pillY = inline2Y + inlineH + 16;
   let px = lx;
   pills.forEach((pill) => {
@@ -820,7 +807,7 @@ function generateImage(
   ctx.font = '400 11px system-ui, sans-serif';
   ctx.fillStyle = 'rgba(255,255,255,0.18)';
   ctx.textAlign = 'left';
-  ctx.fillText('hypefees.com · powered by degen energy', lx, H - 28);
+  ctx.fillText(t('card.poweredBy', lang), lx, H - 28);
   ctx.textAlign = 'right';
   ctx.font = '400 11px ui-monospace, monospace';
   ctx.fillStyle = 'rgba(255,255,255,0.22)';
@@ -863,7 +850,7 @@ export default function ShareCard({ result, address }: ShareCardProps) {
   const feeStr = formatUSD(result.totalFees).replace('$', '');
 
   const handleDownload = useCallback(() => {
-    generateImage(result, shortAddr, period, rankInfo, funFacts);
+    generateImage(result, shortAddr, period, rankInfo, funFacts, lang);
   }, [result, shortAddr, period, rankInfo, funFacts]);
 
   // Lock body scroll when modal is open
