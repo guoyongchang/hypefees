@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { fetchUserFills, calculateFeeBreakdown, type FeeBreakdown, type FillProgress } from '../lib/api';
 import { formatUSD, formatVolume } from '../lib/fees';
+import { useLang, t } from '../lib/i18n';
 import SwitchBuilder from './SwitchBuilder';
 import ShareCard from './ShareCard';
 import HeroFlow from './HeroFlow';
@@ -10,6 +11,7 @@ function formatDate(ts: number): string {
 }
 
 export default function HeroSection() {
+  const [lang] = useLang();
   const [address, setAddress] = useState('');
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState<FillProgress | null>(null);
@@ -19,7 +21,7 @@ export default function HeroSection() {
   async function handleLookup() {
     const trimmed = address.trim();
     if (!trimmed.match(/^0x[a-fA-F0-9]{40}$/)) {
-      setError('Please enter a valid Ethereum address (0x...)');
+      setError(t('result.invalidAddress', lang));
       return;
     }
     setLoading(true);
@@ -29,7 +31,7 @@ export default function HeroSection() {
     try {
       const fills = await fetchUserFills(trimmed, setProgress);
       if (fills.length === 0) {
-        setError('No trading history found for this address on Hyperliquid');
+        setError(t('result.noHistory', lang));
         setLoading(false);
         return;
       }
@@ -54,12 +56,11 @@ export default function HeroSection() {
           {/* Left: copy + input — staggered entrance */}
           <div className="hero-enter">
             <h1 className="text-3xl md:text-[2.75rem] font-bold tracking-tight leading-[1.15]">
-              Every trade has a<br />hidden fee.{' '}
-              <span className="text-[var(--color-accent)]">See yours.</span>
+              {t('hero.title.1', lang)}<br />{t('hero.title.2', lang)}{' '}
+              <span className="text-[var(--color-accent)]">{t('hero.title.cta', lang)}</span>
             </h1>
             <p className="mt-4 text-[var(--color-text-secondary)] max-w-md leading-relaxed">
-              Wallets add builder fees on top of Hyperliquid's exchange rate.
-              Some charge 0.10% per trade. Some charge nothing.
+              {t('hero.subtitle', lang)}
             </p>
             <div className="mt-8">
               <div className="flex gap-3">
@@ -68,7 +69,7 @@ export default function HeroSection() {
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && !loading && handleLookup()}
-                  placeholder="Enter your ETH address (0x...)"
+                  placeholder={t('hero.input.placeholder', lang)}
                   className="flex-1 px-4 py-3 min-h-[44px] rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] font-mono text-sm"
                 />
                 <button
@@ -76,7 +77,7 @@ export default function HeroSection() {
                   disabled={loading}
                   className="px-6 py-3 min-h-[44px] rounded-xl bg-[var(--color-text)] text-[var(--color-bg)] font-medium hover:opacity-85 transition-opacity disabled:opacity-50 shrink-0"
                 >
-                  {loading ? 'Loading...' : 'Look Up'}
+                  {loading ? t('hero.btn.loading', lang) : t('hero.btn.lookup', lang)}
                 </button>
               </div>
               {loading && progress && (
@@ -105,12 +106,12 @@ export default function HeroSection() {
         <div className="pb-10">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div className="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] card-hover">
-              <div className="text-xs text-[var(--color-text-muted)]">Total Volume</div>
+              <div className="text-xs text-[var(--color-text-muted)]">{t('result.totalVolume', lang)}</div>
               <div className="text-xl font-bold mt-1 tabular-nums">{formatVolume(result.totalVolume)}</div>
-              <div className="text-xs text-[var(--color-text-muted)] mt-1">{result.fillCount.toLocaleString()} trades</div>
+              <div className="text-xs text-[var(--color-text-muted)] mt-1">{result.fillCount.toLocaleString()} {t('result.trades', lang)}</div>
             </div>
             <div className="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] card-hover">
-              <div className="text-xs text-[var(--color-text-muted)]">Total Fees</div>
+              <div className="text-xs text-[var(--color-text-muted)]">{t('result.totalFees', lang)}</div>
               <div className="text-xl font-bold mt-1 tabular-nums">{formatUSD(result.totalFees)}</div>
               {result.firstTradeTime && result.lastTradeTime && (
                 <div className="text-xs text-[var(--color-text-muted)] mt-1">
@@ -119,24 +120,24 @@ export default function HeroSection() {
               )}
             </div>
             <div className="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] card-hover">
-              <div className="text-xs text-[var(--color-text-muted)]">Exchange Fees</div>
+              <div className="text-xs text-[var(--color-text-muted)]">{t('result.exchangeFees', lang)}</div>
               <div className="text-xl font-bold mt-1 tabular-nums">{formatUSD(result.hlFees)}</div>
-              <div className="text-xs text-[var(--color-text-muted)] mt-1">To Hyperliquid</div>
+              <div className="text-xs text-[var(--color-text-muted)] mt-1">{t('result.toHyperliquid', lang)}</div>
             </div>
             <div className="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] card-hover">
-              <div className="text-xs text-[var(--color-text-muted)]">Builder Fees</div>
+              <div className="text-xs text-[var(--color-text-muted)]">{t('result.builderFees', lang)}</div>
               <div className={`text-xl font-bold mt-1 tabular-nums ${result.builderFees > 0 ? 'text-[var(--color-warning)]' : 'text-[var(--color-success)]'}`}>
                 {result.builderFees > 0 ? formatUSD(result.builderFees) : '$0'}
               </div>
               <div className="text-xs text-[var(--color-text-muted)] mt-1">
-                {result.builderFees > 0 ? `${builderPct}% of total fees` : 'No builder fee paid'}
+                {result.builderFees > 0 ? `${builderPct}% ${t('result.ofTotalFees', lang)}` : t('result.noBuilderFee', lang)}
               </div>
             </div>
           </div>
 
           {result.totalFees > 0 && (
             <div className="mt-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-4">
-              <div className="text-xs text-[var(--color-text-muted)] mb-2">Fee Breakdown</div>
+              <div className="text-xs text-[var(--color-text-muted)] mb-2">{t('result.feeBreakdown', lang)}</div>
               <div className="h-3 rounded-full overflow-hidden flex bg-[var(--color-bg-elevated)]">
                 <div
                   className="bg-[var(--color-accent)] transition-all duration-500"
@@ -152,12 +153,12 @@ export default function HeroSection() {
               <div className="flex justify-between mt-2 text-xs">
                 <span className="flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-[var(--color-accent)]" />
-                  Exchange {formatUSD(result.hlFees)}
+                  {t('result.exchange', lang)} {formatUSD(result.hlFees)}
                 </span>
                 {result.builderFees > 0 && (
                   <span className="flex items-center gap-1.5">
                     <span className="w-2.5 h-2.5 rounded-full bg-[var(--color-warning)]" />
-                    Builder {formatUSD(result.builderFees)}
+                    {t('result.builder', lang)} {formatUSD(result.builderFees)}
                   </span>
                 )}
               </div>
@@ -174,10 +175,10 @@ export default function HeroSection() {
                 </div>
                 <div>
                   <div className="font-medium text-[var(--color-success)]">
-                    You could have saved {formatUSD(result.builderFees)} with a 0% fee builder
+                    {t('result.saveBanner', lang, { amount: formatUSD(result.builderFees) })}
                   </div>
                   <div className="text-sm text-[var(--color-text-secondary)] mt-1">
-                    Switch to a builder with 0% fees to keep more of your profits on future trades.
+                    {t('result.saveBannerSub', lang)}
                   </div>
                 </div>
               </div>
@@ -190,7 +191,7 @@ export default function HeroSection() {
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M20 6L9 17l-5-5" />
                 </svg>
-                You're already on a 0% fee builder — nicely done!
+                {t('result.alreadyZero', lang)}
               </div>
             </div>
           )}

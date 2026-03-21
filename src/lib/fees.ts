@@ -12,6 +12,19 @@ export const VIP_TIERS = [
 
 export type VipTier = (typeof VIP_TIERS)[number];
 
+// HYPE staking tiers — discount applied on top of VIP tier fees
+export const STAKING_TIERS = [
+  { name: 'None',     minStake: 0,       discount: 0 },
+  { name: 'Wood',     minStake: 10,      discount: 0.05 },
+  { name: 'Bronze',   minStake: 100,     discount: 0.10 },
+  { name: 'Silver',   minStake: 1_000,   discount: 0.15 },
+  { name: 'Gold',     minStake: 10_000,  discount: 0.20 },
+  { name: 'Platinum', minStake: 100_000, discount: 0.30 },
+  { name: 'Diamond',  minStake: 500_000, discount: 0.40 },
+] as const;
+
+export type StakingTier = (typeof STAKING_TIERS)[number];
+
 export interface Builder {
   refCode: string | null;
   address: string;

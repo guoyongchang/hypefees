@@ -1,6 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import ThemeToggle from '../components/ThemeToggle.tsx';
+import LanguageSwitcher from '../components/LanguageSwitcher.tsx';
+import TranslatedText from '../components/TranslatedText.tsx';
 import HeroSection from '../components/HeroSection.tsx';
 import BuilderTable from '../components/BuilderTable.tsx';
 import FeeSimulator from '../components/FeeSimulator.tsx';
@@ -8,7 +10,10 @@ import ScrollReveal from '../components/ScrollReveal.astro';
 ---
 
 <Layout>
-  <ThemeToggle client:load slot="header-actions" />
+  <Fragment slot="header-actions">
+    <LanguageSwitcher client:load />
+    <ThemeToggle client:load />
+  </Fragment>
 
   <!-- Hero -->
   <section class="hero-section relative overflow-hidden -mx-4 px-4">
@@ -21,7 +26,7 @@ import ScrollReveal from '../components/ScrollReveal.astro';
   <!-- What Are Builder Fees -->
   <section class="section-alt" style="padding-top: var(--space-section); padding-bottom: var(--space-section);">
     <div class="max-w-3xl reveal">
-      <h2 class="mb-4">What Are Hyperliquid Builder Fees?</h2>
+      <h2 class="mb-4"><TranslatedText client:load k="section.whatAre" /></h2>
       <div class="space-y-3 text-[var(--text-sm)] text-[var(--color-text-secondary)] leading-relaxed" style="font-size: var(--text-sm);">
         <p>
           Third-party wallets like Phantom, MetaMask, and Rabby attach a
@@ -44,7 +49,7 @@ import ScrollReveal from '../components/ScrollReveal.astro';
   <!-- Builder Fee Comparison -->
   <section style="padding-top: var(--space-section); padding-bottom: var(--space-section);">
     <div class="reveal">
-      <h2 class="mb-1">Builder Fee Comparison</h2>
+      <h2 class="mb-1"><TranslatedText client:load k="section.comparison" /></h2>
       <p class="text-[var(--color-text-secondary)] mb-6" style="font-size: var(--text-sm);">
         240+ wallets and frontends compared. Your total cost = Hyperliquid base fee + builder fee.
       </p>
@@ -57,7 +62,7 @@ import ScrollReveal from '../components/ScrollReveal.astro';
   <!-- Fee Calculator -->
   <section class="section-alt" style="padding-top: var(--space-section); padding-bottom: var(--space-section);">
     <div class="reveal">
-      <h2 class="mb-1">Fee Calculator</h2>
+      <h2 class="mb-1"><TranslatedText client:load k="section.calculator" /></h2>
       <p class="text-[var(--color-text-secondary)] mb-6" style="font-size: var(--text-sm);">
         How builder fees compound across different volumes.
       </p>
@@ -70,7 +75,7 @@ import ScrollReveal from '../components/ScrollReveal.astro';
   <!-- How Builder Fees Work -->
   <section style="padding-top: var(--space-section); padding-bottom: var(--space-section);">
     <div class="max-w-3xl reveal">
-      <h2 class="mb-4">How Builder Fees Work</h2>
+      <h2 class="mb-4"><TranslatedText client:load k="section.howItWorks" /></h2>
       <div class="space-y-3 text-[var(--color-text-secondary)] leading-relaxed" style="font-size: var(--text-sm);">
         <p>
           Wallets register as "builders" on Hyperliquid and set a fee rate.
@@ -118,7 +123,7 @@ import ScrollReveal from '../components/ScrollReveal.astro';
   <!-- FAQ -->
   <section class="section-alt" style="padding-top: var(--space-section); padding-bottom: var(--space-section);">
     <div class="reveal">
-      <h2 class="mb-6">Frequently Asked Questions</h2>
+      <h2 class="mb-6"><TranslatedText client:load k="section.faq" /></h2>
     </div>
     <div class="space-y-2 max-w-3xl reveal" style="transition-delay: 80ms;">
       <details class="group border border-[var(--color-border)] rounded-xl bg-[var(--color-bg-card)]">

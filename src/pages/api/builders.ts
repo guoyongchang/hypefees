@@ -7,11 +7,18 @@ const CACHE_TTL = 86400; // 24 hours
 const CACHE_KEY = 'builders:all';
 const CMM_API = 'https://ht-api.coinmarketman.com/api/external/builders/list/timeframe/all';
 
-// Filter to meaningful builders: has a name and has users
+// Filter to meaningful builders: has a name and has users.
+// Deduplicate by refCode — keep the entry with the most users.
 function filterBuilders(builders: any[]) {
-  return builders
-    .filter((b: any) => b.refCode && b.users > 0)
-    .sort((a: any, b: any) => a.usageFee - b.usageFee);
+  const byCode = new Map<string, any>();
+  for (const b of builders) {
+    if (!b.refCode || b.users <= 0) continue;
+    const existing = byCode.get(b.refCode);
+    if (!existing || b.users > existing.users) {
+      byCode.set(b.refCode, b);
+    }
+  }
+  return [...byCode.values()].sort((a: any, b: any) => a.usageFee - b.usageFee);
 }
 
 export const GET: APIRoute = async () => {
