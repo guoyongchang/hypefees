@@ -331,21 +331,53 @@ export function t(key: string, lang: Lang = DEFAULT_LANG, params?: Record<string
   return str;
 }
 
+// ── Cookie helpers ──
+function getCookie(name: string): string | null {
+  const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
+function setCookie(name: string, value: string, days: number = 365) {
+  const expires = new Date(Date.now() + days * 864e5).toUTCString();
+  document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires};path=/;SameSite=Lax`;
+}
+
+// ── Detect browser language → best matching supported Lang ──
+function detectBrowserLang(): Lang {
+  const langs = navigator.languages || [navigator.language];
+  for (const raw of langs) {
+    const code = raw.toLowerCase().split('-')[0] as Lang;
+    if (code in LANGUAGES) return code;
+  }
+  return DEFAULT_LANG;
+}
+
 // ── React hook — subscribes to language changes across islands ──
+// Priority: URL ?lang= > cookie (user chose) > browser language > default (en)
 export function useLang(): [Lang, (l: Lang) => void] {
   const [lang, setLangState] = useState<Lang>(DEFAULT_LANG);
 
   useEffect(() => {
-    // Priority: URL ?lang= > localStorage > default
+    let resolved: Lang = DEFAULT_LANG;
+
+    // 1. URL ?lang= takes highest priority (shared links)
     const url = new URL(window.location.href);
     const urlLang = url.searchParams.get('lang') as Lang | null;
     if (urlLang && urlLang in LANGUAGES) {
-      setLangState(urlLang);
-      localStorage.setItem('lang', urlLang);
+      resolved = urlLang;
+      setCookie('lang', resolved);
     } else {
-      const stored = localStorage.getItem('lang') as Lang | null;
-      if (stored && stored in LANGUAGES) setLangState(stored);
+      // 2. Cookie = user explicitly chose a language before
+      const cookieLang = getCookie('lang') as Lang | null;
+      if (cookieLang && cookieLang in LANGUAGES) {
+        resolved = cookieLang;
+      } else {
+        // 3. First visit: detect from browser language
+        resolved = detectBrowserLang();
+      }
     }
+
+    setLangState(resolved);
 
     function onLangChange(e: Event) {
       const detail = (e as CustomEvent<Lang>).detail;
@@ -357,8 +389,8 @@ export function useLang(): [Lang, (l: Lang) => void] {
 
   const setLang = useCallback((l: Lang) => {
     setLangState(l);
-    localStorage.setItem('lang', l);
-    // Update URL without reload
+    setCookie('lang', l); // persist user choice in cookie
+    // Update URL
     const url = new URL(window.location.href);
     if (l === DEFAULT_LANG) {
       url.searchParams.delete('lang');
