@@ -186,23 +186,36 @@ function SwitchBuilderInner() {
                 </button>
               </div>
 
-              {/* Steps */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                    approveSuccess ? 'bg-[var(--color-switch-accent)] text-[#0a2e2a]' : 'border border-[#5ef0d0] text-[var(--color-switch-accent)]'
-                  }`}>
-                    {approveSuccess ? '✓' : '1'}
+              {/* Steps — value-driven descriptions */}
+              <div className="space-y-4">
+                {/* Step 1: Remove builder fee */}
+                <div className={`p-4 rounded-xl border ${approveSuccess ? 'border-[var(--color-switch-accent)]/30 bg-[var(--color-switch-accent)]/5' : 'border-[var(--color-border)]'}`}>
+                  <div className="flex items-start gap-3">
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5 ${
+                      approveSuccess ? 'bg-[var(--color-switch-accent)] text-[#0a2e2a]' : 'border border-[#5ef0d0] text-[var(--color-switch-accent)]'
+                    }`}>
+                      {approveSuccess ? '✓' : '1'}
+                    </div>
+                    <div>
+                      <div className="text-[var(--color-switch-text)] text-sm font-semibold">{t('switch.approve', lang)}</div>
+                      <div className="text-[var(--color-switch-dim)] text-xs mt-1 leading-relaxed">{t('switch.approveDesc', lang)}</div>
+                    </div>
                   </div>
-                  <span className="text-[var(--color-switch-text)] text-sm">{t('switch.approve', lang)}</span>
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                    referralSuccess ? 'bg-[var(--color-switch-accent)] text-[#0a2e2a]' : 'border border-[#5a756b] text-[var(--color-switch-dim)]'
-                  }`}>
-                    {referralSuccess ? '✓' : '2'}
+
+                {/* Step 2: Referral discount — NOT optional, real value */}
+                <div className={`p-4 rounded-xl border ${referralSuccess ? 'border-[var(--color-switch-accent)]/30 bg-[var(--color-switch-accent)]/5' : 'border-[var(--color-border)]'}`}>
+                  <div className="flex items-start gap-3">
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5 ${
+                      referralSuccess ? 'bg-[var(--color-switch-accent)] text-[#0a2e2a]' : 'border border-[#5a756b] text-[var(--color-switch-dim)]'
+                    }`}>
+                      {referralSuccess ? '✓' : '2'}
+                    </div>
+                    <div>
+                      <div className="text-[var(--color-switch-text)] text-sm font-semibold">{t('switch.referral', lang)}</div>
+                      <div className="text-[var(--color-switch-dim)] text-xs mt-1 leading-relaxed">{t('switch.referralDesc', lang)}</div>
+                    </div>
                   </div>
-                  <span className="text-[var(--color-switch-muted)] text-sm">{t('switch.referral', lang)}</span>
                 </div>
               </div>
 
