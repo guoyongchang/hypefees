@@ -246,23 +246,58 @@ function HeroSectionInner() {
           )}
 
           {result.builderFees > 0 && (
-            <div className="mt-4 p-4 rounded-xl bg-[var(--color-success-bg)] border border-[var(--color-success)]/20">
-              <div className="flex items-start gap-3">
-                <div className="mt-0.5 text-[var(--color-success)]">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                  </svg>
-                </div>
-                <div>
-                  <div className="font-medium text-[var(--color-success)]">
-                    {t('result.saveBanner', lang, { amount: formatUSD(result.builderFees) })}
+            <>
+              {/* Current builder fee rate info */}
+              <div className="mt-4 p-4 rounded-xl border border-[var(--color-warning)]/20 bg-[var(--color-warning-bg)]">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-start gap-3">
+                    <div className="mt-0.5 text-[var(--color-warning)] text-lg">⚡</div>
+                    <div>
+                      <div className="font-medium text-[var(--color-text-primary)]">
+                        {t('result.currentBuilder', lang)}
+                      </div>
+                      <div className="text-sm text-[var(--color-text-secondary)] mt-1">
+                        {t('result.builderRate', lang, { rate: result.totalVolume > 0 ? ((result.builderFees / result.totalVolume) * 100).toFixed(3) : '0' })}
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-sm text-[var(--color-text-secondary)] mt-1">
-                    {t('result.saveBannerSub', lang)}
+                  <div className="text-right">
+                    <div className="text-2xl font-bold tabular-nums text-[var(--color-warning)]">
+                      {result.totalVolume > 0 ? ((result.builderFees / result.totalVolume) * 100).toFixed(2) : '0'}%
+                    </div>
+                  </div>
+                </div>
+                {/* Estimated monthly savings */}
+                {result.firstTradeTime && result.lastTradeTime && (
+                  <div className="mt-3 pt-3 border-t border-[var(--color-warning)]/10 text-sm text-[var(--color-text-muted)]">
+                    {(() => {
+                      const days = Math.max(1, Math.ceil((result.lastTradeTime! - result.firstTradeTime!) / (1000 * 60 * 60 * 24)));
+                      const monthlyBuilderFee = (result.builderFees / days) * 30;
+                      return t('result.couldSaveMonthly', lang, { amount: monthlyBuilderFee >= 1000 ? `${(monthlyBuilderFee / 1000).toFixed(1)}K` : monthlyBuilderFee.toFixed(0) });
+                    })()}
+                  </div>
+                )}
+              </div>
+
+              {/* Save banner */}
+              <div className="mt-3 p-4 rounded-xl bg-[var(--color-success-bg)] border border-[var(--color-success)]/20">
+                <div className="flex items-start gap-3">
+                  <div className="mt-0.5 text-[var(--color-success)]">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="font-medium text-[var(--color-success)]">
+                      {t('result.saveBanner', lang, { amount: formatUSD(result.builderFees) })}
+                    </div>
+                    <div className="text-sm text-[var(--color-text-secondary)] mt-1">
+                      {t('result.saveBannerSub', lang)}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            </>
           )}
 
           {result.builderFees === 0 && result.totalFees > 0 && (

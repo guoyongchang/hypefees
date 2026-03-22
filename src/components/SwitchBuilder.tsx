@@ -227,7 +227,7 @@ function SwitchBuilderInner({ userVolume, userBuilderFees }: SwitchBuilderProps)
                   </div>
                 </div>
 
-                {/* Step 2: Referral discount — NOT optional, real value */}
+                {/* Step 2: Referral discount — real value, NOT just "optional" */}
                 <div className={`p-4 rounded-xl border ${referralSuccess ? 'border-[var(--color-switch-accent)]/30 bg-[var(--color-switch-accent)]/5' : 'border-[var(--color-border)]'}`}>
                   <div className="flex items-start gap-3">
                     <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5 ${
@@ -236,12 +236,28 @@ function SwitchBuilderInner({ userVolume, userBuilderFees }: SwitchBuilderProps)
                       {referralSuccess ? '✓' : '2'}
                     </div>
                     <div>
-                      <div className="text-[var(--color-switch-text)] text-sm font-semibold">{t('switch.referral', lang)}</div>
-                      <div className="text-[var(--color-switch-dim)] text-xs mt-1 leading-relaxed">{t('switch.referralDesc', lang)}</div>
+                      <div className="text-[var(--color-switch-text)] text-sm font-semibold">
+                        {t('switch.referralValue', lang)}
+                      </div>
+                      <div className="text-[var(--color-switch-dim)] text-xs mt-1 leading-relaxed">
+                        {t('switch.referralValueDesc', lang)}
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
+
+              {/* Wallet switch warning */}
+              {userBuilderFees > 0 && (
+                <div className="p-3 rounded-xl border border-[var(--color-warning)]/15 bg-[var(--color-warning)]/5 text-xs leading-relaxed">
+                  <div className="font-semibold text-[var(--color-switch-text)] mb-1">
+                    {t('switch.walletWarning', lang)}
+                  </div>
+                  <div className="text-[var(--color-switch-dim)]">
+                    {t('switch.walletWarningDesc', lang, { wallet: 'Rabby / MetaMask / Phantom' })}
+                  </div>
+                </div>
+              )}
 
               {error && (
                 <div className="p-3 rounded-lg bg-[var(--color-warning-bg)] border border-[var(--color-warning)]/20 text-sm">
