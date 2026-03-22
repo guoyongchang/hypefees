@@ -105,14 +105,18 @@ interface WalletModalProps {
 
 export default function WalletModal({ open, onClose, onConnected }: WalletModalProps) {
   const [lang] = useLang();
-  const { connect, connectors } = useConnect();
+  const { connectAsync, connectors } = useConnect();
+  const [connecting, setConnecting] = useState<string | null>(null);
+  const [connectError, setConnectError] = useState<string | null>(null);
   const mobile = isMobile();
   const hasInjected = hasInjectedWallet();
   const currentUrl = typeof window !== 'undefined' ? window.location.href : 'https://hypefees.com';
 
-  // Lock body scroll
+  // Lock body scroll & reset state on open
   useEffect(() => {
     if (open) {
+      setConnecting(null);
+      setConnectError(null);
       document.body.style.overflow = 'hidden';
       track(Events.WALLET_MODAL_OPENED, { device_type: mobile ? 'mobile' : 'desktop' });
       return () => { document.body.style.overflow = ''; };
@@ -121,16 +125,31 @@ export default function WalletModal({ open, onClose, onConnected }: WalletModalP
 
   if (!open) return null;
 
-  function handleWalletClick(wallet: typeof WALLETS[0]) {
-    // If inside a dApp browser (injected wallet exists), always connect directly
+  async function handleWalletClick(wallet: typeof WALLETS[0]) {
+    // If inside a dApp browser (injected wallet exists), connect via injected provider
     // This works on both mobile (OneKey/OKX/MetaMask app) and desktop (extensions)
     if (hasInjected) {
       track(Events.WALLET_SELECTED, { wallet_id: wallet.id, action: 'connect' });
       const injected = connectors.find((c) => c.id === 'injected');
       if (injected) {
-        connect({ connector: injected });
-        onClose();
-        onConnected?.();
+        setConnecting(wallet.id);
+        setConnectError(null);
+        try {
+          await connectAsync({ connector: injected });
+          // Connection succeeded — close modal and notify parent
+          onClose();
+          onConnected?.();
+        } catch (err: any) {
+          // User rejected or error
+          const msg = err?.message || '';
+          if (msg.includes('User rejected') || msg.includes('user rejected') || msg.includes('denied')) {
+            setConnectError(t('wallet.rejected', lang));
+          } else {
+            setConnectError(msg || t('wallet.connectFailed', lang));
+          }
+        } finally {
+          setConnecting(null);
+        }
         return;
       }
     }
@@ -152,13 +171,26 @@ export default function WalletModal({ open, onClose, onConnected }: WalletModalP
     }
   }
 
-  function handleWalletConnect() {
+  async function handleWalletConnect() {
     track(Events.WALLET_SELECTED, { wallet_id: 'walletconnect', action: 'qr_scan' });
     const wc = connectors.find((c) => c.id === 'walletConnect');
     if (wc) {
-      connect({ connector: wc });
-      onClose();
-      onConnected?.();
+      setConnecting('walletconnect');
+      setConnectError(null);
+      try {
+        await connectAsync({ connector: wc });
+        onClose();
+        onConnected?.();
+      } catch (err: any) {
+        const msg = err?.message || '';
+        if (msg.includes('User rejected') || msg.includes('user rejected') || msg.includes('denied')) {
+          setConnectError(t('wallet.rejected', lang));
+        } else {
+          setConnectError(msg || t('wallet.connectFailed', lang));
+        }
+      } finally {
+        setConnecting(null);
+      }
     }
   }
 
@@ -228,29 +260,49 @@ export default function WalletModal({ open, onClose, onConnected }: WalletModalP
           {mobile ? t('wallet.mobileDesc', lang) : t('wallet.desktopDesc', lang)}
         </p>
 
+        {/* Connection error */}
+        {connectError && (
+          <div style={{
+            padding: '10px 14px',
+            borderRadius: 10,
+            background: 'rgba(255,180,0,0.08)',
+            border: '1px solid rgba(255,180,0,0.2)',
+            fontSize: 12,
+            color: 'var(--color-text-secondary)',
+            marginBottom: 12,
+            lineHeight: 1.5,
+          }}>
+            ⚠️ {connectError}
+          </div>
+        )}
+
         {/* Wallet list */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {WALLETS.map((wallet) => {
             if (wallet.desktopOnly && mobile) return null;
+            const isConnecting = connecting === wallet.id;
+            const isDisabled = connecting !== null;
             return (
               <button
                 key={wallet.id}
-                onClick={() => handleWalletClick(wallet)}
+                onClick={() => !isDisabled && handleWalletClick(wallet)}
+                disabled={isDisabled}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: 12,
                   padding: '12px 16px',
                   borderRadius: 12,
-                  border: '1px solid var(--color-border)',
-                  background: 'var(--color-bg)',
-                  cursor: 'pointer',
+                  border: isConnecting ? '1px solid var(--color-accent)' : '1px solid var(--color-border)',
+                  background: isConnecting ? 'rgba(30,241,125,0.05)' : 'var(--color-bg)',
+                  cursor: isDisabled ? 'wait' : 'pointer',
                   width: '100%',
                   textAlign: 'left',
-                  transition: 'background 0.15s',
+                  transition: 'background 0.15s, border-color 0.15s',
+                  opacity: isDisabled && !isConnecting ? 0.5 : 1,
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--color-bg-secondary)')}
-                onMouseLeave={(e) => (e.currentTarget.style.background = 'var(--color-bg)')}
+                onMouseEnter={(e) => { if (!isDisabled) e.currentTarget.style.background = 'var(--color-bg-secondary)'; }}
+                onMouseLeave={(e) => { if (!isDisabled) e.currentTarget.style.background = isConnecting ? 'rgba(30,241,125,0.05)' : 'var(--color-bg)'; }}
               >
                 {wallet.icon ? (
                   <img src={wallet.icon} alt="" width={36} height={36} style={{ borderRadius: 10, flexShrink: 0 }} loading="lazy" />
@@ -262,15 +314,21 @@ export default function WalletModal({ open, onClose, onConnected }: WalletModalP
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--color-text)' }}>{wallet.name}</div>
                   <div style={{ fontSize: 11, color: 'var(--color-text-muted)' }}>
-                    {mobile
-                      ? (wallet.desktopOnly ? t('wallet.desktopOnly', lang) : t('wallet.openInApp', lang))
-                      : (hasInjected ? t('wallet.connectNow', lang) : t('wallet.install', lang))
+                    {isConnecting
+                      ? t('wallet.connecting', lang)
+                      : mobile
+                        ? (wallet.desktopOnly ? t('wallet.desktopOnly', lang) : (hasInjected ? t('wallet.connectNow', lang) : t('wallet.openInApp', lang)))
+                        : (hasInjected ? t('wallet.connectNow', lang) : t('wallet.install', lang))
                     }
                   </div>
                 </div>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted)" strokeWidth="2" style={{ flexShrink: 0 }}>
-                  <path d="M9 18l6-6-6-6" />
-                </svg>
+                {isConnecting ? (
+                  <div style={{ width: 16, height: 16, border: '2px solid var(--color-accent)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />
+                ) : (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted)" strokeWidth="2" style={{ flexShrink: 0 }}>
+                    <path d="M9 18l6-6-6-6" />
+                  </svg>
+                )}
               </button>
             );
           })}

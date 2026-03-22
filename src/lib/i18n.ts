@@ -59,6 +59,9 @@ const translations: Record<string, Record<Lang, string>> = {
   'wallet.install': e('Install','安装','インストール','설치','Instalar','Installer','Installieren','Instalar','Установить','Yükle'),
   'wallet.desktopOnly': e('Desktop only','仅桌面版','デスクトップのみ','데스크톱 전용','Solo escritorio','Bureau uniquement','Nur Desktop','Somente desktop','Только десктоп','Yalnızca masaüstü'),
   'wallet.scanQR': e('Scan with WalletConnect','使用 WalletConnect 扫码','WalletConnect でスキャン','WalletConnect로 스캔','Escanear con WalletConnect','Scanner avec WalletConnect','Mit WalletConnect scannen','Escanear com WalletConnect','Сканировать через WalletConnect','WalletConnect ile tara'),
+  'wallet.connecting': e('Connecting…','连接中…','接続中…','연결 중…','Conectando…','Connexion…','Verbinden…','Conectando…','Подключение…','Bağlanıyor…'),
+  'wallet.rejected': e('Connection rejected by wallet','钱包拒绝了连接请求','ウォレットが接続を拒否しました','지갑이 연결을 거부했습니다','Conexión rechazada','Connexion refusée','Verbindung abgelehnt','Conexão recusada','Кошелёк отклонил запрос','Cüzdan bağlantıyı reddetti'),
+  'wallet.connectFailed': e('Connection failed. Please try again.','连接失败，请重试','接続に失敗しました。再試行してください','연결 실패. 다시 시도해주세요','Fallo de conexión. Inténtalo de nuevo.','Échec de connexion. Réessayez.','Verbindung fehlgeschlagen. Bitte erneut versuchen.','Falha na conexão. Tente novamente.','Не удалось подключиться. Повторите попытку.','Bağlantı başarısız. Tekrar deneyin.'),
 
   // ── Results ──
   'result.totalVolume': e('Total Volume','总交易量','総取引量','총 거래량','Volumen Total','Volume Total','Gesamtvolumen','Volume Total','Общий Объём','Toplam Hacim'),
