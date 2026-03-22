@@ -181,28 +181,6 @@ export default function WalletModal({ open, onClose, onConnected }: WalletModalP
     }
   }
 
-  async function handleWalletConnect() {
-    track(Events.WALLET_SELECTED, { wallet_id: 'walletconnect', action: 'qr_scan' });
-    const wc = connectors.find((c) => c.id === 'walletConnect');
-    if (wc) {
-      setConnecting('walletconnect');
-      setConnectError(null);
-      try {
-        await connectAsync({ connector: wc });
-        onClose();
-        onConnected?.();
-      } catch (err: any) {
-        const msg = err?.message || '';
-        if (msg.includes('User rejected') || msg.includes('user rejected') || msg.includes('denied')) {
-          setConnectError(t('wallet.rejected', lang));
-        } else {
-          setConnectError(msg || t('wallet.connectFailed', lang));
-        }
-      } finally {
-        setConnecting(null);
-      }
-    }
-  }
 
   return (
     <div
@@ -343,38 +321,6 @@ export default function WalletModal({ open, onClose, onConnected }: WalletModalP
             );
           })}
         </div>
-
-        {/* WalletConnect divider */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '16px 0' }}>
-          <div style={{ flex: 1, height: 1, background: 'var(--color-border)' }} />
-          <span style={{ fontSize: 11, color: 'var(--color-text-muted)' }}>WalletConnect</span>
-          <div style={{ flex: 1, height: 1, background: 'var(--color-border)' }} />
-        </div>
-
-        <button
-          onClick={handleWalletConnect}
-          style={{
-            width: '100%',
-            padding: '12px',
-            borderRadius: 12,
-            border: '1px solid var(--color-accent)',
-            background: 'transparent',
-            color: 'var(--color-accent)',
-            fontWeight: 600,
-            fontSize: 14,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 8,
-          }}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <rect x="2" y="3" width="20" height="18" rx="3" />
-            <path d="M8 7l4 4 4-4" />
-          </svg>
-          {t('wallet.scanQR', lang)}
-        </button>
 
         {/* Safety note */}
         <p style={{ fontSize: 10, color: 'var(--color-text-muted)', marginTop: 14, textAlign: 'center', lineHeight: 1.5 }}>

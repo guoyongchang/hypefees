@@ -1,21 +1,17 @@
 import { http, createConfig } from 'wagmi';
 import { arbitrum } from 'wagmi/chains';
-import { injected, walletConnect } from 'wagmi/connectors';
+import { injected } from 'wagmi/connectors';
 
 // Hyperliquid mainnet EIP-712 signing uses Arbitrum chainId (42161 / 0xa4b1).
 // Confirmed via: official docs, Go SDK (cordialsys/crosschain), exchange endpoint docs.
 // The Python SDK's 0x66eee is for TESTNET only.
 // Using 42161 matches the wallet's connected chain → no chainId mismatch on any wallet.
-const WALLETCONNECT_PROJECT_ID = '2b94db6c6e635e7bebd0b4b52b2beb37';
 
 export const HL_CHAIN_ID = 0xa4b1; // 42161 = Arbitrum One mainnet
 
 export const wagmiConfig = createConfig({
   chains: [arbitrum],
-  connectors: [
-    injected(),
-    walletConnect({ projectId: WALLETCONNECT_PROJECT_ID }),
-  ],
+  connectors: [injected()],
   transports: {
     [arbitrum.id]: http(),
   },
