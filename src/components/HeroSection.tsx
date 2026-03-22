@@ -9,6 +9,7 @@ import WalletModal from './WalletModal';
 import SwitchBuilder from './SwitchBuilder';
 import ShareCard from './ShareCard';
 import HeroFlow from './HeroFlow';
+import SavedCounter from './SavedCounter';
 
 function formatDate(ts: number): string {
   return new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -115,6 +116,7 @@ function HeroSectionInner() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           {/* Left: copy + input — staggered entrance */}
           <div className="hero-enter">
+            <SavedCounter />
             <h1 className="text-3xl md:text-[2.75rem] font-bold tracking-tight leading-[1.15]">
               {t('hero.title.1', lang)}<br />{t('hero.title.2', lang)}{' '}
               <span className="text-[var(--color-accent)]">{t('hero.title.cta', lang)}</span>

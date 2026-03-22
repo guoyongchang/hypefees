@@ -73,6 +73,16 @@ function SwitchBuilderInner() {
 
       setApproveSuccess(true);
       track(Events.BUILDER_APPROVAL_SUCCESS);
+
+      // Increment community savings counter
+      try {
+        fetch('/api/stats', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ savings: 500 }),
+        });
+      } catch {}
+
       await handleSetReferrer();
     } catch (err: any) {
       const msg = err?.message || err?.shortMessage || '';
