@@ -5,12 +5,9 @@ const DISMISS_KEY = 'wallet-banner-dismissed';
 
 function shouldShowBanner(): boolean {
   if (typeof window === 'undefined') return false;
-  // Must be mobile
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
   if (!isMobile) return false;
-  // Must NOT have injected wallet
   if ((window as any).ethereum) return false;
-  // Must not have been dismissed this session
   if (sessionStorage.getItem(DISMISS_KEY)) return false;
   return true;
 }
@@ -34,55 +31,55 @@ export default function MobileWalletBanner() {
       await navigator.clipboard.writeText(window.location.href);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch {
-      /* clipboard not available */
-    }
+    } catch { /* clipboard not available */ }
   }
 
   if (!visible) return null;
 
   return (
     <div
-      className="mobile-wallet-banner"
       style={{
-        position: 'sticky',
-        top: 0,
-        left: 0,
-        width: 'calc(100% + 2rem)',
-        zIndex: 9998,
-        background: '#1a1a2e',
-        color: '#fff',
-        fontSize: '13px',
+        width: '100%',
+        background: 'var(--color-bg-card)',
+        borderBottom: '1px solid var(--color-border)',
+        padding: '10px 16px',
         display: 'flex',
         alignItems: 'center',
-        gap: '8px',
-        padding: '10px 12px',
-        animation: 'mwb-slide-down 0.3s ease-out',
-        margin: '0 -1rem',
+        gap: 10,
+        fontSize: 13,
+        color: 'var(--color-text-secondary)',
+        animation: 'mwb-slide-down 0.25s ease-out',
       }}
     >
-      <span style={{ flex: 1, lineHeight: 1.35 }}>
+      {/* Wallet icon */}
+      <span style={{ fontSize: 16, flexShrink: 0 }}>🔗</span>
+
+      {/* Message */}
+      <span style={{ flex: 1, lineHeight: 1.4 }}>
         {t('banner.openInWallet', lang)}
       </span>
 
+      {/* Copy URL button */}
       <button
         onClick={copyUrl}
         style={{
           flexShrink: 0,
-          padding: '4px 10px',
-          borderRadius: '999px',
-          background: 'var(--color-accent, #6c5ce7)',
-          color: '#fff',
-          fontSize: '12px',
+          padding: '5px 12px',
+          borderRadius: 8,
+          background: copied ? 'var(--color-accent)' : 'var(--color-bg-elevated)',
+          color: copied ? '#0a0a0a' : 'var(--color-text)',
+          fontSize: 12,
           fontWeight: 600,
-          border: 'none',
+          border: '1px solid var(--color-border)',
           cursor: 'pointer',
           whiteSpace: 'nowrap',
+          transition: 'all 0.2s',
         }}
       >
-        {copied ? t('banner.copied', lang) : t('banner.copyUrl', lang)}
+        {copied ? `✓ ${t('banner.copied', lang)}` : t('banner.copyUrl', lang)}
       </button>
 
+      {/* Dismiss */}
       <button
         onClick={dismiss}
         aria-label="Close"
@@ -90,12 +87,11 @@ export default function MobileWalletBanner() {
           flexShrink: 0,
           background: 'none',
           border: 'none',
-          color: '#fff',
-          fontSize: '18px',
+          color: 'var(--color-text-muted)',
+          fontSize: 16,
           lineHeight: 1,
           cursor: 'pointer',
-          padding: '4px',
-          opacity: 0.7,
+          padding: 4,
         }}
       >
         ✕

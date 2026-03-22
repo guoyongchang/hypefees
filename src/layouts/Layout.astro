@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import FeeCounter from '../components/FeeCounter.tsx';
 import TranslatedText from '../components/TranslatedText.tsx';
+import MobileWalletBanner from '../components/MobileWalletBanner.tsx';
 
 // Security headers
 Astro.response.headers.set('X-Content-Type-Options', 'nosniff');
@@ -183,6 +184,8 @@ const webAppStructuredData = {
     >
       Skip to content
     </a>
+
+    <MobileWalletBanner client:load />
 
     <header class="border-b border-[var(--color-border)] sticky top-0 z-50 bg-[var(--color-bg)]/90 backdrop-blur-md">
       <nav aria-label="Main" class="max-w-6xl mx-auto px-4 h-[52px] flex items-center justify-between">
