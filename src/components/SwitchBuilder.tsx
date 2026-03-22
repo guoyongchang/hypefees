@@ -17,7 +17,12 @@ import {
 
 type Step = 'idle' | 'approving' | 'setting-referrer' | 'done' | 'error';
 
-function SwitchBuilderInner() {
+interface SwitchBuilderProps {
+  userVolume?: number;
+  userBuilderFees?: number;
+}
+
+function SwitchBuilderInner({ userVolume, userBuilderFees }: SwitchBuilderProps) {
   const [lang] = useLang();
   const { address, isConnected, chain } = useAccount();
   const { connect, connectors } = useConnect();
@@ -72,7 +77,11 @@ function SwitchBuilderInner() {
       }
 
       setApproveSuccess(true);
-      track(Events.BUILDER_APPROVAL_SUCCESS);
+      track(Events.BUILDER_APPROVAL_SUCCESS, {
+        total_volume: userVolume || 0,
+        builder_fees: userBuilderFees || 0,
+        volume_tier: userVolume ? (userVolume >= 1000000 ? 'whale' : userVolume >= 100000 ? 'active' : userVolume >= 10000 ? 'casual' : 'starter') : 'unknown',
+      });
 
       // Increment community savings counter
       try {
@@ -129,7 +138,12 @@ function SwitchBuilderInner() {
       }
 
       setReferralSuccess(true);
-      track(Events.REFERRAL_SET_SUCCESS);
+      track(Events.REFERRAL_SET_SUCCESS, {
+        total_volume: userVolume || 0,
+        builder_fees: userBuilderFees || 0,
+        volume_tier: userVolume ? (userVolume >= 1000000 ? 'whale' : userVolume >= 100000 ? 'active' : userVolume >= 10000 ? 'casual' : 'starter') : 'unknown',
+        est_ref_revenue: (userVolume || 0) * 0.00035 * 0.1,
+      });
       setStep('done');
     } catch (err: any) {
       track(Events.REFERRAL_SET_FAILED);
@@ -280,10 +294,10 @@ function SwitchBuilderInner() {
 }
 
 // Wrapper with providers
-export default function SwitchBuilder() {
+export default function SwitchBuilder({ userVolume, userBuilderFees }: SwitchBuilderProps) {
   return (
     <WalletProvider>
-      <SwitchBuilderInner />
+      <SwitchBuilderInner userVolume={userVolume} userBuilderFees={userBuilderFees} />
     </WalletProvider>
   );
 }

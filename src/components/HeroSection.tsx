@@ -281,7 +281,7 @@ function HeroSectionInner() {
 
           {/* One-click switch */}
           <div className="mt-6">
-            <SwitchBuilder />
+            <SwitchBuilder userVolume={result.totalVolume} userBuilderFees={result.builderFees} />
           </div>
         </div>
       )}
