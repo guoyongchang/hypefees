@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__Claude_Preview__preview_start",
+      "Read(//opt/homebrew/bin/**)",
+      "Read(//Users/Raymond/**)"
+    ]
+  }
+}

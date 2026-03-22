@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLang, t } from '../lib/i18n';
+import { track, Events } from '../lib/analytics';
 
 const DISMISS_KEY = 'wallet-banner-dismissed';
 
@@ -18,18 +19,23 @@ export default function MobileWalletBanner() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    if (shouldShowBanner()) setVisible(true);
+    if (shouldShowBanner()) {
+      setVisible(true);
+      track(Events.MOBILE_BANNER_SHOWN);
+    }
   }, []);
 
   function dismiss() {
     setVisible(false);
     sessionStorage.setItem(DISMISS_KEY, '1');
+    track(Events.MOBILE_BANNER_DISMISSED);
   }
 
   async function copyUrl() {
     try {
       await navigator.clipboard.writeText(window.location.href);
       setCopied(true);
+      track(Events.MOBILE_BANNER_COPY_URL);
       setTimeout(() => setCopied(false), 2000);
     } catch { /* clipboard not available */ }
   }

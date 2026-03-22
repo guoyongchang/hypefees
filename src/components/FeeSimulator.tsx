@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import type { Builder } from '../lib/fees';
 import { VIP_TIERS, STAKING_TIERS, calculateFees, formatUSD, formatFeePercent } from '../lib/fees';
 import { useLang, t } from '../lib/i18n';
@@ -55,6 +55,14 @@ export default function FeeSimulator() {
   const [stakingTier, setStakingTier] = useState(0);
   const volume = volumeFromSlider(sliderValue);
   const stakingDiscount = STAKING_TIERS[stakingTier]?.discount ?? 0;
+  const volumeTrackTimer = useRef<ReturnType<typeof setTimeout>>();
+
+  const trackVolumeChange = useCallback((vol: number) => {
+    clearTimeout(volumeTrackTimer.current);
+    volumeTrackTimer.current = setTimeout(() => {
+      track(Events.FEE_CALCULATOR_VOLUME_CHANGED, { volume: vol });
+    }, 1000);
+  }, []);
 
   useEffect(() => {
     fetch('/api/builders')
@@ -129,7 +137,7 @@ export default function FeeSimulator() {
             max={100}
             step={0.5}
             value={sliderValue}
-            onChange={(e) => setSliderValue(parseFloat(e.target.value))}
+            onChange={(e) => { const v = parseFloat(e.target.value); setSliderValue(v); trackVolumeChange(volumeFromSlider(v)); }}
             className="flex-1 accent-[var(--color-accent)]"
           />
           <span className="text-xs text-[var(--color-text-muted)]">$100M</span>

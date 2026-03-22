@@ -24,9 +24,15 @@ export const Events = {
   BUILDER_TABLE_SORTED: 'Builder Table Sorted',
   BUILDER_TABLE_VIEW_CHANGED: 'Builder Table View Changed',
   FEE_CALCULATOR_USED: 'Fee Calculator Used',
+  FEE_CALCULATOR_VOLUME_CHANGED: 'Fee Calculator Volume Changed',
   WALLET_MODAL_OPENED: 'Wallet Modal Opened',
   WALLET_SELECTED: 'Wallet Selected',
   LANGUAGE_CHANGED: 'Language Changed',
+  THEME_TOGGLED: 'Theme Toggled',
+  MOBILE_BANNER_SHOWN: 'Mobile Banner Shown',
+  MOBILE_BANNER_COPY_URL: 'Mobile Banner Copy URL',
+  MOBILE_BANNER_DISMISSED: 'Mobile Banner Dismissed',
+  FAQ_OPENED: 'FAQ Opened',
 } as const;
 
 // ── SSR-safe Mixpanel access ──
@@ -61,7 +67,7 @@ export function identify(address: string): void {
   if (!isReady() || !address) return;
   const mp = getMixpanel();
   // Use a simple hash of the address as distinct_id (privacy)
-  const id = `hl_${address.toLowerCase().slice(2, 10)}`;
+  const id = `hl_${address.toLowerCase().slice(2, 18)}`;
   mp.identify(id);
 }
 
@@ -81,14 +87,3 @@ export function trackPageView(): void {
   });
 }
 
-// ── Initialize Mixpanel (called from layout) ──
-export function initMixpanel(): void {
-  if (typeof window === 'undefined' || !MIXPANEL_TOKEN) return;
-  const mp = getMixpanel();
-  if (mp && typeof mp.init === 'function') {
-    mp.init(MIXPANEL_TOKEN, {
-      track_pageview: false, // We track manually
-      persistence: 'localStorage',
-    });
-  }
-}

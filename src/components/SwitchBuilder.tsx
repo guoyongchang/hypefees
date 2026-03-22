@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { useAccount, useConnect, useDisconnect, useSignTypedData, useSwitchChain } from 'wagmi';
 import WalletProvider from './WalletProvider';
 import { useLang, t } from '../lib/i18n';
-import { track, identify, setUserProps, trackPageView, Events, getDeviceType } from '../lib/analytics';
+import { track, Events } from '../lib/analytics';
 import {
   ONEKEY_BUILDER_ADDRESS,
   ONEKEY_REFERRAL_CODE,
@@ -25,7 +25,7 @@ interface SwitchBuilderProps {
 function SwitchBuilderInner({ userVolume, userBuilderFees }: SwitchBuilderProps) {
   const [lang] = useLang();
   const { address, isConnected, chain } = useAccount();
-  const { connect, connectors } = useConnect();
+  const { connectAsync, connectors } = useConnect();
   const { disconnect } = useDisconnect();
   const { signTypedDataAsync } = useSignTypedData();
   const { switchChainAsync } = useSwitchChain();
@@ -35,16 +35,18 @@ function SwitchBuilderInner({ userVolume, userBuilderFees }: SwitchBuilderProps)
   const [approveSuccess, setApproveSuccess] = useState(false);
   const [referralSuccess, setReferralSuccess] = useState(false);
 
-  const handleConnect = useCallback(() => {
+  const handleConnect = useCallback(async () => {
     // Prefer injected (browser wallet) first
     const injectedConnector = connectors.find((c) => c.id === 'injected');
-    if (injectedConnector) {
-      connect({ connector: injectedConnector });
-    } else if (connectors.length > 0) {
-      connect({ connector: connectors[0] });
+    const connector = injectedConnector || connectors[0];
+    if (!connector) return;
+    try {
+      await connectAsync({ connector });
+      track(Events.WALLET_CONNECTED);
+    } catch {
+      // User rejected or connection failed — do not track
     }
-    track(Events.WALLET_CONNECTED);
-  }, [connect, connectors]);
+  }, [connectAsync, connectors]);
 
   const handleApproveBuilder = useCallback(async () => {
     if (!isConnected) return;
@@ -146,7 +148,7 @@ function SwitchBuilderInner({ userVolume, userBuilderFees }: SwitchBuilderProps)
       });
       setStep('done');
     } catch (err: any) {
-      track(Events.REFERRAL_SET_FAILED);
+      track(Events.REFERRAL_SET_FAILED, { error: err?.message || err?.shortMessage || 'unknown' });
       setReferralSuccess(false);
       setStep('done');
     }

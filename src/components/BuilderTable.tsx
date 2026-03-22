@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import type { Builder } from '../lib/fees';
 import { formatFeePercent, totalTakerFee, totalMakerFee, formatVolume } from '../lib/fees';
 import { useLang, t } from '../lib/i18n';
@@ -74,6 +74,7 @@ export default function BuilderTable() {
   const [sortDir, setSortDir] = useState<SortDir>('asc');
   const [viewMode, setViewMode] = useState<ViewMode>('featured');
   const [search, setSearch] = useState('');
+  const searchTrackTimer = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
     fetch('/api/builders')
@@ -207,7 +208,7 @@ export default function BuilderTable() {
           <input
             type="text"
             value={search}
-            onChange={(e) => { setSearch(e.target.value); if (e.target.value && viewMode === 'featured') setViewMode('all'); if (e.target.value.length >= 2) { clearTimeout((window as any).__searchTrackTimer); (window as any).__searchTrackTimer = setTimeout(() => { track(Events.BUILDER_TABLE_SEARCHED, { query: e.target.value }); }, 1000); } }}
+            onChange={(e) => { setSearch(e.target.value); if (e.target.value && viewMode === 'featured') setViewMode('all'); if (e.target.value.length >= 2) { clearTimeout(searchTrackTimer.current); searchTrackTimer.current = setTimeout(() => { track(Events.BUILDER_TABLE_SEARCHED, { query: e.target.value }); }, 1000); } }}
             placeholder={t('table.search', lang)}
             className="pl-9 pr-3 py-1.5 min-h-[36px] w-full sm:w-48 text-xs rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]"
           />
