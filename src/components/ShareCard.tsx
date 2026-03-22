@@ -39,7 +39,8 @@ const tokens = {
 // ============================================================
 // Data Helpers
 // ============================================================
-const TOTAL_TRADERS = 310_000;
+// Update periodically — check https://stats.hyperliquid.xyz
+const TOTAL_TRADERS = 350_000;
 
 function estimateRank(totalFees: number) {
   let percentile: number, title: string;
@@ -85,7 +86,7 @@ function computeFunFacts(totalFees: number, daysBetween: number): FunFacts {
     netflixMultiple: Math.round((totalFees / Math.max(daysBetween, 1)) / 0.5),
     steamGames: Math.round(totalFees / 60),
     rentMonths: Math.round(totalFees / 3200),
-    beers: Math.round(totalFees / 2),
+    beers: Math.round(totalFees / 7),
     uberRides: Math.round(totalFees / 15),
     spotifyYears: Math.round(totalFees / 144),
     daysBetween,

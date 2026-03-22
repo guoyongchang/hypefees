@@ -282,7 +282,7 @@ export default function BuilderTable() {
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5">
                           <span className="font-medium truncate">{builder.refCode || `${builder.address.slice(0, 6)}...`}</span>
-                          {isZeroFee && (
+                          {isZeroFee && builder.address === '0x9b12e858da780a96876e3018780cf0d83359b0bb' && (
                             <span className="text-[10px] px-1.5 py-0.5 rounded-full border border-[var(--color-success)] text-[var(--color-success)] font-semibold shrink-0">
                               {t('table.best', lang)}
                             </span>

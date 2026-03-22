@@ -77,12 +77,6 @@ export default function FeeSimulator() {
 
   const simResults = useMemo(() => {
     const direct = calculateFees(volume, 0, vipTier);
-    // Apply staking discount
-    const applyDiscount = (fees: { total: number; hlFee: number; builderTotal: number }) => ({
-      total: fees.total * (1 - stakingDiscount) + fees.builderTotal * stakingDiscount, // discount only applies to HL fees
-      hlFee: fees.hlFee * (1 - stakingDiscount),
-      builderTotal: fees.builderTotal,
-    });
 
     const directDiscounted = {
       total: direct.hlFee * (1 - stakingDiscount) + direct.builderTotal,

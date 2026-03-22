@@ -201,7 +201,7 @@ function HeroSectionInner() {
             </div>
             <div className="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] card-hover">
               <div className="text-xs text-[var(--color-text-muted)]">{t('result.exchangeFees', lang)}</div>
-              <div className="text-xl font-bold mt-1 tabular-nums">{formatUSD(result.hlFees)}</div>
+              <div className="text-xl font-bold mt-1 tabular-nums">{formatUSD(Math.max(0, result.hlFees))}</div>
               <div className="text-xs text-[var(--color-text-muted)] mt-1">{t('result.toHyperliquid', lang)}</div>
             </div>
             <div className="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] card-hover">
@@ -221,7 +221,7 @@ function HeroSectionInner() {
               <div className="h-3 rounded-full overflow-hidden flex bg-[var(--color-bg-elevated)]">
                 <div
                   className="bg-[var(--color-accent)] transition-all duration-500"
-                  style={{ width: `${((result.hlFees / result.totalFees) * 100)}%` }}
+                  style={{ width: `${((Math.max(0, result.hlFees) / result.totalFees) * 100)}%` }}
                 />
                 {result.builderFees > 0 && (
                   <div
@@ -233,7 +233,7 @@ function HeroSectionInner() {
               <div className="flex justify-between mt-2 text-xs">
                 <span className="flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-[var(--color-accent)]" />
-                  {t('result.exchange', lang)} {formatUSD(result.hlFees)}
+                  {t('result.exchange', lang)} {formatUSD(Math.max(0, result.hlFees))}
                 </span>
                 {result.builderFees > 0 && (
                   <span className="flex items-center gap-1.5">

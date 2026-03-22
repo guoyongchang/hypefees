@@ -53,7 +53,7 @@ function SwitchBuilderInner() {
         try { await switchChainAsync({ chainId: HL_CHAIN_ID }); } catch {}
       }
 
-      const { action, message, nonce } = buildApproveBuilderFeeAction(ONEKEY_BUILDER_ADDRESS, '0.01%');
+      const { action, message, nonce } = buildApproveBuilderFeeAction(ONEKEY_BUILDER_ADDRESS, '0%');
 
       const sig = await signTypedDataAsync({
         domain: EIP712_DOMAIN,
