@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useConnect } from 'wagmi';
+import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import { useLang, t } from '../lib/i18n';
 import { track, Events } from '../lib/analytics';
 
@@ -106,6 +106,8 @@ interface WalletModalProps {
 export default function WalletModal({ open, onClose, onConnected }: WalletModalProps) {
   const [lang] = useLang();
   const { connectAsync, connectors } = useConnect();
+  const { isConnected } = useAccount();
+  const { disconnectAsync } = useDisconnect();
   const [connecting, setConnecting] = useState<string | null>(null);
   const [connectError, setConnectError] = useState<string | null>(null);
   const mobile = isMobile();
@@ -135,6 +137,10 @@ export default function WalletModal({ open, onClose, onConnected }: WalletModalP
         setConnecting(wallet.id);
         setConnectError(null);
         try {
+          // If already connected, disconnect first so wallet shows account picker again
+          if (isConnected) {
+            await disconnectAsync();
+          }
           await connectAsync({ connector: injected });
           // Connection succeeded — close modal and notify parent
           onClose();
@@ -144,6 +150,10 @@ export default function WalletModal({ open, onClose, onConnected }: WalletModalP
           const msg = err?.message || '';
           if (msg.includes('User rejected') || msg.includes('user rejected') || msg.includes('denied')) {
             setConnectError(t('wallet.rejected', lang));
+          } else if (msg.includes('already connected') || msg.includes('Connector already')) {
+            // Already connected — just proceed
+            onClose();
+            onConnected?.();
           } else {
             setConnectError(msg || t('wallet.connectFailed', lang));
           }
