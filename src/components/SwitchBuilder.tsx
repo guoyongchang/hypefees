@@ -254,7 +254,7 @@ function SwitchBuilderInner({ userVolume, userBuilderFees }: SwitchBuilderProps)
                     {t('switch.walletWarning', lang)}
                   </div>
                   <div className="text-[var(--color-switch-dim)]">
-                    {t('switch.walletWarningDesc', lang, { wallet: 'Rabby / MetaMask / Phantom' })}
+                    {t('switch.walletWarningDesc', lang, { wallet: 'MetaMask / Phantom' })}
                   </div>
                 </div>
               )}
