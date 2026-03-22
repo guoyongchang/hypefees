@@ -23,7 +23,7 @@
       "order": 3,
       "type": "wallet",
       "featured": true,
-      "platforms": { "ios": true, "android": true, "desktop": true, "extension": true, "web": false },
+      "platforms": { "ios": true, "android": true, "desktop": true, "extension": true, "web": true },
       "hardware": "own",
       "url": "https://onekey.so"
     },

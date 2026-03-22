@@ -235,7 +235,6 @@ export default function BuilderTable() {
               {viewMode === 'featured' && (
                 <>
                   <th className="hidden md:table-cell px-4 py-3 font-medium text-[var(--color-text-secondary)] text-center">{t('table.platforms', lang)}</th>
-                  <th className="hidden md:table-cell px-4 py-3 font-medium text-[var(--color-text-secondary)] text-center">{t('table.hardware', lang)}</th>
                 </>
               )}
               <th
@@ -319,14 +318,10 @@ export default function BuilderTable() {
                           <PlatformBadge active={curated.platforms.web} label="Web" title={t('table.webApp', lang)} />
                         </div>
                       </td>
-                      <td className="hidden md:table-cell px-4 py-3 text-center">
-                        <HardwareBadge hardware={curated.hardware} lang={lang} />
-                      </td>
                     </>
                   )}
                   {viewMode === 'featured' && !curated && (
                     <>
-                      <td className="hidden md:table-cell px-4 py-3 text-center text-[var(--color-text-muted)] text-xs">—</td>
                       <td className="hidden md:table-cell px-4 py-3 text-center text-[var(--color-text-muted)] text-xs">—</td>
                     </>
                   )}
