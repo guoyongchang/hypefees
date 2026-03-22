@@ -63,6 +63,11 @@ const translations: Record<string, Record<Lang, string>> = {
   'wallet.rejected': e('Connection rejected by wallet','钱包拒绝了连接请求','ウォレットが接続を拒否しました','지갑이 연결을 거부했습니다','Conexión rechazada','Connexion refusée','Verbindung abgelehnt','Conexão recusada','Кошелёк отклонил запрос','Cüzdan bağlantıyı reddetti'),
   'wallet.connectFailed': e('Connection failed. Please try again.','连接失败，请重试','接続に失敗しました。再試行してください','연결 실패. 다시 시도해주세요','Fallo de conexión. Inténtalo de nuevo.','Échec de connexion. Réessayez.','Verbindung fehlgeschlagen. Bitte erneut versuchen.','Falha na conexão. Tente novamente.','Не удалось подключиться. Повторите попытку.','Bağlantı başarısız. Tekrar deneyin.'),
 
+  // ── Mobile Wallet Banner ──
+  'banner.openInWallet': e('Open this page in any crypto wallet to connect','请在任意加密钱包中打开此页面以连接','接続するには、暗号ウォレットでこのページを開いてください','연결하려면 암호화폐 지갑에서 이 페이지를 여세요','Abre esta página en cualquier wallet cripto para conectar','Ouvrez cette page dans un portefeuille crypto pour vous connecter','Öffne diese Seite in einer Krypto-Wallet, um dich zu verbinden','Abra esta página em qualquer carteira cripto para conectar','Откройте эту страницу в любом крипто-кошельке для подключения','Bağlanmak için bu sayfayı herhangi bir kripto cüzdanda açın'),
+  'banner.copyUrl': e('Copy URL','复制网址','URLをコピー','URL 복사','Copiar URL','Copier l\'URL','URL kopieren','Copiar URL','Скопировать URL','URL Kopyala'),
+  'banner.copied': e('Copied!','已复制！','コピーしました！','복사됨!','¡Copiado!','Copié !','Kopiert!','Copiado!','Скопировано!','Kopyalandı!'),
+
   // ── Results ──
   'result.totalVolume': e('Total Volume','总交易量','総取引量','총 거래량','Volumen Total','Volume Total','Gesamtvolumen','Volume Total','Общий Объём','Toplam Hacim'),
   'result.totalFees': e('Total Fees','总费用','総手数料','총 수수료','Comisiones Totales','Frais Totaux','Gesamtgebühren','Taxas Totais','Всего Комиссий','Toplam Ücret'),

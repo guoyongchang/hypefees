@@ -10,6 +10,7 @@ import SectionAbout from '../components/SectionAbout.tsx';
 import SectionHowItWorks from '../components/SectionHowItWorks.tsx';
 import SectionFAQ from '../components/SectionFAQ.tsx';
 import ScrollReveal from '../components/ScrollReveal.astro';
+import MobileWalletBanner from '../components/MobileWalletBanner.tsx';
 ---
 
 <Layout>
@@ -17,6 +18,8 @@ import ScrollReveal from '../components/ScrollReveal.astro';
     <LanguageSwitcher client:load />
     <ThemeToggle client:load />
   </Fragment>
+
+  <MobileWalletBanner client:load />
 
   <!-- Hero — above the fold, needs immediate hydration -->
   <section aria-label="Fee lookup tool" class="hero-section relative overflow-hidden -mx-4 px-4">
