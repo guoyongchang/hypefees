@@ -44,6 +44,18 @@ export const GET: APIRoute = async () => {
 };
 
 export const POST: APIRoute = async ({ request }) => {
+  // Security: only accept POSTs from our own origin
+  const origin = request.headers.get('origin') || '';
+  const referer = request.headers.get('referer') || '';
+  const allowedOrigins = ['https://hypefees.com', 'https://www.hypefees.com', 'http://localhost'];
+  const isAllowed = allowedOrigins.some(o => origin.startsWith(o) || referer.startsWith(o));
+  if (!isAllowed) {
+    return new Response(JSON.stringify({ error: 'Forbidden' }), {
+      status: 403,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
   let kv: any = null;
 
   try {
@@ -56,10 +68,23 @@ export const POST: APIRoute = async ({ request }) => {
     });
   }
 
+  // Rate limit: max 1 increment per IP per 10 minutes
+  const ip = request.headers.get('cf-connecting-ip') || 'unknown';
+  const rateLimitKey = `stats:ratelimit:${ip}`;
+  const lastCall = await kv.get(rateLimitKey);
+  if (lastCall) {
+    return new Response(JSON.stringify({ error: 'Rate limited' }), {
+      status: 429,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+  await kv.put(rateLimitKey, '1', { expirationTtl: 600 }); // 10 min TTL
+
+  // Cap savings amount to prevent abuse
   let savingsAmount = 500;
   try {
     const body = await request.json();
-    if (typeof body.savings === 'number' && body.savings > 0) {
+    if (typeof body.savings === 'number' && body.savings > 0 && body.savings <= 10000) {
       savingsAmount = body.savings;
     }
   } catch {}
