@@ -252,86 +252,86 @@ function HeroSectionInner() {
 
           {result.builderFees > 0 && (
             <>
-              {/* Historical builder fee rate */}
-              <div className="mt-4 p-4 rounded-xl border border-[var(--color-warning)]/20 bg-[var(--color-warning-bg)]">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-start gap-3">
-                    <div className="mt-0.5 text-[var(--color-warning)] text-lg">⚡</div>
-                    <div>
-                      <div className="font-medium text-[var(--color-text-primary)]">
-                        {t('result.currentBuilder', lang)}
-                      </div>
-                      <div className="text-sm text-[var(--color-text-secondary)] mt-1">
-                        {t('result.builderRate', lang, { rate: result.totalVolume > 0 ? ((result.builderFees / result.totalVolume) * 100).toFixed(3) : '0' })}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-2xl font-bold tabular-nums text-[var(--color-warning)]">
-                      {result.totalVolume > 0 ? ((result.builderFees / result.totalVolume) * 100).toFixed(2) : '0'}%
-                    </div>
-                  </div>
-                </div>
-                {result.firstTradeTime && result.lastTradeTime && (
-                  <div className="mt-3 pt-3 border-t border-[var(--color-warning)]/10 text-sm text-[var(--color-text-muted)]">
-                    {(() => {
-                      const days = Math.max(1, Math.ceil((result.lastTradeTime! - result.firstTradeTime!) / (1000 * 60 * 60 * 24)));
-                      const monthlyBuilderFee = (result.builderFees / days) * 30;
-                      return t('result.couldSaveMonthly', lang, { amount: monthlyBuilderFee >= 1000 ? `${(monthlyBuilderFee / 1000).toFixed(1)}K` : monthlyBuilderFee.toFixed(0) });
-                    })()}
-                  </div>
-                )}
-              </div>
-
-              {/* Live builder approval status */}
-              {builderStatus && (
-                <div className="mt-3 p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]">
-                  <div className="text-xs font-medium text-[var(--color-text-muted)] uppercase tracking-wider mb-3">
-                    {t('result.liveStatus', lang)}
-                  </div>
-                  <div className="space-y-2.5">
-                    {/* OneKey approval */}
+              {/* Unified builder fee status card */}
+              <div className="mt-4 p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]">
+                {/* Current status (live from API) */}
+                {builderStatus && builderStatus.onekey.maxFeeRaw === 0 ? (
+                  <>
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        {builderStatus.onekey.maxFeeRaw === 0 ? (
-                          <span className="w-5 h-5 rounded-full bg-[var(--color-success)]/15 flex items-center justify-center text-[var(--color-success)] text-xs">✓</span>
-                        ) : (
-                          <span className="w-5 h-5 rounded-full bg-[var(--color-text-muted)]/10 flex items-center justify-center text-[var(--color-text-muted)] text-xs">–</span>
-                        )}
-                        <span className="text-sm text-[var(--color-text-primary)]">OneKey</span>
-                      </div>
-                      <span className={`text-sm font-mono font-medium ${builderStatus.onekey.maxFeeRaw === 0 ? 'text-[var(--color-success)]' : builderStatus.onekey.maxFeeRaw < 0 ? 'text-[var(--color-text-muted)]' : 'text-[var(--color-text-secondary)]'}`}>
-                        {builderStatus.onekey.maxFeeRaw === 0 ? t('result.approved0fee', lang) : builderStatus.onekey.maxFeeRaw < 0 ? t('result.notApproved', lang) : `≤ ${builderStatus.onekey.maxFeePercent}`}
-                      </span>
-                    </div>
-                    {/* Last used builder (if different from OneKey) */}
-                    {builderStatus.lastBuilder && (
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="w-5 h-5 rounded-full bg-[var(--color-warning)]/15 flex items-center justify-center text-[var(--color-warning)] text-xs">!</span>
-                          <span className="text-sm text-[var(--color-text-primary)]">
-                            {builderStatus.lastBuilder.name || `${builderStatus.lastBuilder.builder.slice(0, 8)}...`}
-                          </span>
-                          <span className="text-xs text-[var(--color-text-muted)]">{t('result.previousBuilder', lang)}</span>
+                      <div className="flex items-center gap-3">
+                        <span className="w-8 h-8 rounded-full bg-[var(--color-success)]/15 flex items-center justify-center text-[var(--color-success)] text-base">✓</span>
+                        <div>
+                          <div className="font-medium text-[var(--color-text-primary)]">
+                            {t('result.nowOnOneKey', lang)}
+                          </div>
+                          <div className="text-sm text-[var(--color-success)] mt-0.5">
+                            {t('result.currentFeeIs0', lang)}
+                          </div>
                         </div>
-                        <span className="text-sm font-mono text-[var(--color-text-secondary)]">
-                          {builderStatus.lastBuilder.maxFeeRaw >= 0 ? `≤ ${builderStatus.lastBuilder.maxFeePercent}` : '—'}
+                      </div>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold tabular-nums text-[var(--color-success)]">0%</div>
+                        <div className="text-xs text-[var(--color-text-muted)]">{t('result.builderFeeNow', lang)}</div>
+                      </div>
+                    </div>
+                    {/* Historical context */}
+                    <div className="mt-3 pt-3 border-t border-[var(--color-border)]">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-[var(--color-text-muted)]">{t('result.historicalAvg', lang)}</span>
+                        <span className="font-mono text-[var(--color-warning)]">
+                          {result.totalVolume > 0 ? ((result.builderFees / result.totalVolume) * 100).toFixed(3) : '0'}%
+                        </span>
+                      </div>
+                      <div className="text-xs text-[var(--color-text-muted)] mt-1">
+                        {t('result.historicalNote', lang, { amount: formatUSD(result.builderFees) })}
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* Not yet on OneKey — show historical as primary */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-start gap-3">
+                        <div className="mt-0.5 text-[var(--color-warning)] text-lg">⚡</div>
+                        <div>
+                          <div className="font-medium text-[var(--color-text-primary)]">
+                            {t('result.historicalBuilder', lang)}
+                          </div>
+                          <div className="text-sm text-[var(--color-text-secondary)] mt-1">
+                            {t('result.builderRate', lang, { rate: result.totalVolume > 0 ? ((result.builderFees / result.totalVolume) * 100).toFixed(3) : '0' })}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold tabular-nums text-[var(--color-warning)]">
+                          {result.totalVolume > 0 ? ((result.builderFees / result.totalVolume) * 100).toFixed(2) : '0'}%
+                        </div>
+                      </div>
+                    </div>
+                    {result.firstTradeTime && result.lastTradeTime && (
+                      <div className="mt-3 pt-3 border-t border-[var(--color-border)] text-sm text-[var(--color-text-muted)]">
+                        {(() => {
+                          const days = Math.max(1, Math.ceil((result.lastTradeTime! - result.firstTradeTime!) / (1000 * 60 * 60 * 24)));
+                          const monthlyBuilderFee = (result.builderFees / days) * 30;
+                          return t('result.couldSaveMonthly', lang, { amount: monthlyBuilderFee >= 1000 ? `${(monthlyBuilderFee / 1000).toFixed(1)}K` : monthlyBuilderFee.toFixed(0) });
+                        })()}
+                      </div>
+                    )}
+                    {/* OneKey status line */}
+                    {builderStatus && (
+                      <div className="mt-3 pt-3 border-t border-[var(--color-border)] flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="w-4 h-4 rounded-full bg-[var(--color-text-muted)]/10 flex items-center justify-center text-[var(--color-text-muted)] text-[10px]">–</span>
+                          <span className="text-xs text-[var(--color-text-muted)]">OneKey 0% — {t('result.notApproved', lang)}</span>
+                        </div>
+                        <span className="text-xs text-[var(--color-accent)] cursor-pointer hover:underline" onClick={() => document.getElementById('switch-section')?.scrollIntoView({ behavior: 'smooth' })}>
+                          {t('result.switchNow', lang)} →
                         </span>
                       </div>
                     )}
-                  </div>
-                  {builderStatus.onekey.maxFeeRaw === 0 && (
-                    <div className="mt-3 pt-3 border-t border-[var(--color-border)] text-xs text-[var(--color-success)]">
-                      ✓ {t('result.onekeyActive', lang)}
-                    </div>
-                  )}
-                  {builderStatus.onekey.maxFeeRaw !== 0 && (
-                    <div className="mt-3 pt-3 border-t border-[var(--color-border)] text-xs text-[var(--color-text-muted)]">
-                      {t('result.switchHint', lang)}
-                    </div>
-                  )}
-                </div>
-              )}
+                  </>
+                )}
+              </div>
 
               {/* Save banner */}
               <div className="mt-3 p-4 rounded-xl bg-[var(--color-success-bg)] border border-[var(--color-success)]/20">
