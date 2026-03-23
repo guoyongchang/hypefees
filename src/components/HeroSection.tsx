@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
-import { fetchUserFills, calculateFeeBreakdown, type FeeBreakdown, type FillProgress } from '../lib/api';
+import { fetchUserFills, calculateFeeBreakdown, queryCurrentBuilderStatus, type FeeBreakdown, type FillProgress, type BuilderApprovalStatus } from '../lib/api';
 import { formatUSD, formatVolume } from '../lib/fees';
 import { useLang, t } from '../lib/i18n';
 import { track, identify, setUserProps, trackPageView, Events, getDeviceType } from '../lib/analytics';
@@ -22,6 +22,7 @@ function HeroSectionInner() {
   const [progress, setProgress] = useState<FillProgress | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<FeeBreakdown | null>(null);
+  const [builderStatus, setBuilderStatus] = useState<{ onekey: BuilderApprovalStatus; lastBuilder: BuilderApprovalStatus | null } | null>(null);
 
   // Wallet modal for connecting
   const [showWalletModal, setShowWalletModal] = useState(false);
@@ -78,6 +79,10 @@ function HeroSectionInner() {
       }
       const breakdown = calculateFeeBreakdown(fills);
       setResult(breakdown);
+      // Query current builder approval status (non-blocking)
+      queryCurrentBuilderStatus(trimmed, breakdown.lastBuilderAddress)
+        .then(status => setBuilderStatus(status))
+        .catch(() => {}); // silently fail — it's supplementary info
       // Track success
       identify(trimmed);
       track(Events.FEE_LOOKUP_SUCCESS, {
@@ -247,7 +252,7 @@ function HeroSectionInner() {
 
           {result.builderFees > 0 && (
             <>
-              {/* Current builder fee rate info */}
+              {/* Historical builder fee rate */}
               <div className="mt-4 p-4 rounded-xl border border-[var(--color-warning)]/20 bg-[var(--color-warning-bg)]">
                 <div className="flex items-center justify-between">
                   <div className="flex items-start gap-3">
@@ -267,7 +272,6 @@ function HeroSectionInner() {
                     </div>
                   </div>
                 </div>
-                {/* Estimated monthly savings */}
                 {result.firstTradeTime && result.lastTradeTime && (
                   <div className="mt-3 pt-3 border-t border-[var(--color-warning)]/10 text-sm text-[var(--color-text-muted)]">
                     {(() => {
@@ -278,6 +282,56 @@ function HeroSectionInner() {
                   </div>
                 )}
               </div>
+
+              {/* Live builder approval status */}
+              {builderStatus && (
+                <div className="mt-3 p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]">
+                  <div className="text-xs font-medium text-[var(--color-text-muted)] uppercase tracking-wider mb-3">
+                    {t('result.liveStatus', lang)}
+                  </div>
+                  <div className="space-y-2.5">
+                    {/* OneKey approval */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        {builderStatus.onekey.maxFeeRaw === 0 ? (
+                          <span className="w-5 h-5 rounded-full bg-[var(--color-success)]/15 flex items-center justify-center text-[var(--color-success)] text-xs">✓</span>
+                        ) : (
+                          <span className="w-5 h-5 rounded-full bg-[var(--color-text-muted)]/10 flex items-center justify-center text-[var(--color-text-muted)] text-xs">–</span>
+                        )}
+                        <span className="text-sm text-[var(--color-text-primary)]">OneKey</span>
+                      </div>
+                      <span className={`text-sm font-mono font-medium ${builderStatus.onekey.maxFeeRaw === 0 ? 'text-[var(--color-success)]' : builderStatus.onekey.maxFeeRaw < 0 ? 'text-[var(--color-text-muted)]' : 'text-[var(--color-text-secondary)]'}`}>
+                        {builderStatus.onekey.maxFeeRaw === 0 ? t('result.approved0fee', lang) : builderStatus.onekey.maxFeeRaw < 0 ? t('result.notApproved', lang) : `≤ ${builderStatus.onekey.maxFeePercent}`}
+                      </span>
+                    </div>
+                    {/* Last used builder (if different from OneKey) */}
+                    {builderStatus.lastBuilder && (
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="w-5 h-5 rounded-full bg-[var(--color-warning)]/15 flex items-center justify-center text-[var(--color-warning)] text-xs">!</span>
+                          <span className="text-sm text-[var(--color-text-primary)]">
+                            {builderStatus.lastBuilder.name || `${builderStatus.lastBuilder.builder.slice(0, 8)}...`}
+                          </span>
+                          <span className="text-xs text-[var(--color-text-muted)]">{t('result.previousBuilder', lang)}</span>
+                        </div>
+                        <span className="text-sm font-mono text-[var(--color-text-secondary)]">
+                          {builderStatus.lastBuilder.maxFeeRaw >= 0 ? `≤ ${builderStatus.lastBuilder.maxFeePercent}` : '—'}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  {builderStatus.onekey.maxFeeRaw === 0 && (
+                    <div className="mt-3 pt-3 border-t border-[var(--color-border)] text-xs text-[var(--color-success)]">
+                      ✓ {t('result.onekeyActive', lang)}
+                    </div>
+                  )}
+                  {builderStatus.onekey.maxFeeRaw !== 0 && (
+                    <div className="mt-3 pt-3 border-t border-[var(--color-border)] text-xs text-[var(--color-text-muted)]">
+                      {t('result.switchHint', lang)}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Save banner */}
               <div className="mt-3 p-4 rounded-xl bg-[var(--color-success-bg)] border border-[var(--color-success)]/20">

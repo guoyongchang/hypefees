@@ -114,6 +114,92 @@ export interface FeeBreakdown {
   totalVolume: number;
   firstTradeTime: number | null;
   lastTradeTime: number | null;
+  /** Most recent builder address (from last trade), null if no builder fees */
+  lastBuilderAddress: string | null;
+}
+
+/** Result of querying current builder approval status */
+export interface BuilderApprovalStatus {
+  /** Builder address */
+  builder: string;
+  /** Builder display name (if known) */
+  name: string | null;
+  /** Max approved fee in basis points (0 = 0%, 10 = 0.01%) */
+  maxFeeRaw: number;
+  /** Max approved fee as percentage string */
+  maxFeePercent: string;
+}
+
+/**
+ * Query current builder fee approval for a user-builder pair.
+ * Returns the max fee rate in tenths of a basis point.
+ * API: POST /info { type: "maxBuilderFee", user, builder }
+ */
+export async function queryBuilderApproval(
+  userAddress: string,
+  builderAddress: string,
+): Promise<number> {
+  try {
+    const res = await fetch(HL_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'maxBuilderFee',
+        user: userAddress,
+        builder: builderAddress,
+      }),
+    });
+    if (!res.ok) return -1; // unknown
+    const val = await res.json();
+    return typeof val === 'number' ? val : -1;
+  } catch {
+    return -1; // network error, treat as unknown
+  }
+}
+
+/** Known builder addresses → names */
+const KNOWN_BUILDERS: Record<string, string> = {
+  '0x9b12e858da780a96876e3018780cf0d83359b0bb': 'OneKey',
+  '0xbf4c993acadb9e21ea42e5e0e6bf9661e6791036': 'Rabby',
+  '0x4f63a22b5031d3541f88b2b7164b7c70cace1188': 'Phantom',
+  '0x885e20001c4895c5ba920ea1bea4cdaac85c6d31': 'MetaMask',
+  '0x2e7f9df30f05e2fa2b2b9293cf92bd6be4a9e35f': 'Based',
+  '0x8ab0b2be39563c0e9e2b0bea3e25b1e46d6e8b41': 'Rainbow',
+  '0x5f83e8da9410d21abbe08e2aee14bf8fa13286c0': 'Axiom',
+};
+
+/**
+ * Query the current builder approval status for a user.
+ * Checks OneKey + the user's most recent builder (if different).
+ */
+export async function queryCurrentBuilderStatus(
+  userAddress: string,
+  lastBuilderAddress: string | null,
+): Promise<{ onekey: BuilderApprovalStatus; lastBuilder: BuilderApprovalStatus | null }> {
+  const ONEKEY = '0x9b12e858da780a96876e3018780cf0d83359b0bb';
+
+  // Query OneKey approval
+  const onekeyRaw = await queryBuilderApproval(userAddress, ONEKEY);
+  const onekeyStatus: BuilderApprovalStatus = {
+    builder: ONEKEY,
+    name: 'OneKey',
+    maxFeeRaw: onekeyRaw,
+    maxFeePercent: onekeyRaw >= 0 ? `${(onekeyRaw * 0.001).toFixed(3)}%` : '—',
+  };
+
+  // If user has a different recent builder, query that too
+  let lastBuilderStatus: BuilderApprovalStatus | null = null;
+  if (lastBuilderAddress && lastBuilderAddress.toLowerCase() !== ONEKEY.toLowerCase()) {
+    const raw = await queryBuilderApproval(userAddress, lastBuilderAddress);
+    lastBuilderStatus = {
+      builder: lastBuilderAddress,
+      name: KNOWN_BUILDERS[lastBuilderAddress.toLowerCase()] || null,
+      maxFeeRaw: raw,
+      maxFeePercent: raw >= 0 ? `${(raw * 0.001).toFixed(3)}%` : '—',
+    };
+  }
+
+  return { onekey: onekeyStatus, lastBuilder: lastBuilderStatus };
 }
 
 export function calculateFeeBreakdown(fills: UserFill[]): FeeBreakdown {
@@ -122,6 +208,8 @@ export function calculateFeeBreakdown(fills: UserFill[]): FeeBreakdown {
   let totalVolume = 0;
   let firstTradeTime: number | null = null;
   let lastTradeTime: number | null = null;
+  let lastBuilderAddress: string | null = null;
+  let lastBuilderTime = 0;
 
   for (const fill of fills) {
     const fee = parseFloat(fill.fee);
@@ -134,6 +222,8 @@ export function calculateFeeBreakdown(fills: UserFill[]): FeeBreakdown {
 
     if (firstTradeTime === null || fill.time < firstTradeTime) firstTradeTime = fill.time;
     if (lastTradeTime === null || fill.time > lastTradeTime) lastTradeTime = fill.time;
+
+    // Note: HL API doesn't return builder address in fills
   }
 
   return {
@@ -144,5 +234,6 @@ export function calculateFeeBreakdown(fills: UserFill[]): FeeBreakdown {
     totalVolume,
     firstTradeTime,
     lastTradeTime,
+    lastBuilderAddress,
   };
 }
