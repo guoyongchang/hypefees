@@ -158,6 +158,7 @@ const translations: Record<string, Record<Lang, string>> = {
   'result.historicalBuilder': e('Builder Fees Paid (Historical)', '已支付的 Builder Fee（历史记录）', '支払済みビルダー手数料（履歴）', '지불한 빌더 수수료 (과거 기록)', 'Comisiones Builder Pagadas (Historial)', 'Frais Builder Payés (Historique)', 'Bezahlte Builder-Gebühren (Verlauf)', 'Taxas Builder Pagas (Histórico)', 'Оплаченные Комиссии Билдера (История)', 'Ödenen Builder Ücretleri (Geçmiş)'),
   'result.notApproved': e('Not yet activated', '尚未激活', 'まだ有効化されていません', '아직 활성화되지 않음', 'Aún no activado', 'Pas encore activé', 'Noch nicht aktiviert', 'Ainda não ativado', 'Ещё не активировано', 'Henüz etkinleştirilmedi'),
   'result.switchNow': e('Activate free', '免费激活', '無料で有効化', '무료 활성화', 'Activar gratis', 'Activer gratuitement', 'Kostenlos aktivieren', 'Ativar grátis', 'Активировать бесплатно', 'Ücretsiz etkinleştir'),
+  'result.currentReferrer': e('Current referral', '当前推荐人', '現在のリファラル', '현재 추천인', 'Referido actual', 'Parrainage actuel', 'Aktueller Referrer', 'Referência atual', 'Текущий реферал', 'Mevcut referans'),
 
   // ── Switch Wallet Warning ──
   'switch.walletWarning': e('⚠️ Switching builder fee alone isn\'t enough','⚠️ 仅切换 Builder Fee 还不够','⚠️ ビルダー手数料の切り替えだけでは不十分','⚠️ 빌더 수수료 전환만으로는 부족합니다','⚠️ Cambiar solo el builder fee no es suficiente','⚠️ Changer le builder fee seul ne suffit pas','⚠️ Builder-Gebühr allein zu ändern reicht nicht','⚠️ Mudar só o builder fee não é suficiente','⚠️ Только смена комиссии билдера недостаточна','⚠️ Sadece builder ücretini değiştirmek yetmez'),

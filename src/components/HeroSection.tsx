@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
-import { fetchUserFills, calculateFeeBreakdown, queryCurrentBuilderStatus, type FeeBreakdown, type FillProgress, type BuilderApprovalStatus } from '../lib/api';
+import { fetchUserFills, calculateFeeBreakdown, queryCurrentBuilderStatus, type FeeBreakdown, type FillProgress, type BuilderApprovalStatus, type ReferralInfo } from '../lib/api';
 import { formatUSD, formatVolume } from '../lib/fees';
 import { useLang, t } from '../lib/i18n';
 import { track, identify, setUserProps, trackPageView, Events, getDeviceType } from '../lib/analytics';
@@ -22,7 +22,7 @@ function HeroSectionInner() {
   const [progress, setProgress] = useState<FillProgress | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<FeeBreakdown | null>(null);
-  const [builderStatus, setBuilderStatus] = useState<{ onekey: BuilderApprovalStatus; lastBuilder: BuilderApprovalStatus | null } | null>(null);
+  const [builderStatus, setBuilderStatus] = useState<{ onekey: BuilderApprovalStatus; referral: ReferralInfo; lastBuilder: BuilderApprovalStatus | null } | null>(null);
 
   // Wallet modal for connecting
   const [showWalletModal, setShowWalletModal] = useState(false);
@@ -255,7 +255,7 @@ function HeroSectionInner() {
               {/* Unified builder fee status card */}
               <div className="mt-4 p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]">
                 {/* Current status (live from API) */}
-                {builderStatus && builderStatus.onekey.maxFeeRaw === 0 ? (
+                {builderStatus && builderStatus.referral.isOnOneKey ? (
                   <>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
@@ -317,16 +317,29 @@ function HeroSectionInner() {
                         })()}
                       </div>
                     )}
-                    {/* OneKey status line */}
+                    {/* Current referral status + OneKey CTA */}
                     {builderStatus && (
-                      <div className="mt-3 pt-3 border-t border-[var(--color-border)] flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="w-4 h-4 rounded-full bg-[var(--color-text-muted)]/10 flex items-center justify-center text-[var(--color-text-muted)] text-[10px]">–</span>
-                          <span className="text-xs text-[var(--color-text-muted)]">OneKey 0% — {t('result.notApproved', lang)}</span>
+                      <div className="mt-3 pt-3 border-t border-[var(--color-border)]">
+                        {builderStatus.referral.hasReferrer && (
+                          <div className="flex items-center gap-2 text-xs text-[var(--color-text-muted)] mb-2">
+                            <span>{t('result.currentReferrer', lang)}: </span>
+                            <span className="font-mono text-[var(--color-text-secondary)]">
+                              {builderStatus.referral.referrerName || `${builderStatus.referral.referrerAddress?.slice(0, 8)}...`}
+                            </span>
+                            {builderStatus.referral.referralCode && (
+                              <span className="text-[var(--color-text-muted)]">({builderStatus.referral.referralCode})</span>
+                            )}
+                          </div>
+                        )}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="w-4 h-4 rounded-full bg-[var(--color-text-muted)]/10 flex items-center justify-center text-[var(--color-text-muted)] text-[10px]">–</span>
+                            <span className="text-xs text-[var(--color-text-muted)]">OneKey 0% — {t('result.notApproved', lang)}</span>
+                          </div>
+                          <span className="text-xs text-[var(--color-accent)] cursor-pointer hover:underline" onClick={() => document.getElementById('switch-section')?.scrollIntoView({ behavior: 'smooth' })}>
+                            {t('result.switchNow', lang)} →
+                          </span>
                         </div>
-                        <span className="text-xs text-[var(--color-accent)] cursor-pointer hover:underline" onClick={() => document.getElementById('switch-section')?.scrollIntoView({ behavior: 'smooth' })}>
-                          {t('result.switchNow', lang)} →
-                        </span>
                       </div>
                     )}
                   </>

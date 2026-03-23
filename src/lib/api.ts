@@ -168,38 +168,75 @@ const KNOWN_BUILDERS: Record<string, string> = {
   '0x5f83e8da9410d21abbe08e2aee14bf8fa13286c0': 'Axiom',
 };
 
+/** Referral info returned from Hyperliquid API */
+export interface ReferralInfo {
+  /** Whether user has a referrer set */
+  hasReferrer: boolean;
+  /** Referrer address (if set) */
+  referrerAddress: string | null;
+  /** Referrer name (if known) */
+  referrerName: string | null;
+  /** Referral code used */
+  referralCode: string | null;
+  /** Whether referrer is OneKey */
+  isOnOneKey: boolean;
+}
+
 /**
- * Query the current builder approval status for a user.
- * Checks OneKey + the user's most recent builder (if different).
+ * Query the current builder/referral status for a user.
+ * Uses the `referral` endpoint which reliably shows who referred the user.
+ * The `maxBuilderFee` endpoint returns 0 for both "never approved" and "approved at 0%",
+ * making it useless for determining if an approval exists.
  */
 export async function queryCurrentBuilderStatus(
   userAddress: string,
-  lastBuilderAddress: string | null,
-): Promise<{ onekey: BuilderApprovalStatus; lastBuilder: BuilderApprovalStatus | null }> {
+  _lastBuilderAddress: string | null,
+): Promise<{ onekey: BuilderApprovalStatus; referral: ReferralInfo; lastBuilder: BuilderApprovalStatus | null }> {
   const ONEKEY = '0x9b12e858da780a96876e3018780cf0d83359b0bb';
 
-  // Query OneKey approval
-  const onekeyRaw = await queryBuilderApproval(userAddress, ONEKEY);
+  // Query referral info — this is the reliable way to check if user is on OneKey
+  let referral: ReferralInfo = {
+    hasReferrer: false,
+    referrerAddress: null,
+    referrerName: null,
+    referralCode: null,
+    isOnOneKey: false,
+  };
+
+  try {
+    const res = await fetch(HL_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'referral', user: userAddress }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data?.referredBy) {
+        const refAddr = data.referredBy.referrer?.toLowerCase();
+        referral = {
+          hasReferrer: true,
+          referrerAddress: data.referredBy.referrer,
+          referrerName: KNOWN_BUILDERS[refAddr] || null,
+          referralCode: data.referredBy.code || null,
+          isOnOneKey: refAddr === ONEKEY.toLowerCase(),
+        };
+      }
+    }
+  } catch {
+    // Silently fail — supplementary info
+  }
+
+  // For OneKey status, we can only confirm via referral binding
+  // maxBuilderFee API returns 0 for both "never set" and "set to 0%"
   const onekeyStatus: BuilderApprovalStatus = {
     builder: ONEKEY,
     name: 'OneKey',
-    maxFeeRaw: onekeyRaw,
-    maxFeePercent: onekeyRaw >= 0 ? `${(onekeyRaw * 0.001).toFixed(3)}%` : '—',
+    // Use referral info as the source of truth
+    maxFeeRaw: referral.isOnOneKey ? 0 : -1, // 0 = confirmed on OneKey, -1 = unknown/not set
+    maxFeePercent: referral.isOnOneKey ? '0%' : '—',
   };
 
-  // If user has a different recent builder, query that too
-  let lastBuilderStatus: BuilderApprovalStatus | null = null;
-  if (lastBuilderAddress && lastBuilderAddress.toLowerCase() !== ONEKEY.toLowerCase()) {
-    const raw = await queryBuilderApproval(userAddress, lastBuilderAddress);
-    lastBuilderStatus = {
-      builder: lastBuilderAddress,
-      name: KNOWN_BUILDERS[lastBuilderAddress.toLowerCase()] || null,
-      maxFeeRaw: raw,
-      maxFeePercent: raw >= 0 ? `${(raw * 0.001).toFixed(3)}%` : '—',
-    };
-  }
-
-  return { onekey: onekeyStatus, lastBuilder: lastBuilderStatus };
+  return { onekey: onekeyStatus, referral, lastBuilder: null };
 }
 
 export function calculateFeeBreakdown(fills: UserFill[]): FeeBreakdown {
