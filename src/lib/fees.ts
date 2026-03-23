@@ -1,13 +1,13 @@
 // Hyperliquid base exchange fees by VIP tier
 // Source: https://hyperliquid.gitbook.io/hyperliquid-docs/trading/fees
 export const VIP_TIERS = [
-  { tier: 0, label: 'VIP 0', minVolume: 0, takerFee: 0.00035, makerFee: 0.0001 },
-  { tier: 1, label: 'VIP 1', minVolume: 5_000_000, takerFee: 0.00030, makerFee: 0.00008 },
-  { tier: 2, label: 'VIP 2', minVolume: 25_000_000, takerFee: 0.00025, makerFee: 0.00005 },
-  { tier: 3, label: 'VIP 3', minVolume: 100_000_000, takerFee: 0.00020, makerFee: 0.00002 },
-  { tier: 4, label: 'VIP 4', minVolume: 500_000_000, takerFee: 0.00018, makerFee: 0.00001 },
-  { tier: 5, label: 'VIP 5', minVolume: 2_000_000_000, takerFee: 0.00015, makerFee: 0.000005 },
-  { tier: 6, label: 'VIP 6', minVolume: 7_000_000_000, takerFee: 0.00014, makerFee: 0 },
+  { tier: 0, label: 'VIP 0', minVolume: 0, takerFee: 0.00045, makerFee: 0.00015 },
+  { tier: 1, label: 'VIP 1', minVolume: 5_000_000, takerFee: 0.00040, makerFee: 0.00012 },
+  { tier: 2, label: 'VIP 2', minVolume: 25_000_000, takerFee: 0.00035, makerFee: 0.00008 },
+  { tier: 3, label: 'VIP 3', minVolume: 100_000_000, takerFee: 0.00030, makerFee: 0.00004 },
+  { tier: 4, label: 'VIP 4', minVolume: 500_000_000, takerFee: 0.00028, makerFee: 0 },
+  { tier: 5, label: 'VIP 5', minVolume: 2_000_000_000, takerFee: 0.00026, makerFee: 0 },
+  { tier: 6, label: 'VIP 6', minVolume: 7_000_000_000, takerFee: 0.00024, makerFee: 0 },
 ] as const;
 
 export type VipTier = (typeof VIP_TIERS)[number];

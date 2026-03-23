@@ -1,13 +1,13 @@
 import { useLang, t } from '../lib/i18n';
 
 const VIP_TIERS = [
-  { tier: 'VIP 0', volume: '< $5M',       taker: '0.035%', maker: '0.010%' },
-  { tier: 'VIP 1', volume: '$5M\u2013$25M',    taker: '0.030%', maker: '0.008%' },
-  { tier: 'VIP 2', volume: '$25M\u2013$100M',   taker: '0.025%', maker: '0.005%' },
-  { tier: 'VIP 3', volume: '$100M\u2013$500M',  taker: '0.020%', maker: '0.002%' },
-  { tier: 'VIP 4', volume: '$500M\u2013$2B',    taker: '0.018%', maker: '0.001%' },
-  { tier: 'VIP 5', volume: '$2B\u2013$7B',      taker: '0.015%', maker: '0.0005%' },
-  { tier: 'VIP 6', volume: '> $7B',        taker: '0.014%', maker: '0.000%' },
+  { tier: 'VIP 0', volume: '< $5M',       taker: '0.045%', maker: '0.015%' },
+  { tier: 'VIP 1', volume: '$5M\u2013$25M',    taker: '0.040%', maker: '0.012%' },
+  { tier: 'VIP 2', volume: '$25M\u2013$100M',   taker: '0.035%', maker: '0.008%' },
+  { tier: 'VIP 3', volume: '$100M\u2013$500M',  taker: '0.030%', maker: '0.004%' },
+  { tier: 'VIP 4', volume: '$500M\u2013$2B',    taker: '0.028%', maker: '0.000%' },
+  { tier: 'VIP 5', volume: '$2B\u2013$7B',      taker: '0.026%', maker: '0.000%' },
+  { tier: 'VIP 6', volume: '> $7B',        taker: '0.024%', maker: '0.000%' },
 ];
 
 export default function SectionHowItWorks() {
