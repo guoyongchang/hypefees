@@ -34,9 +34,36 @@ export type FillProgress = {
   status: string;
 };
 
+// ── Request queue & resume ───────────────────────────────────────────────────
+
+interface ResumeEntry {
+  fills: UserFill[];
+  seen: Set<number>;
+  nextStartTime: number;
+  ts: number;
+}
+
+/**
+ * Partial-progress cache: saves state after each page so a rate-limited fetch
+ * can resume from where it left off instead of restarting from time=0.
+ * Expires after 30 minutes.
+ */
+const resumeCache = new Map<string, ResumeEntry>();
+const RESUME_TTL_MS = 30 * 60 * 1000;
+
+/** Dedup map: prevents duplicate in-flight requests for the same address */
+const inFlight = new Map<string, Promise<UserFill[]>>();
+
+/** Queue tail: serialises concurrent requests so the API isn't hammered */
+let queueTail: Promise<unknown> = Promise.resolve();
+
+// ────────────────────────────────────────────────────────────────────────────
+
 /**
  * Fetch ALL user fills using userFillsByTime for complete history.
- * Paginates forward from time=0 in chunks of 2000.
+ * Concurrent requests for the same address share a single in-flight promise;
+ * requests for different addresses are serialised through a queue to avoid
+ * rate-limit bursts. Interrupted fetches resume from where they left off.
  */
 export async function fetchUserFills(
   address: string,
@@ -47,15 +74,67 @@ export async function fetchUserFills(
     throw new Error('Invalid Ethereum address');
   }
 
-  const allFills: UserFill[] = [];
-  let startTime = 0;
-  const seen = new Set<number>(); // deduplicate by tid
+  const key = address.toLowerCase();
+
+  // 1. In-flight dedup — same address already being fetched; share the promise
+  const existing = inFlight.get(key);
+  if (existing) {
+    onProgress?.({ loaded: 0, status: 'Waiting for in-progress fetch...' });
+    return existing;
+  }
+
+  // 2. Enqueue — wait for the previous request to finish before starting
+  //    This serialises API calls and prevents rate-limit spikes.
+  let resolveRequest!: (v: UserFill[]) => void;
+  let rejectRequest!: (e: unknown) => void;
+  const request = new Promise<UserFill[]>((res, rej) => {
+    resolveRequest = res;
+    rejectRequest = rej;
+  });
+
+  const prev = queueTail;
+  const queued = prev.then(async () => {
+    try {
+      const fills = await doFetchUserFills(address, onProgress);
+      resolveRequest(fills);
+    } catch (err) {
+      rejectRequest(err);
+    }
+  });
+  // Advance queue tail regardless of success/failure
+  queueTail = queued.then(() => {}, () => {});
+
+  inFlight.set(key, request);
+  request.finally(() => inFlight.delete(key));
+
+  return request;
+}
+
+/** Internal: performs the actual paginated fetch with retry/backoff.
+ *  Resumes from resumeCache if a previous attempt was interrupted. */
+async function doFetchUserFills(
+  address: string,
+  onProgress?: (progress: FillProgress) => void,
+): Promise<UserFill[]> {
+  const key = address.toLowerCase();
+
+  // Resume from a previous interrupted fetch if available and fresh
+  const resume = resumeCache.get(key);
+  const canResume = !!resume && Date.now() - resume.ts < RESUME_TTL_MS;
+
+  const allFills: UserFill[] = canResume ? [...resume.fills] : [];
+  const seen: Set<number> = canResume ? new Set(resume.seen) : new Set<number>();
+  let startTime = canResume ? resume.nextStartTime : 0;
+
+  if (canResume) {
+    onProgress?.({ loaded: allFills.length, status: `Resuming from ${allFills.length.toLocaleString()} trades...` });
+  }
 
   while (true) {
     onProgress?.({ loaded: allFills.length, status: `Loading trades...` });
 
     let res: Response | null = null;
-    for (let attempt = 0; attempt < 4; attempt++) {
+    for (let attempt = 0; attempt < 8; attempt++) {
       res = await fetch(HL_API, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -66,13 +145,18 @@ export async function fetchUserFills(
         }),
       });
       if (res.status !== 429) break;
-      // Exponential backoff: 1s, 2s, 4s
-      const wait = Math.pow(2, attempt) * 1000;
+      // Exponential backoff capped at 60s: 1s, 2s, 4s, 8s, 16s, 32s, 60s, 60s
+      const wait = Math.min(Math.pow(2, attempt) * 1000, 60_000);
       onProgress?.({ loaded: allFills.length, status: `Rate limited, retrying in ${wait / 1000}s...` });
       await new Promise((r) => setTimeout(r, wait));
     }
 
-    if (!res || !res.ok) throw new Error(res?.status === 429 ? 'Hyperliquid API rate limit — please try again in a minute' : `Failed to fetch fills: ${res?.status}`);
+    if (!res || !res.ok) {
+      // Save progress so the next attempt can resume from here
+      resumeCache.set(key, { fills: allFills, seen, nextStartTime: startTime, ts: Date.now() });
+      throw new Error(res?.status === 429 ? 'Hyperliquid API rate limit — please try again in a minute' : `Failed to fetch fills: ${res?.status}`);
+    }
+
     const fills: UserFill[] = await res.json();
 
     if (fills.length === 0) break;
@@ -98,10 +182,15 @@ export async function fetchUserFills(
     if (latestTime <= startTime) break; // safety: prevent infinite loop
     startTime = latestTime + 1;
 
+    // Save progress after each successful page so we can resume on failure
+    resumeCache.set(key, { fills: allFills, seen, nextStartTime: startTime, ts: Date.now() });
+
     // Small delay between pages to avoid rate limiting
     await new Promise((r) => setTimeout(r, 200));
   }
 
+  // Fetch complete — clear the resume checkpoint so next query starts fresh
+  resumeCache.delete(key);
   onProgress?.({ loaded: allFills.length, status: 'Done' });
   return allFills;
 }
