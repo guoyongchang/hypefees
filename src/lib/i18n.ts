@@ -46,7 +46,7 @@ const translations: Record<string, Record<Lang, string>> = {
     'Ваш кошелёк может тихо снимать до 0,10% с каждой сделки. Некоторые не берут ничего. Проверьте, сколько вы на самом деле платите.',
     "Cüzdanınız her işlemde fark ettirmeden %0,10'a kadar ekstra ücret alıyor olabilir. Bazı cüzdanlar hiç almaz. Gerçekte ne kadar ödediğinizi öğrenin.",
   ),
-  'hero.input.placeholder': e('Enter your ETH address (0x...)','输入你的 ETH 地址 (0x...)','ETHアドレスを入力 (0x...)','ETH 주소 입력 (0x...)','Ingresa tu dirección ETH (0x...)','Entrez votre adresse ETH (0x...)','ETH-Adresse eingeben (0x...)','Insira seu endereço ETH (0x...)','Введите ваш ETH-адрес (0x...)','ETH adresinizi girin (0x...)'),
+  'hero.input.placeholder': e('e.g. 0x020ca66c30bec2c4fe3861a94e4db4a498a35872','例：0x020ca66c30bec2c4fe3861a94e4db4a498a35872','例：0x020ca66c30bec2c4fe3861a94e4db4a498a35872','예: 0x020ca66c30bec2c4fe3861a94e4db4a498a35872','ej. 0x020ca66c30bec2c4fe3861a94e4db4a498a35872','ex. 0x020ca66c30bec2c4fe3861a94e4db4a498a35872','z.B. 0x020ca66c30bec2c4fe3861a94e4db4a498a35872','ex. 0x020ca66c30bec2c4fe3861a94e4db4a498a35872','напр. 0x020ca66c30bec2c4fe3861a94e4db4a498a35872','örn. 0x020ca66c30bec2c4fe3861a94e4db4a498a35872'),
   'hero.btn.lookup': e('Check My Fees','查看我的费用','手数料をチェック','내 수수료 확인','Ver Mis Comisiones','Vérifier Mes Frais','Meine Gebühren Prüfen','Verificar Minhas Taxas','Проверить Мои Комиссии','Ücretlerimi Kontrol Et'),
   'hero.btn.loading': e('Loading...','加载中...','読み込み中...','로딩 중...','Cargando...','Chargement...','Laden...','Carregando...','Загрузка...','Yükleniyor...'),
   'hero.connectWallet': e('Connect Wallet','连接钱包','ウォレット接続','지갑 연결','Conectar Billetera','Connecter Wallet','Wallet Verbinden','Conectar Carteira','Подключить Кошелёк','Cüzdan Bağla'),
